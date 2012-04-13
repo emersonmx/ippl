@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import random
+import file_io
 
 import pygame
 from pygame.locals import *
@@ -65,14 +66,14 @@ def bottom_left_fill(rectangles, resolution, sheet_size):
 
 # Test
 if (__name__ == "__main__"):
-    SHEET_SIZE = (640, 480)
+    SHEET_SIZE = (800, 480)
 
     rects = []
 
-    for i in range(50):
-        rects.append([[0, 0, random.randint(5, 100), random.randint(5, 100)]])
+    data_set = file_io.load("shape_data.dat")
 
-    rects = rects[::-1]
+    for ds in data_set:
+        rects.append([ds])
 
     sheet_shape = bottom_left_fill(rects, 1, SHEET_SIZE)
 
