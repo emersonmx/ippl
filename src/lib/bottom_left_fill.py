@@ -5,15 +5,28 @@ import random
 import pygame
 from pygame.locals import *
 
+"""
+    Calculate the rectangle's area.
+"""
 def rectangle_area(rectangle):
     return (rectangle[2] - rectangle[0]) * (rectangle[3] - rectangle[1])
 
+"""
+    Tests whether there is overlap between two rectangles.
+"""
 def intersect_rectangles(rectangle1, rectangle2):
     return not ((rectangle2[1] + rectangle2[3] <= rectangle1[1]) or
                 (rectangle2[1] >= rectangle1[1] + rectangle1[3]) or
                 (rectangle2[0] + rectangle2[2] <= rectangle1[0]) or
                 (rectangle2[0] >= rectangle1[0] + rectangle1[2]))
+"""
+    The bottom-left fill algorithm.
 
+    This algorithm is simply a search for a empty place to put a shape in a
+    sheet. Starting of the bottom-left (0,0), the algorithm does y+=resolution
+    until the shape reach the bottom. Once in the bottom does x+=resolution and
+    y=0. Do this until find a empty place.
+"""
 def bottom_left_fill(rectangles, resolution, sheet_size):
     sheet_shape = []
     q = 0
