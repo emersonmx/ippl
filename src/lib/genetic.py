@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+import random
+
 """
     Calculate the fitness, i.e, gets the total area of population.
 """
@@ -19,27 +21,73 @@ def fitness(population):
     return rectangle
 
 """
+    Gets a list of fitness of a given population.
+"""
+def get_fitness_list(population):
+    fitness_list = []
+
+    for p in population:
+        f = fitness(p)
+        area = rectangle_area(f)
+
+        fitness_list.append(area)
+
+    return fitness_list
+
+"""
     Gets the parents more fit for a particular population.
 """
-def select_parents(population):
-    pass
+def select_parents(population, fitness_list, genes_number):
+    # this is a random selection
+    MAX_PARENTS = 2
+    parents = []
+
+    population_size = len(population)
+    for i in range(MAX_PARENTS):
+        parents.append(population[random.randint(0, population_size)])
+
+    return parents
+
+"""
+    Returns the gene exchanged.
+"""
+def permutation_encoding(parent1, parent2, gene_index):
+    gene = parent1[gene_index]
+    g_index = parent2.index(gene)
+
+    return parent1[g_index]
 
 """
     The crossover operation using a permutation method of chromosomes.
 
-    chromosomes the parents
+    parents the parents of the new offspring
+    genes_number the genes number
     probability defines the chances to crossover occur.
+    returns a new offspring
 """
-def crossover(chromosomes, probability=0.7):
-    pass
+def crossover(parents, genes_number, probability=0.7):
+    crossover_probability = random.random()
+    offsprings = []
+
+    if (crossover_probability >= probability):
+        for k in range(len(parents)):
+            offspring = []
+            for i in range(genes_number):
+                gene = permutation_encoding(parents[0], parents[1], i)
+                offspring.append(gene)
+
+            offsprings.append(offspring)
+            parents = parents[::-1]
+
+    return offsprings
+
 
 """
     The mutation operation.
 
-    chromosomes the parents
+    offspring the offspring that will apply to mutation
     probability defines the chances to mutation occur.
 """
-def mutation(chromosomes, probability=0.001):
+def mutation(offspring, chromosome_size, probability=0.001):
     pass
-
 
