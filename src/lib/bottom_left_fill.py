@@ -3,9 +3,6 @@
 import random
 import file_io
 
-import pygame
-from pygame.locals import *
-
 """
     Calculate the rectangle's area.
 """
@@ -63,42 +60,3 @@ def bottom_left_fill(rectangles, resolution, sheet_size):
         q += 1
 
     return sheet_shape
-
-# Test
-if (__name__ == "__main__"):
-    SHEET_SIZE = (800, 480)
-
-    rects = []
-
-    data_set = file_io.load("shape_data.dat")
-
-    for ds in data_set:
-        rects.append([ds])
-
-    sheet_shape = bottom_left_fill(rects, 1, SHEET_SIZE)
-
-    pygame.init()
-    screen = pygame.display.set_mode(SHEET_SIZE)
-
-    rects = []
-
-    for s in sheet_shape:
-        color = (random.randint(0, 255),
-                 random.randint(0, 255),
-                 random.randint(0, 255))
-        rects.append([s, color])
-
-    running = True
-    while running:
-        for e in pygame.event.get():
-            if e.type == QUIT:
-                running = False
-
-        screen.fill((255, 255, 255))
-        for r in rects:
-            pygame.draw.rect(screen, r[1], r[0],1)
-
-        pygame.display.flip()
-
-    pygame.quit()
-

@@ -38,13 +38,25 @@ def get_fitness_list(population):
     Gets the parents more fit for a particular population.
 """
 def select_parents(population, fitness_list, genes_number):
-    # this is a random selection
     MAX_PARENTS = 2
+    THRESHOULD = 10
+    better_parents = []
     parents = []
 
     population_size = len(population)
-    for i in range(MAX_PARENTS):
-        parents.append(population[random.randint(0, population_size)])
+    the_best_parent = max(fitness_list)
+
+    for i in range(population_size):
+        if (the_best_parent - fitness_list[i] < THRESHOULD):
+            better_parents.append(population[i])
+
+
+    c = 0
+    while (c < MAX_PARENTS):
+        index = random.randint(0, len(better_parents))
+        if (better_parents[index] not in parents):
+            parents.append(better_parents[index])
+            c += 1
 
     return parents
 
@@ -69,7 +81,7 @@ def crossover(parents, genes_number, probability=0.7):
     crossover_probability = random.random()
     offsprings = []
 
-    if (crossover_probability >= probability):
+    if (crossover_probability <= probability):
         for k in range(len(parents)):
             offspring = []
             for i in range(genes_number):
@@ -89,5 +101,15 @@ def crossover(parents, genes_number, probability=0.7):
     probability defines the chances to mutation occur.
 """
 def mutation(offspring, chromosome_size, probability=0.001):
-    pass
+    mutation_probability = random.random()
+
+    if (mutation_probability <= probability):
+        gene1 = random.randint(chromosome_size)
+        gene2 = random.randint(chromosome_size)
+
+        aux = offspring[gene1]
+        offspring[gene1] = offspring[gene2]
+        offspring[gene2] = aux
+
+    return offspring
 
