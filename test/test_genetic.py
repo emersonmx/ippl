@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
-import random, copy
-import os, sys
+import random, copy, os, sys
 sys.path.append(os.path.abspath("../src/lib"))
 import file_io
 from bottom_left_fill import *
@@ -24,19 +23,15 @@ if (__name__ == "__main__"):
         random.shuffle(tmp_list)
         shape_list.append(copy.deepcopy(tmp_list))
 
-    print "Shape list"
-    for s in shape_list:
-        print s, "\n"
-
     population = []
     for s in shape_list:
         population.append(bottom_left_fill(s, 1, SHEET_SIZE))
 
-    print "Population"
-    for p in population:
+    fitness_list = fitness(population)
+
+    parents = select_parents(population, fitness_list)
+
+    print "Parents"
+    for p in parents:
         print p, "\n"
-
-    fitness_list = get_fitness_list(population)
-
-    print fitness_list
 
