@@ -4,60 +4,79 @@ import random
 from bottom_left_fill import *
 
 """
-    Calculate the fitness, i.e, gets the total area of population.
+    Calculates the area of coverage of the entire population.
+"""
+def calculate_area(chromosome):
+    area = [0, 0, 0, 0]
+
+    for c in chromosome:
+        if (c[0] < area[0]):
+            area[0] = c[0]
+        if (c[1] < area[1]):
+            area[1] = c[1]
+        if (c[0] + c[2] > area[2]):
+            area[2] = c[0] + c[2]
+        if (c[1] + c[3] > area[3]):
+            area[3] = c[1] + c[3]
+
+    return (area, area[2] * area[3])
+
+"""
+    Calculate the fitness.
 """
 def fitness(population):
-    rectangle = [0, 0, 0, 0]
-
-    for p in population:
-        if (p[0] < rectangle[0]):
-            rectangle[0] = p[0]
-        if (p[1] < rectangle[1]):
-            rectangle[1] = p[1]
-        if (p[0] + p[2] > rectangle[2]):
-            rectangle[2] = p[0] + p[2]
-        if (p[1] + p[3] > rectangle[3]):
-            rectangle[3] = p[1] + p[3]
-
-    return rectangle
-
-"""
-    Gets a list of fitness of a given population.
-"""
-def get_fitness_list(population):
     fitness_list = []
+    area_list = []
 
     for p in population:
-        f = fitness(p)
-        area = rectangle_area(f)
+        area = calculate_area(p)[1]
+        area_list.append(area)
 
-        fitness_list.append(area)
+    max_area = max(area_list)
+
+    for a in area_list:
+        f = max_area - a
+        fitness_list.append((f == 0 and 1 or f)) # gives a chance for the worst.
 
     return fitness_list
 
 """
     Gets the parents more fit for a particular population.
 """
-def select_parents(population, fitness_list, genes_number):
+def select_parents(population, fitness_list):
     MAX_PARENTS = 2
-    THRESHOULD = 10
-    better_parents = []
     parents = []
+    POPULATION_SIZE = len(population)
+    roulette_list = []
 
-    population_size = len(population)
-    the_best_parent = max(fitness_list)
+    total_fitness = float(sum(fitness_list))
+    min_v = 0.0
+    for i in range(POPULATION_SIZE):
+        probability = fitness_list[i] / total_fitness
 
-    for i in range(population_size):
-        if (the_best_parent - fitness_list[i] < THRESHOULD):
-            better_parents.append(population[i])
+        roulette_list.append((min_v, min_v + probability))
+        min_v += probability
 
+    j = 0
+    searching_parents = True
+    for i in range(MAX_PARENTS):
+        choice = random.random()
+        while (searching_parents):
+            if (j > POPULATION_SIZE - 1):
+                j = 0
 
-    c = 0
-    while (c < MAX_PARENTS):
-        index = random.randint(0, len(better_parents))
-        if (better_parents[index] not in parents):
-            parents.append(better_parents[index])
-            c += 1
+            p = roulette_list[j]
+            if (choice >= p[0] and choice < p[1]):
+                print fitness_list[j], "\n"
+                if (population[j] in parents):
+                    choice = random.random()
+                    j = 0
+                else:
+                    parents.append(population[j])
+                    if (len(parents) >= MAX_PARENTS):
+                        searching_parents = False
+
+            j += 1
 
     return parents
 
