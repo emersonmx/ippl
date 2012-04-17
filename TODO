@@ -9,7 +9,9 @@ Coisa a fazer
     * Implementação de um algoritmo que consiga representar uma forma geométrica
       diferente das primivas (retangulos, circulos e triangulos). Uma possível
       solução seria o algoritmo de "Convex Hull".
-    * Fazer com que o modulo file_io carregue formas possuindo rotações
-      diversas. Uma proposta simples é colocar apos o numero que mostra a
-      quantidade de formas presentes no arquivo, outro número contendo a
+    * (RESOLVIDO) Fazer com que o modulo file_io carregue formas possuindo
+      rotações diversas. Uma proposta simples é colocar apos o numero que mostra
+      a quantidade de formas presentes no arquivo, outro número contendo a
       quantidade de valores que representa uma única forma.
+      Solução:
+      usar o pickle para serializar os dados.
