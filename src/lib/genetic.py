@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import random
+from bottom_left_fill import *
 
 """
     Calculate the fitness, i.e, gets the total area of population.

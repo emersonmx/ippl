@@ -15,9 +15,9 @@ if (__name__ == "__main__"):
     shape_list = []
 
     for i in range(SHAPE_SIZE):
-        shape_list.append([0, 0,
-                           random.randint(0, 100),
-                           random.randint(0, 100)])
+        shape_list.append([[0, 0,
+                            random.randint(0, 100),
+                            random.randint(0, 100)]])
 
     file_io.save("shape_data.dat", shape_list)
 
