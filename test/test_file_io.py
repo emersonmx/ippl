@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
-import random
-import os, sys
-sys.path.append(os.path.abspath("../src/lib"))
+import random, os, sys
+sys.path.append(os.path.abspath("../src"))
 import file_io
+from rectangle import Rectangle
 
 if (__name__ == "__main__"):
     if (len(sys.argv) != 2):
@@ -15,10 +15,15 @@ if (__name__ == "__main__"):
     shape_list = []
 
     for i in range(SHAPE_SIZE):
-        shape_list.append([[0, 0,
-                            random.randint(0, 100),
-                            random.randint(0, 100)]])
+        s = Rectangle((0, 0, random.randint(5, 100), random.randint(5, 100)))
+        s.id = i
+        shape_list.append([s])
 
     file_io.save("shape_data.dat", shape_list)
 
-    print file_io.load("shape_data.dat")
+    shape_list = file_io.load("shape_data.dat")
+
+    print "Shape list"
+    for s in shape_list:
+        for r in s:
+            print r

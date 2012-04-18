@@ -4,20 +4,6 @@ import random
 import file_io
 
 """
-    Calculate the rectangle's area.
-"""
-def rectangle_area(rectangle):
-    return (rectangle[2] - rectangle[0]) * (rectangle[3] - rectangle[1])
-
-"""
-    Tests whether there is overlap between two rectangles.
-"""
-def intersect_rectangles(rectangle1, rectangle2):
-    return not ((rectangle2[1] + rectangle2[3] <= rectangle1[1]) or
-                (rectangle2[1] >= rectangle1[1] + rectangle1[3]) or
-                (rectangle2[0] + rectangle2[2] <= rectangle1[0]) or
-                (rectangle2[0] >= rectangle1[0] + rectangle1[2]))
-"""
     The bottom-left fill algorithm.
 
     This algorithm is simply a search for a empty place to put a shape in a
@@ -30,8 +16,8 @@ def bottom_left_fill(rectangles, resolution, sheet_size):
     q = 0
 
     shape = rectangles[0][0]
-    shape[0] = 0
-    shape[1] = 0
+    shape.x = 0
+    shape.y = 0
     sheet_shape.append(shape)
 
     q += 1
@@ -39,18 +25,18 @@ def bottom_left_fill(rectangles, resolution, sheet_size):
     for i in range(1, len(rectangles)):
         for j in range(0, len(rectangles[i])):
             shape = rectangles[i][j]
-            shape[0] = 0
-            shape[1] = 0
+            shape.x = 0
+            shape.y = 0
 
             x = 0
             k = 0
             while (k < len(sheet_shape)):
-                while (intersect_rectangles(shape, sheet_shape[k])):
-                    shape[1] = sheet_shape[k][1] + sheet_shape[k][3]
-                    if (shape[1] + shape[3] > sheet_size[1]):
+                while (shape.collide(sheet_shape[k])):
+                    shape.y = sheet_shape[k].y + sheet_shape[k].height
+                    if (shape.y + shape.height > sheet_size[1]):
                         x += resolution
-                        shape[0] = x
-                        shape[1] = 0
+                        shape.x = x
+                        shape.y = 0
 
                     k = 0
 

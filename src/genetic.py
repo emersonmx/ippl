@@ -2,24 +2,25 @@
 
 import random
 from bottom_left_fill import *
+from rectangle import Rectangle
 
 """
     Calculates the area of coverage of the entire population.
 """
 def calculate_area(chromosome):
-    area = [0, 0, 0, 0]
+    box = Rectangle((0, 0, 0, 0))
 
     for c in chromosome:
-        if (c[0] < area[0]):
-            area[0] = c[0]
-        if (c[1] < area[1]):
-            area[1] = c[1]
-        if (c[0] + c[2] > area[2]):
-            area[2] = c[0] + c[2]
-        if (c[1] + c[3] > area[3]):
-            area[3] = c[1] + c[3]
+        if (c.x < box.x):
+            box.x = c.x
+        if (c.y < box.y):
+            box.y = c.y
+        if (c.x + c.width > box.width):
+            box.width = c.x + c.width
+        if (c.y + c.height > box.height):
+            box.height = c.y + c.height
 
-    return (area, area[2] * area[3])
+    return (box, box.area())
 
 """
     Calculate the fitness.
@@ -67,7 +68,6 @@ def select_parents(population, fitness_list):
 
             p = roulette_list[j]
             if (choice >= p[0] and choice < p[1]):
-                print fitness_list[j], "\n"
                 if (population[j] in parents):
                     choice = random.random()
                     j = 0

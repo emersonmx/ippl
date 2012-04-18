@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import random, copy, os, sys
-sys.path.append(os.path.abspath("../src/lib"))
+sys.path.append(os.path.abspath("../src"))
 import file_io
 from bottom_left_fill import *
 from genetic import *
@@ -33,5 +33,7 @@ if (__name__ == "__main__"):
 
     print "Parents"
     for p in parents:
-        print p, "\n"
+        print "Parent"
+        for g in p:
+            print g
 

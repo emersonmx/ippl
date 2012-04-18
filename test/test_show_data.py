@@ -4,19 +4,14 @@ import pygame
 from pygame.locals import *
 import random
 import os, sys
-sys.path.append(os.path.abspath("../src/lib"))
+sys.path.append(os.path.abspath("../src"))
 import file_io
 from bottom_left_fill import *
 
 def show_data(data_set):
     SHEET_SIZE = (800, 480)
 
-    rects = []
-
-    for ds in data_set:
-        rects.append([ds])
-
-    sheet_shape = bottom_left_fill(rects, 1, SHEET_SIZE)
+    sheet_shape = bottom_left_fill(data_set, 1, SHEET_SIZE)
 
     pygame.init()
     screen = pygame.display.set_mode(SHEET_SIZE)
@@ -37,7 +32,8 @@ def show_data(data_set):
 
         screen.fill((255, 255, 255))
         for r in rects:
-            pygame.draw.rect(screen, r[1], r[0],1)
+            rct = (r[0].x, r[0].y, r[0].width, r[0].height)
+            pygame.draw.rect(screen, r[1], rct,1)
 
         pygame.display.flip()
 
