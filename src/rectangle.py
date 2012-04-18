@@ -5,7 +5,6 @@ from shape import Shape
 class Rectangle(Shape):
     def __init__(self, rectangle):
         self.x, self.y, self.width, self.height = rectangle
-        Shape.id = 0
 
     def collide(self, shape):
         return not ((shape.y + shape.height <= self.y) or
@@ -17,5 +16,5 @@ class Rectangle(Shape):
         return self.width * self.height
 
     def __str__(self):
-        return "Rectangle[%d] (%f, %f, %f, %f)" % (Shape.id, self.x, self.y,
+        return "Rectangle[%d] (%f, %f, %f, %f)" % (self.id, self.x, self.y,
                                                    self.width, self.height)

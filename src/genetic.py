@@ -124,8 +124,12 @@ def mutation(offspring, chromosome_size, probability=0.001):
     mutation_probability = random.random()
 
     if (mutation_probability <= probability):
-        gene1 = random.randint(chromosome_size)
-        gene2 = random.randint(chromosome_size)
+        gene1 = 0
+        gene2 = 0
+
+        while (gene1 == gene2):
+            gene1 = random.randint(chromosome_size)
+            gene2 = random.randint(chromosome_size)
 
         aux = offspring[gene1]
         offspring[gene1] = offspring[gene2]

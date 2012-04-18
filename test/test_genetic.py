@@ -11,6 +11,7 @@ if (__name__ == "__main__"):
         print "Usage: %s <population>" % sys.argv[0]
         sys.exit(0)
 
+    RESOLUTION = 1
     POPULATION_SIZE = int(sys.argv[1])
     GENE_SIZE = 50
     SHEET_SIZE = (800, 480)
@@ -26,7 +27,13 @@ if (__name__ == "__main__"):
 
     population = []
     for s in shape_list:
-        population.append(bottom_left_fill(s, 1, SHEET_SIZE))
+        population.append(bottom_left_fill(s, RESOLUTION, SHEET_SIZE))
+
+    print "Population"
+    for p in population:
+        for c in p:
+            print c
+        print ""
 
     fitness_list = fitness(population)
 
@@ -36,10 +43,13 @@ if (__name__ == "__main__"):
 
         offsprings = crossover(parents, GENE_SIZE)
 
+        for i in range(len(offsprings)):
+            offsprings[i] = mutation(offsprings[i], GENE_SIZE)
+
         for o in offsprings:
             new_population.append(o)
 
-    print "Population"
+    print "New Population"
     for p in new_population:
         for i in p:
             print i

@@ -1,8 +1,11 @@
 #! /usr/bin/env python
 
 class Shape(object):
+    def __init__(self, initial_id = 0):
+        self.id = initial_id
+
     def collide(self, shape):
-        self.id = 0
+        pass
 
     def area(self):
         pass
