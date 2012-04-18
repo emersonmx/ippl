@@ -12,6 +12,7 @@ if (__name__ == "__main__"):
         sys.exit(0)
 
     POPULATION_SIZE = int(sys.argv[1])
+    GENE_SIZE = 50
     SHEET_SIZE = (800, 480)
 
     data_set = file_io.load("shape_data.dat")
@@ -29,11 +30,18 @@ if (__name__ == "__main__"):
 
     fitness_list = fitness(population)
 
-    parents = select_parents(population, fitness_list)
+    new_population = []
+    while (len(new_population) < POPULATION_SIZE):
+        parents = select_parents(population, fitness_list)
 
-    print "Parents"
-    for p in parents:
-        print "Parent"
-        for g in p:
-            print g
+        offsprings = crossover(parents, GENE_SIZE)
+
+        for o in offsprings:
+            new_population.append(o)
+
+    print "Population"
+    for p in new_population:
+        for i in p:
+            print i
+        print ""
 
