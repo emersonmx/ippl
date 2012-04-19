@@ -8,9 +8,9 @@ sys.path.append(os.path.abspath("../src"))
 import file_io
 from bottom_left_fill import *
 
-def show_data(data_set):
-    SHEET_SIZE = (800, 480)
+SHEET_SIZE = (800, 480)
 
+def show_data(data_set):
     sheet_shape = bottom_left_fill(data_set, 1, SHEET_SIZE)
 
     pygame.init()
@@ -40,6 +40,11 @@ def show_data(data_set):
     pygame.quit()
 
 if (__name__ == "__main__"):
+    if (len(sys.argv) != 2):
+        print "Usage: %s <sheet_size>" % sys.argv[0]
+        sys.exit(0)
+
+    SHEET_SIZE = [int(i) for i in sys.argv[1].split('x')]
     data_set = file_io.load("shape_data.dat")
 
     show_data(data_set)

@@ -13,10 +13,10 @@ if (__name__ == "__main__"):
 
     RESOLUTION = 1
     POPULATION_SIZE = int(sys.argv[1])
-    GENE_SIZE = 50
     SHEET_SIZE = (800, 480)
 
     data_set = file_io.load("shape_data.dat")
+    GENE_SIZE = len(data_set)
     tmp_list = copy.deepcopy(data_set)
 
     shape_list = []
@@ -37,21 +37,27 @@ if (__name__ == "__main__"):
 
     fitness_list = fitness(population)
 
-    new_population = []
-    while (len(new_population) < POPULATION_SIZE):
-        parents = select_parents(population, fitness_list)
+    print "Fitness list"
+    print fitness_list, '\n'
 
-        offsprings = crossover(parents, GENE_SIZE)
+    parents = select_parents(population, fitness_list)
 
-        for i in range(len(offsprings)):
-            offsprings[i] = mutation(offsprings[i], GENE_SIZE)
-
-        for o in offsprings:
-            new_population.append(o)
-
-    print "New Population"
-    for p in new_population:
+    print "Parents"
+    for p in parents:
         for i in p:
             print i
         print ""
+
+    offspring = crossover(parents, GENE_SIZE)
+    print "Offspring"
+    if (offspring != None):
+        for o in offspring:
+            print o
+        print ""
+
+    offspring = crossover(parents[::-1], GENE_SIZE)
+    if (offspring != None):
+        for o in offspring:
+            print o
+
 
