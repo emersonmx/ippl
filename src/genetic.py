@@ -81,15 +81,6 @@ def select_parents(population, fitness_list):
     return parents
 
 """
-    Returns the gene exchanged.
-"""
-def permutation_encoding(parent1, parent2, gene_index):
-    gene = parent1[gene_index]
-    g_index = parent2.index(gene)
-
-    return parent1[g_index]
-
-"""
     The crossover operation using a permutation method of chromosomes.
 
     parents the parents of the new offspring
@@ -99,19 +90,29 @@ def permutation_encoding(parent1, parent2, gene_index):
 """
 def crossover(parents, genes_number, probability=0.7):
     crossover_probability = random.random()
-    offsprings = []
+    offspring = None
 
     if (crossover_probability <= probability):
-        for k in range(len(parents)):
-            offspring = []
-            for i in range(genes_number):
-                gene = permutation_encoding(parents[0], parents[1], i)
-                offspring.append(gene)
+        offspring = [None for g in range(genes_number)]
 
-            offsprings.append(offspring)
-            parents = parents[::-1]
+        p1 = parents[0]
+        p2 = parents[1]
 
-    return offsprings
+        i = 0
+        ciclic = False
+        while(not ciclic):
+            offspring[i] = p1[i]
+            gene = p2[i]
+            i = p1.index(gene)
+
+            if (p1[i] in offspring):
+                ciclic = True
+
+        for i in range(genes_number):
+            if (p2[i] not in offspring):
+                offspring[i] = p2[i]
+
+    return offspring
 
 
 """
@@ -120,7 +121,7 @@ def crossover(parents, genes_number, probability=0.7):
     offspring the offspring that will apply to mutation
     probability defines the chances to mutation occur.
 """
-def mutation(offspring, chromosome_size, probability=0.001):
+def mutation(offspring, genes_number, probability=0.001):
     mutation_probability = random.random()
 
     if (mutation_probability <= probability):
@@ -128,12 +129,10 @@ def mutation(offspring, chromosome_size, probability=0.001):
         gene2 = 0
 
         while (gene1 == gene2):
-            gene1 = random.randint(chromosome_size)
-            gene2 = random.randint(chromosome_size)
+            gene1 = random.randint(0, genes_number - 1)
+            gene2 = random.randint(0, genes_number - 1)
 
         aux = offspring[gene1]
         offspring[gene1] = offspring[gene2]
         offspring[gene2] = aux
-
-    return offspring
 

@@ -14,8 +14,7 @@ import file_io
 def bottom_left_fill(rectangles, resolution, sheet_size):
     sheet_shape = []
     q = 0
-
-    shape = rectangles[0][0]
+    shape = rectangles[0]
     shape.x = 0
     shape.y = 0
     sheet_shape.append(shape)
@@ -23,24 +22,23 @@ def bottom_left_fill(rectangles, resolution, sheet_size):
     q += 1
 
     for i in range(1, len(rectangles)):
-        for j in range(0, len(rectangles[i])):
-            shape = rectangles[i][j]
-            shape.x = 0
-            shape.y = 0
+        shape = rectangles[i]
+        shape.x = 0
+        shape.y = 0
 
-            x = 0
-            k = 0
-            while (k < len(sheet_shape)):
-                while (shape.collide(sheet_shape[k])):
-                    shape.y = sheet_shape[k].y + sheet_shape[k].height
-                    if (shape.y + shape.height > sheet_size[1]):
-                        x += resolution
-                        shape.x = x
-                        shape.y = 0
+        x = 0
+        k = 0
+        while (k < len(sheet_shape)):
+            while (shape.collide(sheet_shape[k])):
+                shape.y = sheet_shape[k].y + sheet_shape[k].height
+                if (shape.y + shape.height > sheet_size[1]):
+                    x += resolution
+                    shape.x = x
+                    shape.y = 0
 
-                    k = 0
+                k = 0
 
-                k += 1
+            k += 1
 
         sheet_shape.append(shape)
         q += 1
