@@ -50,6 +50,7 @@ if (__name__ == "__main__"):
     population = []
     new_population = shape_list
     while (it < MAX_ITERATION):
+        print "Generation ", it
         for p in new_population:
             chromosome = bottom_left_fill(p, RESOLUTION, SHEET_SIZE)
             population.append(chromosome)
@@ -87,5 +88,15 @@ if (__name__ == "__main__"):
     fitness_list = fitness(population)
     max_fitness = max(fitness_list)
     index = fitness_list.index(max_fitness)
-    show_data(population[index], SHEET_SIZE)
+    chromosome = population[index]
+
+    total_area = calculate_area(chromosome)[1]
+    single_area = 0.0
+
+    for g in chromosome:
+        single_area += g.area()
+
+    print "Total: %f, Unused: %s" % (total_area, total_area - single_area)
+
+    show_data(chromosome, SHEET_SIZE)
 
