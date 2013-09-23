@@ -117,6 +117,16 @@ class Shape(object):
         self.outer_loop = []
         self.inner_loops = []
 
+    def __str__(self):
+        return ("{} (\n"
+                "  outer_loop={},\n"
+                "  inner_loops={}\n"
+                ")").format(type(self).__name__, self.outer_loop,
+                           self.inner_loops)
+
+    def __repr__(self):
+        return "<{}>".format(self)
+
 # Tests
 if __name__ == "__main__":
     print Point()
@@ -126,4 +136,11 @@ if __name__ == "__main__":
     print Arc()
     print Arc(centre_point=Point(10, 10), radius=5.0,
               start_angle=10.0, offset_angle=100.0)
+
+    s = Shape()
+    s.outer_loop.append(Line(begin=(0, 0), end=(1, 0)))
+    s.outer_loop.append(Line(begin=(1, 0), end=(1, 1)))
+    s.outer_loop.append(Line(begin=(1, 1), end=(0, 1)))
+    s.outer_loop.append(Line(begin=(0, 1), end=(0, 0)))
+    print s
 
