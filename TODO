@@ -1,0 +1,22 @@
+Coisa a fazer
+    * O algoritmo bottom left fill não está usando formas rotacionadas. É
+      preciso implementar essa funcionalidade, pelo menos para formas no angulo
+      de 0°, 45° e 90°;
+    * O algoritmo para verificação de colisão de formas usa retangulos, então em
+      caso de ouver um circulo ele irá representar esse circulo como um
+      retangulo. Desta forma, é desejável que o algoritmo de checagem de colisão
+      funcione tanto para circulos, triangulos ou formas variadas;
+    * Implementação de um algoritmo que consiga representar uma forma geométrica
+      diferente das primivas (retangulos, circulos e triangulos). Uma possível
+      solução seria o algoritmo de "Convex Hull";
+    * (RESOLVIDO) Fazer com que o modulo file_io carregue formas possuindo
+      rotações diversas. Uma proposta simples é colocar apos o numero que mostra
+      a quantidade de formas presentes no arquivo, outro número contendo a
+      quantidade de valores que representa uma única forma.
+      Solução:
+      usar o pickle para serializar os dados;
+    * Criar uma Abstract Factory para gerenciar os Shapes. Essa classe será
+      responsável por definir o id dos Shapes;
+    * Otimizar o código do bottom_left_fill, pois ele está demorando quando se
+      usa 100 formas ou mais. Quem sabe uma extensão em C?
+    * Migrar do paradigma procedural para orientado a objetos.
