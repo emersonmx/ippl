@@ -16,7 +16,15 @@
 # along with 2dipp.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class Point(object):
+class Object(object):
+
+    def __init__(self):
+        super(Object, self).__init__()
+
+        self.type = type(self).__name__
+
+
+class Point(Object):
 
     def __init__(self, x=0, y=0):
         super(Point, self).__init__()
@@ -38,7 +46,7 @@ class Point(object):
         return "<{}>".format(self)
 
 
-class Primitive(object):
+class Primitive(Object):
 
     def __init__(self, **kwargs):
         super(Primitive, self).__init__()
@@ -79,7 +87,7 @@ class Line(Primitive):
         return "<{}>".format(self)
 
 
-class Arc(Primitive):
+class Arc(Line):
 
     def __init__(self, **kwargs):
         super(Arc, self).__init__(**kwargs)
@@ -111,11 +119,13 @@ class Arc(Primitive):
         return "<{}>".format(self)
 
 
-class Shape(object):
+class Shape(Object):
 
-    def __init__(self):
-        self.outer_loop = []
-        self.inner_loops = []
+    def __init__(self, **kwargs):
+        super(Shape, self).__init__()
+
+        self.outer_loop = kwargs.get("outer_loop", list())
+        self.inner_loops = kwargs.get("inner_loops", list())
 
     def __str__(self):
         return ("{} (\n"
