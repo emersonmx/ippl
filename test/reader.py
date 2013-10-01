@@ -152,7 +152,7 @@ class StateMachine(object):
                 break
 
         self.end()
-        print json.dumps(shapes, cls=lib2dipp.io.ShapeEncoder, indent=4)
+        print json.dumps(shapes, cls=lib2dipp.file_io.ShapeEncoder, indent=4)
 
         f.close()
 

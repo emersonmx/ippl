@@ -1,21 +1,19 @@
 # Copyright (C) 2013 Emerson Max de Medeiros Silva
 #
-# This file is part of lib2dipp.
+# This file is part of 2dipp.
 #
-# lib2dipp is free software: you can redistribute it and/or modify
+# 2dipp is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# lib2dipp is distributed in the hope that it will be useful,
+# 2dipp is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
-
-import math
+# along with 2dipp.  If not, see <http://www.gnu.org/licenses/>.
 
 
 class Object(object):
@@ -53,9 +51,6 @@ class Primitive(Object):
     def __init__(self, **kwargs):
         super(Primitive, self).__init__()
 
-    def bounds(self):
-        pass
-
     def move(self, **kwargs):
         pass
 
@@ -73,14 +68,6 @@ class Line(Primitive):
 
         self.begin = Point(x=begin[0], y=begin[1])
         self.end = Point(x=end[0], y=end[1])
-
-    def bounds(self):
-        minimum_x = min(self.begin.x, self.end.x)
-        maximum_x = max(self.begin.x, self.end.x)
-        minimum_y = min(self.begin.y, self.end.y)
-        maximum_y = max(self.begin.y, self.end.y)
-
-        return (minimum_x, minimum_y, maximum_x, maximum_y)
 
     def move(self, **kwargs):
         x = kwargs.get("x", 0)
@@ -110,49 +97,10 @@ class Arc(Line):
         self.start_angle = kwargs.get("start_angle", 0.0)
         self.offset_angle = kwargs.get("offset_angle", 180.0)
 
-    def calculate_ends(self):
-        self.begin.x = (self.centre_point.x +
-            self.radius * math.cos(self.start_angle))
-        self.begin.y = (self.centre_point.y +
-            self.radius * math.sin(self.start_angle))
-        self.end.x = (self.centre_point.x +
-            self.radius * math.cos(self.offset_angle))
-        self.end.y = (self.centre_point.y +
-            self.radius * math.sin(self.offset_angle))
-
-    def bounds(self):
-        wrap = lambda value : value % 360
-
-        start = math.degrees(self.start_angle)
-        end = math.degrees(self.offset_angle)
-        minimum_x, maximum_x, minimum_y, maximum_y = (0, 0, 0, 0)
-
-        if wrap(start - 180) < wrap(end - 180):
-            minimum_x = self.centre_point.x - self.radius
-        else:
-            minimum_x = min(self.begin.x, self.end.x)
-        if wrap(start) < wrap(end):
-            maximum_x = self.centre_point.x + self.radius
-        else:
-            maximum_x = max(self.begin.x, self.end.x)
-        if wrap(start - 270) < wrap(end - 270):
-            minimum_y = self.centre_point.y - self.radius
-        else:
-            minimum_y = min(self.begin.y, self.end.y)
-        if wrap(start - 90) < wrap(end - 90):
-            maximum_y = self.centre_point.y + self.radius
-        else:
-            maximum_y = max(self.begin.y, self.end.y)
-
-        return (minimum_x, minimum_y, maximum_x, maximum_y)
-
     def move(self, **kwargs):
         x = kwargs.get("x", 0)
         y = kwargs.get("y", 0)
-        self.centre_point.x += x
-        self.centre_point.y += y
-
-        super(Arc, self).move(**kwargs)
+        self.centre_point = Point(x, y)
 
     def intersect(self, other):
         return False
@@ -178,28 +126,6 @@ class Shape(Object):
 
         self.outer_loop = kwargs.get("outer_loop", list())
         self.inner_loops = kwargs.get("inner_loops", list())
-
-    def bounds(self):
-        minimum_x, minimum_y, maximum_x, maximum_y = (0, 0, 0, 0)
-        bounding_box = None
-        first = True
-
-        for primitive in self.outer_loop:
-            if not first:
-                bounding_box = primitive.bounds()
-                if bounding_box[0] < minimum_x:
-                    minimum_x = bounding_box[0]
-                if bounding_box[1] < minimum_y:
-                    minimum_y = bounding_box[1]
-                if bounding_box[2] > maximum_x:
-                    maximum_x = bounding_box[2]
-                if bounding_box[3] > maximum_y:
-                    maximum_y = bounding_box[3]
-            else:
-                minimum_x, minimum_y, maximum_x, maximum_y = primitive.bounds()
-                first = False
-
-        return minimum_x, minimum_y, maximum_x, maximum_y
 
     def __str__(self):
         return ("{} (\n"
