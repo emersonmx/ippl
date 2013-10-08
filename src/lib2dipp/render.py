@@ -27,6 +27,7 @@ class Render(object):
         super(Render, self).__init__()
 
         self.image_mode = "RGB"
+        self.image_size = (100, 100)
         self.image_foreground_color = (0, 0, 0)
         self.image_background_color = (255, 255, 255)
         self.shape_external_color = (255, 0, 0)
@@ -46,31 +47,33 @@ class Render(object):
     def _arc(self, arc, type):
         start = math.degrees(arc.start_angle)
         end = math.degrees(arc.offset_angle)
-        if start > 0:
-            start = math.ceil(start)
-        else:
-            start = math.floor(start)
-        if end > 0:
-            end = math.ceil(end)
-        else:
-            end = math.floor(end)
 
-        print start, end
+        done = False
+        i = int(start)
+        begin_point = None
+        while not done:
+            if i > end:
+                done = True
 
-        for i in range(int(start) % 360, int(end) % 360):
-            print i
-            x = arc.centre_point.x + arc.radius * math.cos(math.radians(i))
-            y = arc.centre_point.y + arc.radius * math.sin(math.radians(i))
+            if begin_point != None:
+                x = arc.centre_point.x + arc.radius * math.cos(math.radians(i))
+                y = arc.centre_point.y + arc.radius * math.sin(math.radians(i))
+                end_point = (x, y)
 
-            self._image_drawer.line((x, y), self.shape_external_color)
-            
+                self._image_drawer.line((begin_point, end_point),
+                                        self.shape_external_color)
+                begin_point = end_point
+            else:
+                x = arc.centre_point.x + arc.radius * math.cos(math.radians(i))
+                y = arc.centre_point.y + arc.radius * math.sin(math.radians(i))
+                begin_point = (x, y)
+
+            i += 1
 
     def shape(self, shape):
         bounding_box = shape.bounds()
-        size = (int(math.ceil(bounding_box[2] - bounding_box[0])),
-                int(math.ceil(bounding_box[3] - bounding_box[1])))
 
-        self._image = Image.new(self.image_mode, size,
+        self._image = Image.new(self.image_mode, self.image_size,
                                 self.image_background_color)
         self._image_drawer = ImageDraw.ImageDraw(self._image)
 
@@ -80,17 +83,21 @@ class Render(object):
             elif isinstance(primitive, Line):
                 self._line(primitive, "external")
 
-        self._image.show()
+        image_flipped = self._image.transpose(Image.FLIP_TOP_BOTTOM)
+        image_flipped.show()
 
     def save(self, file_name):
         pass
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     s = Shape()
-    a = Arc(centre_point=Point(50.0, 50.0), 
-            radius=50.0, start_angle=0.0, offset_angle=-3.1415)
-    a.calculate_ends()
+    a = Arc(centre_point=Point(50.0, 50.0),
+            radius=50.0, start_angle=0.0, offset_angle=math.pi)
     s.outer_loop.append(a)
+    s.outer_loop.append(Line(begin=(0.0, 50.0), end=(0.0, 0.0)))
+    s.outer_loop.append(Line(begin=(0.0, 0.0), end=(100.0, 0.0)))
+    s.outer_loop.append(Line(begin=(100.0, 0.0), end=(100.0, 50.0)))
     r = Render()
+    r.image_size = (120, 120)
     r.shape(s)
 

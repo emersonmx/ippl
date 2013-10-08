@@ -45,7 +45,7 @@ class ShapeEncoder(json.JSONEncoder):
 
         return o.__dict__
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     outer = []
     outer.append(shape.Line(begin=(0, 0), end=(5, 0)))
     outer.append(shape.Line(begin=(5, 0), end=(5, 5)))
