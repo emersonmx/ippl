@@ -20,6 +20,7 @@ from PIL import Image
 from PIL import ImageDraw
 
 from shape import *
+from intersect import *
 
 
 class Render(object):
@@ -32,10 +33,12 @@ class Render(object):
         self.image_foreground_color = (0, 0, 0)
         self.image_background_color = (255, 255, 255)
         self.shape_external_color = (255, 0, 0)
-        self.shape_internal_color = (0, 255, 0)
+        self.shape_internal_color = (92, 0, 0)
 
         self.draw_bounds = False
         self.aabb_color = (0, 0, 255)
+
+        self.intersect_color = (0, 255, 0)
 
         self._image = None
         self._image_drawer = None
@@ -99,6 +102,15 @@ class Render(object):
             xy = ((line.begin.x, line.begin.y), (line.end.x, line.end.y))
             self._image_drawer.line(xy, self.aabb_color)
 
+    def intersect(self, a, b):
+        print a, b
+        point = lines(a, b)
+        print point
+        if point:
+            xy = (int(point.x) - 1, int(point.y) - 1,
+                int(point.x) + 1, int(point.y) + 1)
+            self._image_drawer.rectangle(xy, self.intersect_color)
+
     def shape(self, shape):
         bounding_box = shape.bounds()
 
@@ -114,11 +126,9 @@ class Render(object):
             if self.draw_bounds:
                 self._aabb(primitive)
 
-        image_flipped = self._image.transpose(Image.FLIP_TOP_BOTTOM)
-        image_flipped.save("render_test.png")
-
     def save(self, file_name):
-        pass
+        flipped_image = self._image.transpose(Image.FLIP_TOP_BOTTOM)
+        flipped_image.save(file_name)
 
 if __name__ == "__main__":
     s = Shape()

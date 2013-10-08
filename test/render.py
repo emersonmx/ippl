@@ -96,4 +96,5 @@ if __name__ == "__main__":
     r.draw_bounds = True
     r.image_size = size
     r.shape(s)
+    r.save("render_test.png")
 

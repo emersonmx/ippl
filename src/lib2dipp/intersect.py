@@ -1,22 +1,22 @@
 # Copyright (C) 2013 Emerson Max de Medeiros Silva
 #
-# This file is part of 2dipp.
+# This file is part of lib2dipp.
 #
-# 2dipp is free software: you can redistribute it and/or modify
+# lib2dipp is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# 2dipp is distributed in the hope that it will be useful,
+# lib2dipp is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with 2dipp.  If not, see <http://www.gnu.org/licenses/>.
+# along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 
 from math import sqrt
-from primitive import *
+from shape import *
 
 def sgn(x):
     if x < 0:
@@ -39,9 +39,9 @@ def lines(line1, line2):
 
     alpha = ((b.y * c.x) - (b.x * c.y)) / denominator
     beta = 0
-    if alpha >= 0 and alpha <= 1:
+    if 0 <= alpha <= 1:
         beta = ((a.x * c.y) - (a.y * c.x)) / denominator
-        if beta >= 0 and beta <= 1:
+        if 0 <= beta <= 1:
             return Point(p1.x + alpha * (p2.x - p1.x),
                          p1.y + alpha * (p2.y - p1.y))
 
