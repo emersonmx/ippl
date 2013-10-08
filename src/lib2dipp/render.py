@@ -21,6 +21,7 @@ from PIL import ImageDraw
 
 from shape import *
 
+
 class Render(object):
 
     def __init__(self):
@@ -32,6 +33,9 @@ class Render(object):
         self.image_background_color = (255, 255, 255)
         self.shape_external_color = (255, 0, 0)
         self.shape_internal_color = (0, 255, 0)
+
+        self.draw_bounds = False
+        self.aabb_color = (0, 0, 255)
 
         self._image = None
         self._image_drawer = None
@@ -49,26 +53,51 @@ class Render(object):
         end = math.degrees(arc.offset_angle)
 
         done = False
-        i = int(start)
+        i = 0
+        if start < end:
+            size = abs(end - start)
+        else:
+            size = 360 - abs(end - start)
+
         begin_point = None
         while not done:
-            if i > end:
+            if i >= size:
                 done = True
 
-            if begin_point != None:
-                x = arc.centre_point.x + arc.radius * math.cos(math.radians(i))
-                y = arc.centre_point.y + arc.radius * math.sin(math.radians(i))
+            degrees = util.wrap_360(start + i)
+
+            if begin_point:
+                x = (arc.centre_point.x +
+                     arc.radius * math.cos(math.radians(degrees)))
+                y = (arc.centre_point.y +
+                     arc.radius * math.sin(math.radians(degrees)))
                 end_point = (x, y)
 
                 self._image_drawer.line((begin_point, end_point),
                                         self.shape_external_color)
                 begin_point = end_point
             else:
-                x = arc.centre_point.x + arc.radius * math.cos(math.radians(i))
-                y = arc.centre_point.y + arc.radius * math.sin(math.radians(i))
+                x = (arc.centre_point.x +
+                     arc.radius * math.cos(math.radians(degrees)))
+                y = (arc.centre_point.y +
+                     arc.radius * math.sin(math.radians(degrees)))
                 begin_point = (x, y)
 
             i += 1
+
+    def _aabb(self, primitive):
+        aabb = primitive.bounds()
+        print aabb
+
+        lines = []
+        lines.append(Line(begin=(aabb[0], aabb[1]), end=(aabb[2], aabb[1])))
+        lines.append(Line(begin=(aabb[2], aabb[1]), end=(aabb[2], aabb[3])))
+        lines.append(Line(begin=(aabb[2], aabb[3]), end=(aabb[0], aabb[3])))
+        lines.append(Line(begin=(aabb[0], aabb[3]), end=(aabb[0], aabb[1])))
+
+        for line in lines:
+            xy = ((line.begin.x, line.begin.y), (line.end.x, line.end.y))
+            self._image_drawer.line(xy, self.aabb_color)
 
     def shape(self, shape):
         bounding_box = shape.bounds()
@@ -82,9 +111,11 @@ class Render(object):
                 self._arc(primitive, "external")
             elif isinstance(primitive, Line):
                 self._line(primitive, "external")
+            if self.draw_bounds:
+                self._aabb(primitive)
 
         image_flipped = self._image.transpose(Image.FLIP_TOP_BOTTOM)
-        image_flipped.show()
+        image_flipped.save("render_test.png")
 
     def save(self, file_name):
         pass
