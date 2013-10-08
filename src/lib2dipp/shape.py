@@ -17,6 +17,8 @@
 
 import math
 
+import util
+
 
 class Object(object):
 
@@ -108,7 +110,7 @@ class Arc(Line):
         self.centre_point = kwargs.get("centre_point", Point())
         self.radius = kwargs.get("radius", 1)
         self.start_angle = kwargs.get("start_angle", 0.0)
-        self.offset_angle = kwargs.get("offset_angle", 180.0)
+        self.offset_angle = kwargs.get("offset_angle", math.pi)
 
     def calculate_ends(self):
         self.begin.x = (self.centre_point.x +
@@ -121,28 +123,29 @@ class Arc(Line):
             self.radius * math.sin(self.offset_angle))
 
     def bounds(self):
-        wrap = lambda value : value % 360
+        self.calculate_ends()
 
         start = math.degrees(self.start_angle)
         end = math.degrees(self.offset_angle)
         minimum_x, maximum_x, minimum_y, maximum_y = (0, 0, 0, 0)
 
-        if wrap(start - 180) < wrap(end - 180):
-            minimum_x = self.centre_point.x - self.radius
-        else:
-            minimum_x = min(self.begin.x, self.end.x)
-        if wrap(start) < wrap(end):
+        if util.wrap_360(start) >= util.wrap_360(end):
             maximum_x = self.centre_point.x + self.radius
         else:
             maximum_x = max(self.begin.x, self.end.x)
-        if wrap(start - 270) < wrap(end - 270):
-            minimum_y = self.centre_point.y - self.radius
-        else:
-            minimum_y = min(self.begin.y, self.end.y)
-        if wrap(start - 90) < wrap(end - 90):
+        if util.wrap_360(start - 90) >= util.wrap_360(end - 90):
             maximum_y = self.centre_point.y + self.radius
         else:
             maximum_y = max(self.begin.y, self.end.y)
+
+        if util.wrap_360(start - 180) >= util.wrap_360(end - 180):
+            minimum_x = self.centre_point.x - self.radius
+        else:
+            minimum_x = min(self.begin.x, self.end.x)
+        if util.wrap_360(start - 270) >= util.wrap_360(end - 270):
+            minimum_y = self.centre_point.y - self.radius
+        else:
+            minimum_y = min(self.begin.y, self.end.y)
 
         return (minimum_x, minimum_y, maximum_x, maximum_y)
 

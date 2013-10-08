@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 
-import file_io
-import render
-import shape
-import util
+def wrap_360(angle):
+    return angle % 360
 
