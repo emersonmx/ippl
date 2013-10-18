@@ -15,6 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 
+import math
+
+def wrap_2pi(angle):
+    return angle % (math.pi * 2)
+
 def wrap_360(angle):
     return angle % 360
 
