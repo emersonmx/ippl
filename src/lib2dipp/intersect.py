@@ -70,3 +70,10 @@ def line_arc(line, arc):
 
 def arcs(arc1, arc2):
     pass
+
+if __name__ == "__main__":
+    l = Line(begin=(4., 0.), end=(0., 4.))
+    a = Arc(centre_point=(2., 2.), radius=2.,
+            start_angle=0., offset_angle=2 * math.pi)
+
+    print line_arc(l, a)
