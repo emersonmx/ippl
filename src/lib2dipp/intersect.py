@@ -46,39 +46,40 @@ def lines(line1, line2):
 
     return None
 
-def _calculate_points(line, arc):
-    x1, y1 = line.begin
-    x2, y2 = line.end
-    cx, cy = arc.centre_point
-
-    dx = x2 - x1
-    dy = y2 - y1
-    a = dx**2 + dy**2
-    b = 2 * (dx * (x1 - cx) + dy * (y1 - cy))
-    c = cx**2 + cy**2
-    c += x1**2 + y1**2
-    c -= 2 * (cx * x1 + cy * y1)
-    c -= arc.radius**2
-
-    delta = b**2 - 4 * a * c
-    if delta < 0:
-        return []
-    else:
-        result = (-b + sqrt(delta)) / (2 * a)
-        x_ = x1 + result * dx
-        y_ = y1 + result * dy
-        if delta == 0:
-            return [Point(x_, y_)]
-
-        result = (-b - sqrt(delta)) / (2 * a)
-        x__ = x1 + result * dx
-        y__ = y1 + result * dy
-
-        return [Point(x_, y_), Point(x__, y__)]
-
 def line_arc(line, arc):
+
+    def calculate_points(line, arc):
+        x1, y1 = line.begin
+        x2, y2 = line.end
+        cx, cy = arc.centre_point
+
+        dx = x2 - x1
+        dy = y2 - y1
+        a = dx**2 + dy**2
+        b = 2 * (dx * (x1 - cx) + dy * (y1 - cy))
+        c = cx**2 + cy**2
+        c += x1**2 + y1**2
+        c -= 2 * (cx * x1 + cy * y1)
+        c -= arc.radius**2
+
+        delta = b**2 - 4 * a * c
+        if delta < 0:
+            return []
+        else:
+            result = (-b + sqrt(delta)) / (2 * a)
+            x_ = x1 + result * dx
+            y_ = y1 + result * dy
+            if delta == 0:
+                return [Point(x_, y_)]
+
+            result = (-b - sqrt(delta)) / (2 * a)
+            x__ = x1 + result * dx
+            y__ = y1 + result * dy
+
+            return [Point(x_, y_), Point(x__, y__)]
+
     result = []
-    points = _calculate_points(line, arc)
+    points = calculate_points(line, arc)
     if points:
         aabb = line.bounds()
         for point in points:
