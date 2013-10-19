@@ -28,13 +28,51 @@ class Object(object):
         self.type = type(self).__name__
 
 
+class Primitive(Object):
+
+    def __init__(self, **kwargs):
+        super(Primitive, self).__init__()
+
+    def bounds(self):
+        """Returns the AABB of Primitive.
+
+        Return:
+            A list like (minimum_x, minimum_y, maximum_x, maximum_y).
+        """
+        pass
+
+    def move(self, **kwargs):
+        """Moves the primitive."""
+        pass
+
+    def intersect(self, other):
+        """Checks whether a primitive intersects with another one."""
+        pass
+
+
 class Point(Object):
 
-    def __init__(self, x=0, y=0):
+    def __init__(self, x=0.0, y=0.0):
         super(Point, self).__init__()
 
-        self.x = x
-        self.y = y
+        self._x = float(x)
+        self._y = float(y)
+
+    @property
+    def x(self):
+        return self._x
+
+    @x.setter
+    def x(self, value):
+        self._x = float(value)
+
+    @property
+    def y(self):
+        return self._y
+
+    @y.setter
+    def y(self, value):
+        self._y = float(value)
 
     def move(self, x, y):
         self.x += x
@@ -48,21 +86,6 @@ class Point(Object):
 
     def __repr__(self):
         return "<{}>".format(self)
-
-
-class Primitive(Object):
-
-    def __init__(self, **kwargs):
-        super(Primitive, self).__init__()
-
-    def bounds(self):
-        pass
-
-    def move(self, **kwargs):
-        pass
-
-    def intersect(self, other):
-        pass
 
 
 class Line(Primitive):
@@ -108,9 +131,34 @@ class Arc(Line):
         super(Arc, self).__init__(**kwargs)
 
         self.centre_point = kwargs.get("centre_point", Point())
-        self.radius = kwargs.get("radius", 1)
-        self.start_angle = kwargs.get("start_angle", 0.0)
-        self.offset_angle = kwargs.get("offset_angle", math.pi)
+        self._radius = util.wrap_2pi(float(kwargs.get("radius", 1.0)))
+        self._start_angle = util.wrap_2pi(float(kwargs.get("start_angle", 0.0)))
+        self._offset_angle = util.wrap_2pi(
+            float(kwargs.get("offset_angle", 0.0)))
+
+    @property
+    def radius(self):
+        return self._radius
+
+    @radius.setter
+    def radius(self, value):
+        self._radius = float(value)
+
+    @property
+    def start_angle(self):
+        return self._start_angle
+
+    @start_angle.setter
+    def start_angle(self, value):
+        self._start_angle = util.wrap_2pi(float(value))
+
+    @property
+    def offset_angle(self):
+        return self._offset_angle
+
+    @offset_angle.setter
+    def offset_angle(self, value):
+        self._offset_angle = util.wrap_2pi(float(value))
 
     def calculate_ends(self):
         self.begin.x = (self.centre_point.x +

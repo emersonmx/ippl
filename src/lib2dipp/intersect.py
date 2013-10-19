@@ -16,6 +16,8 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 
 from math import sqrt
+from math import atan2
+
 from shape import *
 
 def point_in_rect(point, rect):
@@ -81,7 +83,12 @@ def line_arc(line, arc):
         aabb = line.bounds()
         for point in points:
             if point_in_rect(point, aabb):
-                result.append(point)
+                angle = util.wrap_2pi(atan2(point.y - arc.centre_point.y,
+                                            point.x - arc.centre_point.x))
+                start = arc.start_angle
+                end = arc.offset_angle
+                if util.angle_in_range(angle, start, end):
+                    result.append(point)
 
     return result
 
@@ -89,8 +96,9 @@ def arcs(arc1, arc2):
     pass
 
 if __name__ == "__main__":
-    l = Line(begin=(0., 4.), end=(4., 4.))
-    a = Arc(centre_point=(2., 2.), radius=2.,
-            start_angle=0., offset_angle=2 * math.pi)
+    l = Line(begin=(0, 2), end=(4, 2))
+    a = Arc(centre_point=Point(2, 2), radius=2,
+            start_angle=0, offset_angle=0)
 
     print line_arc(l, a)
+    print a

@@ -23,3 +23,19 @@ def wrap_2pi(angle):
 def wrap_360(angle):
     return angle % 360
 
+def angle_in_range(angle, start, end):
+    """Checks whether an angle is between start and end.
+
+    params:
+        angle in radians in range [0, math.pi*2)
+        start angle in radians in range [0, math.pi*2)
+        end angle in range in range [0, math.pi*2)
+    """
+
+    if wrap_2pi(start) >= wrap_2pi(end):
+        if start <= angle <= (math.pi * 2) or 0.0 <= angle <= end:
+            return True
+        else:
+            return False
+
+    return start <= angle <= end
