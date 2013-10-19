@@ -93,7 +93,7 @@ def line_arc(line, arc):
     return result
 
 def arcs(arc1, arc2):
-    pass
+    return False
 
 if __name__ == "__main__":
     l = Line(begin=(0, 2), end=(4, 2))
