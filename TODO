@@ -3,6 +3,8 @@
 CURRENT TASKS:
   - Caso arco-arco
     @ Added [Sáb 2013-10-19]
+    - Verificar se os arcos estão colidindo.
+      @ Added [Qui 2013-10-24]
     - Calcular os pontos.
       @ Added [Sáb 2013-10-19]
     - Verificar se os pontos estão no intervalo entre start/offset_angle.
