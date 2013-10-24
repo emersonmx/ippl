@@ -78,6 +78,9 @@ class Point(Object):
         self.x += x
         self.y += y
 
+    def distance(self, point):
+        return math.sqrt((point.x - self.x)**2 + (point.y - self.y)**2)
+
     def __getitem__(self, index):
         return (self.x, self.y)[index]
 

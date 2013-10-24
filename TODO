@@ -1,16 +1,6 @@
 # Quicktask v1.2
 
 CURRENT TASKS:
-  - Caso arco-arco
-    @ Added [Sáb 2013-10-19]
-    - Verificar se os arcos estão colidindo.
-      @ Added [Qui 2013-10-24]
-    - Calcular os pontos.
-      @ Added [Sáb 2013-10-19]
-    - Verificar se os pontos estão no intervalo entre start/offset_angle.
-      @ Added [Sáb 2013-10-19]
-    - Retornar os pontos.
-      @ Added [Sáb 2013-10-19]
   - Diversos
     @ Added [Sáb 2013-10-19]
     - Limitar o valor dos ângulos dos arcos para [0, 2pi).
@@ -38,5 +28,24 @@ COMPLETED TASKS:
       @ Added [Sáb 2013-10-19]
       @ DONE [Sáb 2013-10-19]
     @ DONE [Sáb 2013-10-19]
+  - Caso arco-arco
+    @ Added [Sáb 2013-10-19]
+    - Verificar se os arcos estão colidindo.
+      @ Added [Qui 2013-10-24]
+      @ Start [Qui 2013-10-24] [18:30], end [18:46]
+      @ DONE [Qui 2013-10-24]
+    - Calcular os pontos.
+      @ Added [Sáb 2013-10-19]
+      @ Start [Qui 2013-10-24] [18:50], end [19:06]
+      @ DONE [Qui 2013-10-24]
+    - Verificar se os pontos estão no intervalo entre start/offset_angle.
+      @ Added [Sáb 2013-10-19]
+      @ Start [Qui 2013-10-24] [19:16], end [19:28]
+      @ DONE [Qui 2013-10-24]
+    - Retornar os pontos.
+      @ Added [Sáb 2013-10-19]
+      @ Start [Qui 2013-10-24] [19:28], end [19:28]
+      @ DONE [Qui 2013-10-24]
+    @ DONE [Qui 2013-10-24]
 
 # vim:ft=quicktask

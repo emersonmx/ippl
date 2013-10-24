@@ -24,8 +24,8 @@ def point_in_rect(point, rect):
     return (rect[0] <= point.x <= rect[2]) and (rect[1] <= point.y <= rect[3])
 
 def lines(line1, line2):
-    """See p.199-201 of Graphic Gems 3.
-    """
+    """See p.199-201 of Graphic Gems 3."""
+
     p1, p2, p3, p4 = line1.begin, line1.end, line2.begin, line2.end
 
     a = Point(p2.x - p1.x, p2.y - p1.y)
@@ -94,12 +94,48 @@ def line_arc(line, arc):
     return result
 
 def arcs(arc1, arc2):
-    return False
+
+    def calculate_points(p0, r0, p1, r1, distance):
+        a = (r0**2 - r1**2 + distance**2) / (2 * distance)
+        h = sqrt(r0**2 - a**2)
+        s = a / distance
+        p2 = Point(p0.x + s * (p1.x - p0.x), p0.y + s * (p1.y - p0.y))
+
+        x3 = p2.x + h * (p1.y - p0.y) / distance
+        y3 = p2.y - h * (p1.x - p0.x) / distance
+        x4 = p2.x - h * (p1.y - p0.y) / distance
+        y4 = p2.y + h * (p1.x - p0.x) / distance
+
+        return [Point(x3, y3), Point(x4, y4)]
+
+    result = []
+    p0 = arc1.centre_point
+    p1 = arc2.centre_point
+
+    distance = p0.distance(p1)
+    if (arc2.radius - arc1.radius) < distance < (arc1.radius + arc2.radius):
+        points = calculate_points(p0, arc1.radius, p1, arc2.radius, distance)
+        for point in points:
+            angle1 = util.wrap_2pi(atan2(point.y - p0.y, point.x - p0.x))
+            start1 = arc1.start_angle
+            end1 = arc1.offset_angle
+            angle2 = util.wrap_2pi(atan2(point.y - p1.y, point.x - p1.x))
+            start2 = arc2.start_angle
+            end2 = arc2.offset_angle
+
+            if (util.angle_in_range(angle1, start1, end1) and
+                    util.angle_in_range(angle2, start2, end2)):
+
+                result.append(point)
+
+    return result
 
 if __name__ == "__main__":
     l = Line(begin=(0, 2), end=(4, 2))
     a = Arc(centre_point=Point(2, 2), radius=2,
             start_angle=0, offset_angle=0)
+    b = Arc(centre_point=Point(5, 2), radius=2,
+            start_angle=0, offset_angle=0)
 
-    print line_arc(l, a)
-    print a
+    print "Line-Arc: {}".format(line_arc(l, a))
+    print "Arcs: {}".format(arcs(a, b))
