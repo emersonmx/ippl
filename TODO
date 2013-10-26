@@ -1,6 +1,20 @@
 # Quicktask v1.2
 
 CURRENT TASKS:
+  - Implementar Algoritmo Genético.
+    @ Added [Sáb 2013-10-26]
+    - Implementar seleção.
+      @ Added [Sáb 2013-10-26]
+    - Implementar cruzamento.
+      @ Added [Sáb 2013-10-26]
+    - Implementar mutação.
+      @ Added [Sáb 2013-10-26]
+    - Implementar cálculo de fitness.
+      @ Added [Sáb 2013-10-26]
+  - Implementar algoritmo Bottom-Left.
+    @ Added [Sáb 2013-10-26]
+    - Criar algumas formas para teste.
+      @ Added [Sáb 2013-10-26]
   - Diversos
     @ Added [Sáb 2013-10-19]
     - Limitar o valor dos ângulos dos arcos para [0, 2pi).
