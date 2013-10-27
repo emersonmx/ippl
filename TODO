@@ -3,11 +3,11 @@
 CURRENT TASKS:
   - Implementar algoritmo Bottom-Left.
     @ Added [Sáb 2013-10-26]
-    - Criar algumas formas para teste.
-      @ Added [Sáb 2013-10-26]
     - Implementar cálculo de deslocamento de primitivas.
       @ Added [Sáb 2013-10-26]
     - Implementar algoritmo para resolver o problema das formas contidas.
+      @ Added [Sáb 2013-10-26]
+    - Criar algumas formas para teste.
       @ Added [Sáb 2013-10-26]
     - Expor a API das funções para calcular pontos entre primitivas.
       @ Added [Sáb 2013-10-26]
@@ -20,13 +20,13 @@ CURRENT TASKS:
       @ DONE [Dom 2013-10-27]
   - Implementar Algoritmo Genético.
     @ Added [Sáb 2013-10-26]
+    - Implementar cálculo de fitness.
+      @ Added [Sáb 2013-10-26]
     - Implementar seleção.
       @ Added [Sáb 2013-10-26]
     - Implementar cruzamento.
       @ Added [Sáb 2013-10-26]
     - Implementar mutação.
-      @ Added [Sáb 2013-10-26]
-    - Implementar cálculo de fitness.
       @ Added [Sáb 2013-10-26]
   - Diversos
     @ Added [Sáb 2013-10-19]
