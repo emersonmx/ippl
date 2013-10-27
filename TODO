@@ -30,6 +30,8 @@ CURRENT TASKS:
       @ Added [Sáb 2013-10-26]
   - Diversos
     @ Added [Sáb 2013-10-19]
+    - Melhorar implementação dos cálculos de intersecção.
+      @ Added [Dom 2013-10-27]
     - Documentar código.
       @ Added [Sáb 2013-10-19]
     - Implementar aplicação OpenGL para visualizar formas.
