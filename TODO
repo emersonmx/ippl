@@ -30,16 +30,16 @@ CURRENT TASKS:
       @ DONE [Dom 2013-10-27]
   - Diversos
     @ Added [Sáb 2013-10-19]
+    - Documentar código.
+      @ Added [Sáb 2013-10-19]
+    - Implementar aplicação OpenGL para visualizar formas.
+      @ Added [Dom 2013-10-27]
     - Limitar o valor dos ângulos dos arcos para [0, 2pi).
       @ Added [Sáb 2013-10-19]
       @ DONE [Sáb 2013-10-19]
     - Aceitar somente valores reais.
       @ Added [Sáb 2013-10-19]
       @ DONE [Sáb 2013-10-19]
-    - Documentar código.
-      @ Added [Sáb 2013-10-19]
-    - Implementar aplicação OpenGL para visualizar formas.
-      @ Added [Dom 2013-10-27]
 COMPLETED TASKS:
   - Caso linha-linha
     @ Added [Sáb 2013-10-19]
