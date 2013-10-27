@@ -15,6 +15,10 @@ CURRENT TASKS:
     @ Added [Sáb 2013-10-26]
     - Criar algumas formas para teste.
       @ Added [Sáb 2013-10-26]
+    - Implementar cálculo de deslocamento de primitivas.
+      @ Added [Sáb 2013-10-26]
+    - Implementar algoritmo para resolver o problema das formas contidas.
+      @ Added [Sáb 2013-10-26]
     - Expor a API das funções para calcular pontos entre primitivas.
       @ Added [Sáb 2013-10-26]
       @ Start [Dom 2013-10-27] [03:42], end [03:51]
@@ -24,10 +28,6 @@ CURRENT TASKS:
       @ Added [Sáb 2013-10-26]
       @ Start [Dom 2013-10-27] [03:51], end [03:57]
       @ DONE [Dom 2013-10-27]
-    - Implementar cálculo de deslocamento de primitivas.
-      @ Added [Sáb 2013-10-26]
-    - Implementar algoritmo para resolver o problema das formas contidas.
-      @ Added [Sáb 2013-10-26]
   - Diversos
     @ Added [Sáb 2013-10-19]
     - Limitar o valor dos ângulos dos arcos para [0, 2pi).
