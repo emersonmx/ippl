@@ -118,7 +118,21 @@ def lines(line1, line2):
     denominator = (a.y * b.x) - (a.x * b.y)
     collinear = (denominator == 0)
     if collinear:
-        # Return intersection line, else None
+        begin = None
+        end = None
+
+        if p3.x <= p1.x <= p4.x:
+            begin = p1
+        elif p3.x <= p2.x <= p4.x:
+            begin = p2
+        if p1.x <= p3.x <= p2.x:
+            end = p3
+        elif p1.x <= p4.x <= p2.x:
+            end = p3
+
+        if begin and end:
+            return Line(begin=begin, end=end)
+
         return None
 
     alpha = ((b.y * c.x) - (b.x * c.y)) / denominator
@@ -150,23 +164,34 @@ def line_arc(line, arc):
 def arcs(arc1, arc2):
     result = []
     p1 = arc1.centre_point
+    start1 = arc1.start_angle
+    end1 = arc1.offset_angle
     p2 = arc2.centre_point
+    start2 = arc2.start_angle
+    end2 = arc2.offset_angle
 
     distance = p1.distance(p2)
     if (arc2.radius - arc1.radius) < distance < (arc1.radius + arc2.radius):
         points = calculate_circles_points(arc1, arc2, distance)
         for point in points:
             angle1 = wrap_2pi(math.atan2(point.y - p1.y, point.x - p1.x))
-            start1 = arc1.start_angle
-            end1 = arc1.offset_angle
             angle2 = wrap_2pi(math.atan2(point.y - p2.y, point.x - p2.x))
-            start2 = arc2.start_angle
-            end2 = arc2.offset_angle
 
             if (angle_in_range(angle1, start1, end1) and
                     angle_in_range(angle2, start2, end2)):
 
                 result.append(point)
+    elif (distance == 0) and (arc1.radius == arc2.radius):
+        result = Arc(centre_point=arc1.centre_point, radius=arc1.radius)
+
+        if angle_in_range(start1, start2, end2):
+            result.start_angle = arc1.start_angle
+        elif angle_in_range(start2, start1, end1):
+            result.start_angle = arc2.start_angle
+        if angle_in_range(end1, start2, end2):
+            result.offset_angle = arc1.offset_angle
+        elif angle_in_range(end2, start1, end1):
+            result.offset_angle = arc2.offset_angle
 
     # Return points, else return circle
     return result
@@ -440,7 +465,12 @@ if __name__ == "__main__":
     b = Arc(centre_point=Point(5, 2), radius=2,
             start_angle=0, offset_angle=0)
 
+    l1 = Line(begin=(0, 0), end=(5, 0))
+    l2 = Line(begin=(3, 0), end=(10, 0))
+    print "Line-Line: {}".format(lines(l1, l2))
+
     print "Line-Arc: {}".format(line_arc(l, a))
     print "Arcs: {}".format(arcs(a, b))
+    print "Arcs: {}".format(arcs(a, a))
     print "Perpendicular: {}".format(calculate_perpendicular_line(pl, p))
 
