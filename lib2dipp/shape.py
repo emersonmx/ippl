@@ -33,7 +33,7 @@ def angle_in_range(angle, start, end):
     """
 
     if wrap_2pi(start) >= wrap_2pi(end):
-        if start <= angle <= (math.pi * 2) or 0.0 <= angle <= end:
+        if (start <= angle <= (math.pi * 2)) or (0.0 <= angle <= end):
             return True
         else:
             return False
@@ -101,7 +101,15 @@ def calculate_perpendicular_line(line, point):
     x4 = x3 - k * (y2 - y1)
     y4 = y3 + k * (x2 - x1)
 
-    return Point(x4, y4)
+    result = Line(begin=(x4, y4), end=point)
+
+    if point == Point(x4, y4):
+        dx = x2 - x1
+        dy = y2 - y1
+        result = Line(end=(-dy, dx))
+        result.move(x=x4, y=y4)
+
+    return result
 
 def point_in_rect(point, rect):
     return (rect[0] <= point.x <= rect[2]) and (rect[1] <= point.y <= rect[3])
@@ -193,7 +201,6 @@ def arcs(arc1, arc2):
         elif angle_in_range(end2, start1, end1):
             result.offset_angle = arc2.offset_angle
 
-    # Return points, else return circle
     return result
 
 
@@ -260,6 +267,9 @@ class Point(Object):
 
     def __getitem__(self, index):
         return (self.x, self.y)[index]
+
+    def __eq__(self, point):
+        return (self.x == point.x) and (self.y == point.y)
 
     def __str__(self):
         return "{} ({}, {})".format(type(self).__name__, self.x, self.y)
@@ -431,6 +441,17 @@ class Shape(Object):
 
         return minimum_x, minimum_y, maximum_x, maximum_y
 
+    def move(self, **kwargs):
+        x = float(kwargs.get("x", 0.0))
+        y = float(kwargs.get("y", 0.0))
+
+        for primitive in self.outer_loop:
+            primitive.move(x=x, y=y)
+
+        for loop in self.inner_loops:
+            for primitive in loop:
+                primitive.move(x=x, y=y)
+
     def __str__(self):
         return ("{} (\n"
                 "  outer_loop={},\n"
@@ -457,20 +478,24 @@ if __name__ == "__main__":
     s.outer_loop.append(Line(begin=(1, 1), end=(0, 1)))
     s.outer_loop.append(Line(begin=(0, 1), end=(0, 0)))
     print s
-    p = Point(0, 1)
-    pl = Line(begin=(1, 1), end=(5, 5))
+
+    l1 = Line(begin=(0, 0), end=(5, 0))
+    l2 = Line(begin=(3, 0), end=(10, 0))
+    print "Line-Line: {}".format(lines(l1, l2))
     l = Line(begin=(0, 2), end=(4, 2))
     a = Arc(centre_point=Point(2, 2), radius=2,
             start_angle=0, offset_angle=0)
     b = Arc(centre_point=Point(5, 2), radius=2,
             start_angle=0, offset_angle=0)
-
-    l1 = Line(begin=(0, 0), end=(5, 0))
-    l2 = Line(begin=(3, 0), end=(10, 0))
-    print "Line-Line: {}".format(lines(l1, l2))
-
     print "Line-Arc: {}".format(line_arc(l, a))
     print "Arcs: {}".format(arcs(a, b))
     print "Arcs: {}".format(arcs(a, a))
+    p = Point(0, 1)
+    pl = Line(begin=(1, 1), end=(5, 5))
     print "Perpendicular: {}".format(calculate_perpendicular_line(pl, p))
+
+    l3 = Line(begin=(1, 1), end=(3, 2))
+    pc = Point(2, 1.5)
+    print "Perpendicular collinear: {}".format(
+        calculate_perpendicular_line(l3, pc))
 
