@@ -42,10 +42,10 @@ def angle_in_range(angle, start, end):
 
     return start <= angle <= end
 
-def calculate_line_arc_points(line, arc):
+def calculate_line_circle_points(line, circle):
     x1, y1 = line.begin
     x2, y2 = line.end
-    cx, cy = arc.centre_point
+    cx, cy = circle.centre_point
 
     dx = x2 - x1
     dy = y2 - y1
@@ -54,7 +54,7 @@ def calculate_line_arc_points(line, arc):
     c = cx**2 + cy**2
     c += x1**2 + y1**2
     c -= 2 * (cx * x1 + cy * y1)
-    c -= arc.radius**2
+    c -= circle.radius**2
 
     delta = b**2 - 4 * a * c
     if delta < 0:
@@ -72,11 +72,11 @@ def calculate_line_arc_points(line, arc):
 
         return [Point(x_, y_), Point(x__, y__)]
 
-def calculate_arcs_points(arc1, arc2, distance=None):
-    p1 = arc1.centre_point
-    r1 = arc1.radius
-    p2 = arc2.centre_point
-    r2 = arc2.radius
+def calculate_circles_points(circle1, circle2, distance=None):
+    p1 = circle1.centre_point
+    r1 = circle1.radius
+    p2 = circle2.centre_point
+    r2 = circle2.radius
 
     if not distance:
         distance = p1.distance(p2)

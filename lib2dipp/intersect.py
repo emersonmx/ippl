@@ -32,7 +32,9 @@ def lines(line1, line2):
     c = Point(p1.x - p3.x, p1.y - p3.y)
 
     denominator = (a.y * b.x) - (a.x * b.y)
-    if denominator == 0:
+    collinear = (denominator == 0)
+    if collinear:
+        # Return intersection line, else None
         return None
 
     alpha = ((b.y * c.x) - (b.x * c.y)) / denominator
@@ -47,7 +49,7 @@ def lines(line1, line2):
 
 def line_arc(line, arc):
     result = []
-    points = calculate_line_arc_points(line, arc)
+    points = calculate_line_circle_points(line, arc)
     if points:
         aabb = line.bounds()
         for point in points:
@@ -68,7 +70,7 @@ def arcs(arc1, arc2):
 
     distance = p1.distance(p2)
     if (arc2.radius - arc1.radius) < distance < (arc1.radius + arc2.radius):
-        points = calculate_arcs_points(arc1, arc2, distance)
+        points = calculate_circles_points(arc1, arc2, distance)
         for point in points:
             angle1 = wrap_2pi(atan2(point.y - p1.y, point.x - p1.x))
             start1 = arc1.start_angle
@@ -82,6 +84,7 @@ def arcs(arc1, arc2):
 
                 result.append(point)
 
+    # Return points, else return circle
     return result
 
 if __name__ == "__main__":
