@@ -1,3 +1,4 @@
+#
 # Copyright (C) 2013 Emerson Max de Medeiros Silva
 #
 # This file is part of lib2dipp.
@@ -14,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import drawer
 
