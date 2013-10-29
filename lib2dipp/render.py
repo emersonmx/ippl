@@ -144,4 +144,5 @@ if __name__ == "__main__":
     r = Render()
     r.image_size = (120, 120)
     r.shape(s)
+    r.save("render.png")
 
