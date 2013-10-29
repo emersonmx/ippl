@@ -46,283 +46,6 @@ def angle_in_range(angle, start, end):
 
     return start <= angle <= end
 
-def point_in_rect(point, rect):
-    """Checks whether a point is inside a rectangle.
-
-    Parameters:
-        point a Point object.
-        rect a 4-tuple with the values for [x, y, width, height].
-    Return:
-        True if the point is inside the rectangle, or False otherwise.
-    """
-
-    return (rect[0] <= point.x <= rect[2]) and (rect[1] <= point.y <= rect[3])
-
-def intersect_rects(rect1, rect2):
-    """Checks whether a rectangle intersects with another.
-
-    Parameters:
-        rect1 a 4-tuple with the values for [x, y, width, height].
-        rect2 a 4-tuple with the values for [x, y, width, height].
-    Return:
-        True if the rectangles intersects, or False otherwise.
-    """
-
-    result = False
-
-    for point in rect1:
-        result = point_in_rect(point, rect2)
-        if result:
-            break
-
-    return result
-
-def calculate_line_circle_points(line, circle):
-    """Calculate the points between a line and a circle.
-
-    Parameters:
-        line a Line object.
-        circle a Arc object.
-    Return:
-        An empty list if delta < 0, a list with a point if delta == 0 and a list
-        with two points of delta> 0.
-    """
-
-    x1, y1 = line.begin
-    x2, y2 = line.end
-    cx, cy = circle.centre_point
-
-    dx = x2 - x1
-    dy = y2 - y1
-    a = dx**2 + dy**2
-    b = 2 * (dx * (x1 - cx) + dy * (y1 - cy))
-    c = cx**2 + cy**2
-    c += x1**2 + y1**2
-    c -= 2 * (cx * x1 + cy * y1)
-    c -= circle.radius**2
-
-    delta = b**2 - 4 * a * c
-    if delta < 0:
-        return []
-    else:
-        result = (-b + math.sqrt(delta)) / (2 * a)
-        x_ = x1 + result * dx
-        y_ = y1 + result * dy
-        if delta == 0:
-            return [Point(x_, y_)]
-
-        result = (-b - math.sqrt(delta)) / (2 * a)
-        x__ = x1 + result * dx
-        y__ = y1 + result * dy
-
-        return [Point(x_, y_), Point(x__, y__)]
-
-def calculate_circles_points(circle1, circle2, distance=None):
-    """Calculate the points between two circles.
-
-    Parameters:
-        circle1 a Arc object.
-        circle2 a Arc object.
-        distance the distance between the center points of the circles, or None
-        to calculate the distance.
-    Return:
-        A list with two points.
-    """
-
-    p1 = circle1.centre_point
-    r1 = circle1.radius
-    p2 = circle2.centre_point
-    r2 = circle2.radius
-
-    if not distance:
-        distance = p1.distance(p2)
-
-    a = (r1**2 - r2**2 + distance**2) / (2 * distance)
-    h = math.sqrt(r1**2 - a**2)
-    s = a / distance
-    p3 = Point(p1.x + s * (p2.x - p1.x), p1.y + s * (p2.y - p1.y))
-
-    x3 = p3.x + h * (p2.y - p1.y) / distance
-    y3 = p3.y - h * (p2.x - p1.x) / distance
-    x4 = p3.x - h * (p2.y - p1.y) / distance
-    y4 = p3.y + h * (p2.x - p1.x) / distance
-
-    return [Point(x3, y3), Point(x4, y4)]
-
-def calculate_lines_point(line1, line2):
-    """Calculate the intersection point between lines.
-
-    Parameters:
-        Two Line objects.
-    Return:
-        a dictionary with the alpha, beta and the denominator values.
-    """
-
-    result = { "alpha": None, "beta": None, "denominator": 0.0 }
-
-    p1, p2, p3, p4 = line1.begin, line1.end, line2.begin, line2.end
-
-    a = Point(p2.x - p1.x, p2.y - p1.y)
-    b = Point(p3.x - p4.x, p3.y - p4.y)
-    c = Point(p1.x - p3.x, p1.y - p3.y)
-
-    denominator = (a.y * b.x) - (a.x * b.y)
-    result["denominator"] = denominator
-
-    collinear = (denominator == 0)
-    if collinear:
-        return result
-
-    result["alpha"] = ((b.y * c.x) - (b.x * c.y)) / denominator
-    result["beta"] = ((a.x * c.y) - (a.y * c.x)) / denominator
-
-    return result
-
-def calculate_perpendicular_line(line, point):
-    """Calculate the perpendicular line passing through the point on the other
-    line.
-
-    Parameters:
-        line a Line object.
-        point a Point object.
-    Return:
-        A perpendicular line.
-    """
-
-    begin, end = line.begin, line.end
-    x1, y1, x2, y2 = line.x1, line.y1, line.x2, line.y2
-    x3, y3 = point.x, point.y
-
-    k = (((y2 - y1) * (x3 - x1) - (x2 - x1) * (y3 - y1)) /
-         ((y2 - y1)**2 + (x2 - x1)**2))
-    x4 = x3 - k * (y2 - y1)
-    y4 = y3 + k * (x2 - x1)
-
-    result = Line(begin=(x4, y4), end=point)
-
-    if point == Point(x4, y4):
-        dx = x2 - x1
-        dy = y2 - y1
-        result = Line(end=(-dy, dx))
-        result.move(x=x4, y=y4)
-
-    return result
-
-def lines(line1, line2):
-    """Calculates the point / line collision between two lines.
-
-    Parameters:
-        line1 a Line object.
-        line2 a Line object.
-    Return:
-        A point of intersection, or a line of intersection if they are collinear
-        and None if not intersect.
-    """
-
-    p1, p2, p3, p4 = line1.begin, line1.end, line2.begin, line2.end
-
-    a = Point(p2.x - p1.x, p2.y - p1.y)
-    b = Point(p3.x - p4.x, p3.y - p4.y)
-    c = Point(p1.x - p3.x, p1.y - p3.y)
-
-    values = calculate_lines_point(line1, line2)
-    denominator = values["denominator"]
-    collinear = (denominator == 0)
-    if collinear:
-        begin = None
-        end = None
-
-        if p3.x <= p1.x <= p4.x:
-            begin = p1
-        elif p3.x <= p2.x <= p4.x:
-            begin = p2
-        if p1.x <= p3.x <= p2.x:
-            end = p3
-        elif p1.x <= p4.x <= p2.x:
-            end = p4
-
-        if begin and end:
-            return Line(begin=begin, end=end)
-
-        return None
-
-    alpha = values["alpha"]
-    beta = values["beta"]
-
-    if (0.0 <= alpha <= 1.0) and (0.0 <= beta <= 1.0):
-        return Point(p1.x + alpha * (p2.x - p1.x), p1.y + alpha * (p2.y - p1.y))
-
-    return None
-
-def line_arc(line, arc):
-    """Calculate the points between a line and a arc.
-
-    Parameters:
-        line a Line object.
-        arc a Arc object.
-    Return:
-        A list of 0-2 points if the same are within the angle range of the arc.
-    """
-
-    result = []
-    points = calculate_line_circle_points(line, arc)
-    if points:
-        aabb = line.bounds()
-        for point in points:
-            if point_in_rect(point, aabb):
-                angle = wrap_2pi(math.atan2(point.y - arc.centre_point.y,
-                                            point.x - arc.centre_point.x))
-                start = arc.start_angle
-                end = arc.offset_angle
-                if angle_in_range(angle, start, end):
-                    result.append(point)
-
-    return result
-
-def arcs(arc1, arc2):
-    """Calculate the points between two arcs.
-
-    Parameters:
-        arc1 a Arc object.
-        arc2 a Arc object.
-    Return:
-        A list of 0-2 points if the same are within the angle range of the arc.
-        Or arc if the distance between the centers is 0 and radius are equal.
-    """
-
-    result = []
-    p1 = arc1.centre_point
-    start1 = arc1.start_angle
-    end1 = arc1.offset_angle
-    p2 = arc2.centre_point
-    start2 = arc2.start_angle
-    end2 = arc2.offset_angle
-
-    distance = p1.distance(p2)
-    if (arc2.radius - arc1.radius) < distance < (arc1.radius + arc2.radius):
-        points = calculate_circles_points(arc1, arc2, distance)
-        for point in points:
-            angle1 = wrap_2pi(math.atan2(point.y - p1.y, point.x - p1.x))
-            angle2 = wrap_2pi(math.atan2(point.y - p2.y, point.x - p2.x))
-
-            if (angle_in_range(angle1, start1, end1) and
-                    angle_in_range(angle2, start2, end2)):
-
-                result.append(point)
-    elif (distance == 0) and (arc1.radius == arc2.radius):
-        result = Arc(centre_point=arc1.centre_point, radius=arc1.radius)
-
-        if angle_in_range(start1, start2, end2):
-            result.start_angle = arc1.start_angle
-        elif angle_in_range(start2, start1, end1):
-            result.start_angle = arc2.start_angle
-        if angle_in_range(end1, start2, end2):
-            result.offset_angle = arc1.offset_angle
-        elif angle_in_range(end2, start1, end1):
-            result.offset_angle = arc2.offset_angle
-
-    return result
-
 
 class Object(object):
 
@@ -380,17 +103,6 @@ class Point(Object):
 
     def distance(self, point):
         return math.sqrt((point.x - self.x)**2 + (point.y - self.y)**2)
-
-    def intersect(self, other):
-        if isinstance(other, Point):
-            return self == other
-        elif isinstance(other, Rectangle):
-            return other.intersect_point(self)
-        elif isinstance(other, Shape):
-            # Not implemented yet.
-            return False
-
-        return False
 
     def __getitem__(self, index):
         return (self.x, self.y)[index]
@@ -452,29 +164,15 @@ class Rectangle(Object):
         self._left_bottom.move(x, y)
         self._right_top.move(x, y)
 
-    def intersect(self, other):
-        if isinstance(other, Point):
-            return self.intersect_point(other)
-        elif isinstance(other, Rectangle):
-            return self.intersect_rect(other)
-        elif isinstance(other, Shape):
-            return self.intersect_shape(other)
-
-        return False
-
     def intersect_point(self, point):
-        return ((rect.left <= point.x <= rect.right) and
-                (rect.bottom <= point.y <= rect.top))
+        return ((self.left <= point.x <= self.right) and
+                (self.bottom <= point.y <= self.top))
 
     def intersect_rectangle(self, rectangle):
         return (self.intersect_point(rectangle.left) or
                 self.intersect_point(rectangle.bottom) or
                 self.intersect_point(rectangle.right) or
                 self.intersect_point(rectangle.top))
-
-    def intersect_shape(self, shape):
-        # Do not know if it will need, but I'm leaving a hook.
-        return False
 
     def __getitem__(self, index):
         if index == 0:
@@ -551,7 +249,7 @@ class Line(Primitive):
         minimum_y = min(self.y1, self.y2)
         maximum_y = max(self.y1, self.y2)
 
-        return (minimum_x, minimum_y, maximum_x, maximum_y)
+        return Rectangle(minimum_x, minimum_y, maximum_x, maximum_y)
 
     def move(self, **kwargs):
         x = kwargs.get("x", 0)
@@ -559,6 +257,173 @@ class Line(Primitive):
 
         self.begin.move(x, y)
         self.end.move(x, y)
+
+    def intersect_line(self, line):
+        """Calculates the point / line collision between two lines.
+
+        Parameters:
+            line a Line object.
+        Return:
+            A point of intersection, or a line of intersection if they are
+            collinear and None if not intersect.
+        """
+
+        p1, p2, p3, p4 = self.begin, self.end, line.begin, line.end
+
+        a = Point(p2.x - p1.x, p2.y - p1.y)
+        b = Point(p3.x - p4.x, p3.y - p4.y)
+        c = Point(p1.x - p3.x, p1.y - p3.y)
+
+        values = self.calculate_intersection_line_point(line)
+        denominator = values["denominator"]
+        collinear = (denominator == 0)
+        if collinear:
+            begin = None
+            end = None
+
+            if p3.x <= p1.x <= p4.x:
+                begin = p1
+            elif p3.x <= p2.x <= p4.x:
+                begin = p2
+            if p1.x <= p3.x <= p2.x:
+                end = p3
+            elif p1.x <= p4.x <= p2.x:
+                end = p4
+
+            if begin and end:
+                return Line(begin=begin, end=end)
+
+            return None
+
+        alpha = values["alpha"]
+        beta = values["beta"]
+
+        if (0.0 <= alpha <= 1.0) and (0.0 <= beta <= 1.0):
+            return Point(p1.x + alpha * (p2.x - p1.x),
+                         p1.y + alpha * (p2.y - p1.y))
+
+        return None
+
+    def intersect_arc(self, arc):
+        """Calculate the points between a line and a arc.
+
+        Parameters:
+            arc a Arc object.
+        Return:
+            A list of 0-2 points if the same are within the angle range of the
+            arc.
+        """
+
+        result = []
+        points = self.calculate_intersection_circle_points(arc)
+        if points:
+            aabb = self.bounds()
+            for point in points:
+                if aabb.intersect_point(point):
+                    angle = wrap_2pi(math.atan2(point.y - arc.centre_point.y,
+                                                point.x - arc.centre_point.x))
+                    start = arc.start_angle
+                    end = arc.offset_angle
+                    if angle_in_range(angle, start, end):
+                        result.append(point)
+
+        return result
+
+    def calculate_intersection_line_point(self, line):
+        """Calculate the intersection point between lines.
+
+        Parameters:
+            line a Line objects.
+        Return:
+            a dictionary with the alpha, beta and the denominator values.
+        """
+
+        result = { "alpha": None, "beta": None, "denominator": 0.0 }
+
+        p1, p2, p3, p4 = self.begin, self.end, line.begin, line.end
+
+        a = Point(p2.x - p1.x, p2.y - p1.y)
+        b = Point(p3.x - p4.x, p3.y - p4.y)
+        c = Point(p1.x - p3.x, p1.y - p3.y)
+
+        denominator = (a.y * b.x) - (a.x * b.y)
+        result["denominator"] = denominator
+
+        collinear = (denominator == 0)
+        if collinear:
+            return result
+
+        result["alpha"] = ((b.y * c.x) - (b.x * c.y)) / denominator
+        result["beta"] = ((a.x * c.y) - (a.y * c.x)) / denominator
+
+        return result
+
+    def calculate_intersection_circle_points(self, circle):
+        """Calculate the points between a line and a circle.
+
+        Parameters:
+            circle a Arc object.
+        Return:
+            An empty list if delta < 0, a list with a point if delta == 0 and a
+            list with two points of delta > 0.
+        """
+
+        x1, y1 = self.begin
+        x2, y2 = self.end
+        cx, cy = circle.centre_point
+
+        dx = x2 - x1
+        dy = y2 - y1
+        a = dx**2 + dy**2
+        b = 2 * (dx * (x1 - cx) + dy * (y1 - cy))
+        c = cx**2 + cy**2
+        c += x1**2 + y1**2
+        c -= 2 * (cx * x1 + cy * y1)
+        c -= circle.radius**2
+
+        delta = b**2 - 4 * a * c
+        if delta < 0:
+            return []
+        else:
+            result = (-b + math.sqrt(delta)) / (2 * a)
+            x_ = x1 + result * dx
+            y_ = y1 + result * dy
+            if delta == 0:
+                return [Point(x_, y_)]
+
+            result = (-b - math.sqrt(delta)) / (2 * a)
+            x__ = x1 + result * dx
+            y__ = y1 + result * dy
+
+            return [Point(x_, y_), Point(x__, y__)]
+
+    def calculate_perpendicular_line(self, point):
+        """Calculate the perpendicular line passing through the point on the
+        other line.
+
+        Parameters:
+            point a Point object.
+        Return:
+            A perpendicular line.
+        """
+
+        x1, y1, x2, y2 = self.x1, self.y1, self.x2, self.y2
+        x3, y3 = point.x, point.y
+
+        k = (((y2 - y1) * (x3 - x1) - (x2 - x1) * (y3 - y1)) /
+            ((y2 - y1)**2 + (x2 - x1)**2))
+        x4 = x3 - k * (y2 - y1)
+        y4 = y3 + k * (x2 - x1)
+
+        result = Line(begin=(x4, y4), end=point)
+
+        if point == Point(x4, y4):
+            dx = x2 - x1
+            dy = y2 - y1
+            result = Line(end=(-dy, dx))
+            result.move(x=x4, y=y4)
+
+        return result
 
     def __str__(self):
         return "{} (begin={}, end={})".format(
@@ -577,6 +442,8 @@ class Arc(Line):
         self._radius = float(kwargs.get("radius", 1.0))
         self._start_angle = wrap_2pi(float(kwargs.get("start_angle", 0.0)))
         self._offset_angle = wrap_2pi(float(kwargs.get("offset_angle", 0.0)))
+
+        self.calculate_ends()
 
     @property
     def radius(self):
@@ -637,7 +504,7 @@ class Arc(Line):
         else:
             minimum_y = min(self.y1, self.y2)
 
-        return (minimum_x, minimum_y, maximum_x, maximum_y)
+        return Rectangle(minimum_x, minimum_y, maximum_x, maximum_y)
 
     def move(self, **kwargs):
         x = kwargs.get("x", 0)
@@ -646,6 +513,84 @@ class Arc(Line):
         self.centre_point.y += y
 
         super(Arc, self).move(**kwargs)
+
+    def intersect_line(self, line):
+        return line.intersect_arc(self)
+
+    def intersect_arc(self, arc):
+        """Calculate the points between two arcs.
+
+        Parameters:
+            arc a Arc object.
+        Return:
+            A list of 0-2 points if the same are within the angle range of the
+            arc. Or arc if the distance between the centers is 0 and radius are
+            equal.
+        """
+
+        result = []
+        p1 = self.centre_point
+        start1 = self.start_angle
+        end1 = self.offset_angle
+        p2 = arc.centre_point
+        start2 = arc.start_angle
+        end2 = arc.offset_angle
+
+        distance = p1.distance(p2)
+        if (arc.radius - self.radius) < distance < (self.radius + arc.radius):
+            points = self.calculate_intersection_circle_points(arc, distance)
+            for point in points:
+                angle1 = wrap_2pi(math.atan2(point.y - p1.y, point.x - p1.x))
+                angle2 = wrap_2pi(math.atan2(point.y - p2.y, point.x - p2.x))
+
+                if (angle_in_range(angle1, start1, end1) and
+                        angle_in_range(angle2, start2, end2)):
+
+                    result.append(point)
+        elif (distance == 0) and (self.radius == arc.radius):
+            result = Arc(centre_point=self.centre_point, radius=self.radius)
+
+            if angle_in_range(start1, start2, end2):
+                result.start_angle = self.start_angle
+            elif angle_in_range(start2, start1, end1):
+                result.start_angle = arc.start_angle
+            if angle_in_range(end1, start2, end2):
+                result.offset_angle = self.offset_angle
+            elif angle_in_range(end2, start1, end1):
+                result.offset_angle = arc.offset_angle
+
+        return result
+
+    def calculate_intersection_circle_points(self, circle, distance=None):
+        """Calculate the points between two circles.
+
+        Parameters:
+            circle a Arc object.
+            distance the distance between the center points of the circles, or
+            None to calculate the distance.
+        Return:
+            A list with two points.
+        """
+
+        p1 = self.centre_point
+        r1 = self.radius
+        p2 = circle.centre_point
+        r2 = circle.radius
+
+        if not distance:
+            distance = p1.distance(p2)
+
+        a = (r1**2 - r2**2 + distance**2) / (2 * distance)
+        h = math.sqrt(r1**2 - a**2)
+        s = a / distance
+        p3 = Point(p1.x + s * (p2.x - p1.x), p1.y + s * (p2.y - p1.y))
+
+        x3 = p3.x + h * (p2.y - p1.y) / distance
+        y3 = p3.y - h * (p2.x - p1.x) / distance
+        x4 = p3.x - h * (p2.y - p1.y) / distance
+        y4 = p3.y + h * (p2.x - p1.x) / distance
+
+        return [Point(x3, y3), Point(x4, y4)]
 
     def __str__(self):
         return ("{} (\n"
@@ -670,7 +615,7 @@ class Shape(Object):
         self.inner_loops = kwargs.get("inner_loops", list())
 
         self._last_outer_loop_size = len(self.outer_loop)
-        self._shape_aabb = [0.0, 0.0, 0.0, 0.0]
+        self._shape_aabb = Rectangle()
         self.bounds()
 
     def bounds(self):
@@ -733,21 +678,21 @@ if __name__ == "__main__":
 
     l1 = Line(begin=(0, 0), end=(5, 0))
     l2 = Line(begin=(3, 0), end=(10, 0))
-    print "Line-Line: {}".format(lines(l1, l2))
+    print "Line-Line: {}".format(l1.intersect_line(l2))
     l = Line(begin=(0, 2), end=(4, 2))
     a = Arc(centre_point=Point(2, 2), radius=2,
             start_angle=0, offset_angle=0)
     b = Arc(centre_point=Point(5, 2), radius=2,
             start_angle=0, offset_angle=0)
-    print "Line-Arc: {}".format(line_arc(l, a))
-    print "Arcs: {}".format(arcs(a, b))
-    print "Arcs: {}".format(arcs(a, a))
+    print "Line-Arc: {}".format(l.intersect_arc(a))
+    print "Arcs: {}".format(a.intersect_arc(b))
+    print "Arcs: {}".format(a.intersect_arc(a))
     p = Point(0, 1)
     pl = Line(begin=(1, 1), end=(5, 5))
-    print "Perpendicular: {}".format(calculate_perpendicular_line(pl, p))
+    print "Perpendicular: {}".format(pl.calculate_perpendicular_line(p))
 
     l3 = Line(begin=(1, 1), end=(3, 2))
     pc = Point(2, 1.5)
     print "Perpendicular collinear: {}".format(
-        calculate_perpendicular_line(l3, pc))
+        l3.calculate_perpendicular_line(pc))
 

@@ -3,9 +3,6 @@
 CURRENT TASKS:
   - Implementar algoritmo Bottom-Left.
     @ Added [Sáb 2013-10-26]
-    - Verificar se as funções de colisão de forma podem ser movidas para as
-      classes de formas.
-      @ Added [Ter 2013-10-29]
     - Implementar cálculo de deslocamento de primitivas.
       @ Added [Sáb 2013-10-26]
       @ Start [Seg 2013-10-28] [00:53], end [01:18]
@@ -14,6 +11,11 @@ CURRENT TASKS:
       @ Start [Ter 2013-10-29] [05:29], end [05:36]
     - Criar algumas formas para teste.
       @ Added [Sáb 2013-10-26]
+    - Verificar se as funções de colisão de forma podem ser movidas para as
+      classes de formas.
+      @ Added [Ter 2013-10-29]
+      @ Start [Ter 2013-10-29] [07:20], end [07:46]
+      @ DONE [Ter 2013-10-29]
     - Deixar o algoritmo que encontra o ponto de interseção entre linhas mais
       simples.
       @ Added [Ter 2013-10-29]

@@ -103,7 +103,7 @@ class Render(object):
 
     def intersect(self, a, b):
         print a, b
-        result = lines(a, b)
+        result = a.intersect_line(b)
         print result
         if isinstance(result, Point):
             xy = (int(result.x) - 1, int(result.y) - 1,
