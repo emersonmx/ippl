@@ -466,7 +466,7 @@ class Arc(Line):
         super(Arc, self).__init__(**kwargs)
 
         self.centre_point = kwargs.get("centre_point", Point())
-        self._radius = wrap_2pi(float(kwargs.get("radius", 1.0)))
+        self._radius = float(kwargs.get("radius", 1.0))
         self._start_angle = wrap_2pi(float(kwargs.get("start_angle", 0.0)))
         self._offset_angle = wrap_2pi(float(kwargs.get("offset_angle", 0.0)))
 
