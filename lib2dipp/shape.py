@@ -64,7 +64,7 @@ class Primitive(Object):
         """Returns the AABB of Primitive.
 
         Return:
-            A list like (minimum_x, minimum_y, maximum_x, maximum_y).
+            A Rectangle object.
         """
         pass
 
