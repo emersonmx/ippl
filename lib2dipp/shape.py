@@ -174,18 +174,6 @@ class Rectangle(Object):
                 self.intersect_point(rectangle.right) or
                 self.intersect_point(rectangle.top))
 
-    def __getitem__(self, index):
-        if index == 0:
-            return self._left_bottom.x
-        elif index == 1:
-            return self._left_bottom.y
-        elif index == 2:
-            return self._right_top.x
-        elif index == 3:
-            return self._right_top.y
-        else:
-            raise IndexError("index out of range")
-
     def __eq__(self, rectangle):
         return ((self.left == rectangle.left) and
                 (self.bottom == rectangle.bottom) and
@@ -622,18 +610,18 @@ class Shape(Object):
         if len(self.outer_loop) != self._last_outer_loop_size:
             self._last_outer_loop_size = len(self.outer_loop)
 
-            self._shape_aabb = list(self.outer_loop[0].bounds())
+            self._shape_aabb = self.outer_loop[0].bounds()
 
             for primitive in self.outer_loop[1:]:
                 bounding_box = primitive.bounds()
-                if bounding_box[0] < self._shape_aabb[0]:
-                    self._shape_aabb[0] = bounding_box[0]
-                if bounding_box[1] < self._shape_aabb[1]:
-                    self._shape_aabb[1] = bounding_box[1]
-                if bounding_box[2] > self._shape_aabb[2]:
-                    self._shape_aabb[2] = bounding_box[2]
-                if bounding_box[3] > self._shape_aabb[3]:
-                    self._shape_aabb[3] = bounding_box[3]
+                if bounding_box.left < self._shape_aabb.left:
+                    self._shape_aabb.left = bounding_box.left
+                if bounding_box.bottom < self._shape_aabb.bottom:
+                    self._shape_aabb.bottom = bounding_box.bottom
+                if bounding_box.right > self._shape_aabb.right:
+                    self._shape_aabb.right = bounding_box.right
+                if bounding_box.top > self._shape_aabb.top:
+                    self._shape_aabb.top = bounding_box.top
 
         return self._shape_aabb
 

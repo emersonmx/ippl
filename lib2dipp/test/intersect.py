@@ -51,7 +51,7 @@ if __name__ == "__main__":
     s.outer_loop.append(l)
 
     aabb = s.bounds()
-    size = (int(aabb[2] - aabb[0]) + 1, int(aabb[3] - aabb[1]) + 1)
+    size = (int(aabb.right - aabb.left) + 1, int(aabb.top - aabb.bottom) + 1)
     r = Render()
     r.draw_intersect = True
     r.image_size = size

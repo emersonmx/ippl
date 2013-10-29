@@ -92,10 +92,14 @@ class Render(object):
         print aabb
 
         lines = []
-        lines.append(Line(begin=(aabb[0], aabb[1]), end=(aabb[2], aabb[1])))
-        lines.append(Line(begin=(aabb[2], aabb[1]), end=(aabb[2], aabb[3])))
-        lines.append(Line(begin=(aabb[2], aabb[3]), end=(aabb[0], aabb[3])))
-        lines.append(Line(begin=(aabb[0], aabb[3]), end=(aabb[0], aabb[1])))
+        lines.append(Line(begin=(aabb.left, aabb.bottom),
+                          end=(aabb.right, aabb.bottom)))
+        lines.append(Line(begin=(aabb.right, aabb.bottom),
+                          end=(aabb.right, aabb.top)))
+        lines.append(Line(begin=(aabb.right, aabb.top),
+                          end=(aabb.left, aabb.top)))
+        lines.append(Line(begin=(aabb.left, aabb.top),
+                          end=(aabb.left, aabb.bottom)))
 
         for line in lines:
             xy = ((line.begin.x, line.begin.y), (line.end.x, line.end.y))
