@@ -6,6 +6,8 @@ CURRENT TASKS:
     - Implementar cálculo de deslocamento de primitivas.
       @ Added [Sáb 2013-10-26]
       @ Start [Seg 2013-10-28] [00:53], end [01:18]
+    - Implementar algoritmo de AABB para a forma.
+      @ Added [Seg 2013-10-28]
     - Implementar algoritmo para resolver o problema das formas contidas.
       @ Added [Sáb 2013-10-26]
     - Criar algumas formas para teste.
@@ -29,22 +31,8 @@ CURRENT TASKS:
       @ Added [Sáb 2013-10-26]
     - Implementar mutação.
       @ Added [Sáb 2013-10-26]
-  - Diversos
-    @ Added [Sáb 2013-10-19]
-    - Documentar código.
-      @ Added [Sáb 2013-10-19]
-    - Implementar aplicação OpenGL para visualizar formas.
-      @ Added [Dom 2013-10-27]
-    - Melhorar implementação dos cálculos de intersecção.
-      @ Added [Dom 2013-10-27]
-      @ Start [Seg 2013-10-28] [00:40], end [00:49]
-      @ DONE [Seg 2013-10-28]
-    - Limitar o valor dos ângulos dos arcos para [0, 2pi).
-      @ Added [Sáb 2013-10-19]
-      @ DONE [Sáb 2013-10-19]
-    - Aceitar somente valores reais.
-      @ Added [Sáb 2013-10-19]
-      @ DONE [Sáb 2013-10-19]
+  - Implementar aplicação OpenGL para vizualizar formas.
+    @ Added [Seg 2013-10-28]
 COMPLETED TASKS:
   - Caso linha-linha
     @ Added [Sáb 2013-10-19]
@@ -81,5 +69,18 @@ COMPLETED TASKS:
       @ Start [Qui 2013-10-24] [19:28], end [19:28]
       @ DONE [Qui 2013-10-24]
     @ DONE [Qui 2013-10-24]
+  - Diversos
+    @ Added [Sáb 2013-10-19]
+    - Melhorar implementação dos cálculos de intersecção.
+      @ Added [Dom 2013-10-27]
+      @ Start [Seg 2013-10-28] [00:40], end [00:49]
+      @ DONE [Seg 2013-10-28]
+    - Limitar o valor dos ângulos dos arcos para [0, 2pi).
+      @ Added [Sáb 2013-10-19]
+      @ DONE [Sáb 2013-10-19]
+    - Aceitar somente valores reais.
+      @ Added [Sáb 2013-10-19]
+      @ DONE [Sáb 2013-10-19]
+    @ DONE [Seg 2013-10-28]
 
 # vim:ft=quicktask
