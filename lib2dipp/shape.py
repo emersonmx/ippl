@@ -46,6 +46,37 @@ def angle_in_range(angle, start, end):
 
     return start <= angle <= end
 
+def point_in_rect(point, rect):
+    """Checks whether a point is inside a rectangle.
+
+    Parameters:
+        point a Point object.
+        rect a 4-tuple with the values for [x, y, width, height].
+    Return:
+        True if the point is inside the rectangle, or False otherwise.
+    """
+
+    return (rect[0] <= point.x <= rect[2]) and (rect[1] <= point.y <= rect[3])
+
+def intersect_rects(rect1, rect2):
+    """Checks whether a rectangle intersects with another.
+
+    Parameters:
+        rect1 a 4-tuple with the values for [x, y, width, height].
+        rect2 a 4-tuple with the values for [x, y, width, height].
+    Return:
+        True if the rectangles intersects, or False otherwise.
+    """
+
+    result = False
+
+    for point in rect1:
+        result = point_in_rect(point, rect2)
+        if result:
+            break
+
+    return result
+
 def calculate_line_circle_points(line, circle):
     """Calculate the points between a line and a circle.
 
@@ -159,7 +190,7 @@ def calculate_perpendicular_line(line, point):
     """
 
     begin, end = line.begin, line.end
-    x1, y1, x2, y2 = begin.x, begin.y, end.x, end.y
+    x1, y1, x2, y2 = line.x1, line.y1, line.x2, line.y2
     x3, y3 = point.x, point.y
 
     k = (((y2 - y1) * (x3 - x1) - (x2 - x1) * (y3 - y1)) /
@@ -176,18 +207,6 @@ def calculate_perpendicular_line(line, point):
         result.move(x=x4, y=y4)
 
     return result
-
-def point_in_rect(point, rect):
-    """Checks whether a point is inside a rectangle.
-
-    Parameters:
-        point a Point object.
-        rect a 4-tuple with the values for [x, y, width, height].
-    Return:
-        True if the point is inside the rectangle, or False otherwise.
-    """
-
-    return (rect[0] <= point.x <= rect[2]) and (rect[1] <= point.y <= rect[3])
 
 def lines(line1, line2):
     """Calculates the point / line collision between two lines.
@@ -330,10 +349,6 @@ class Primitive(Object):
         """Moves the primitive."""
         pass
 
-    def intersect(self, other):
-        """Checks whether a primitive intersects with another one."""
-        pass
-
 
 class Point(Object):
 
@@ -390,11 +405,43 @@ class Line(Primitive):
         self.begin = Point(x=begin[0], y=begin[1])
         self.end = Point(x=end[0], y=end[1])
 
+    @property
+    def x1(self):
+        return self.begin.x
+
+    @x1.setter
+    def x1(self, value):
+        self.begin.x = value
+
+    @property
+    def y1(self):
+        return self.begin.y
+
+    @y1.setter
+    def y1(self, value):
+        self.begin.y = value
+
+    @property
+    def x2(self):
+        return self.end.x
+
+    @x2.setter
+    def x2(self, value):
+        self.end.x = value
+
+    @property
+    def y2(self):
+        return self.end.y
+
+    @y2.setter
+    def y2(self, value):
+        self.end.y = value
+
     def bounds(self):
-        minimum_x = min(self.begin.x, self.end.x)
-        maximum_x = max(self.begin.x, self.end.x)
-        minimum_y = min(self.begin.y, self.end.y)
-        maximum_y = max(self.begin.y, self.end.y)
+        minimum_x = min(self.x1, self.x2)
+        maximum_x = max(self.x1, self.x2)
+        minimum_y = min(self.y1, self.y2)
+        maximum_y = max(self.y1, self.y2)
 
         return (minimum_x, minimum_y, maximum_x, maximum_y)
 
@@ -404,9 +451,6 @@ class Line(Primitive):
 
         self.begin.move(x, y)
         self.end.move(x, y)
-
-    def intersect(self, other):
-        return False
 
     def __str__(self):
         return "{} (begin={}, end={})".format(
@@ -451,13 +495,13 @@ class Arc(Line):
         self._offset_angle = wrap_2pi(float(value))
 
     def calculate_ends(self):
-        self.begin.x = (self.centre_point.x +
+        self.x1 = (self.centre_point.x +
             self.radius * math.cos(self.start_angle))
-        self.begin.y = (self.centre_point.y +
+        self.y1 = (self.centre_point.y +
             self.radius * math.sin(self.start_angle))
-        self.end.x = (self.centre_point.x +
+        self.x2 = (self.centre_point.x +
             self.radius * math.cos(self.offset_angle))
-        self.end.y = (self.centre_point.y +
+        self.y2 = (self.centre_point.y +
             self.radius * math.sin(self.offset_angle))
 
     def bounds(self):
@@ -470,20 +514,20 @@ class Arc(Line):
         if wrap_360(start) >= wrap_360(end):
             maximum_x = self.centre_point.x + self.radius
         else:
-            maximum_x = max(self.begin.x, self.end.x)
+            maximum_x = max(self.x1, self.x2)
         if wrap_360(start - 90) >= wrap_360(end - 90):
             maximum_y = self.centre_point.y + self.radius
         else:
-            maximum_y = max(self.begin.y, self.end.y)
+            maximum_y = max(self.y1, self.y2)
 
         if wrap_360(start - 180) >= wrap_360(end - 180):
             minimum_x = self.centre_point.x - self.radius
         else:
-            minimum_x = min(self.begin.x, self.end.x)
+            minimum_x = min(self.x1, self.x2)
         if wrap_360(start - 270) >= wrap_360(end - 270):
             minimum_y = self.centre_point.y - self.radius
         else:
-            minimum_y = min(self.begin.y, self.end.y)
+            minimum_y = min(self.y1, self.y2)
 
         return (minimum_x, minimum_y, maximum_x, maximum_y)
 
@@ -494,9 +538,6 @@ class Arc(Line):
         self.centre_point.y += y
 
         super(Arc, self).move(**kwargs)
-
-    def intersect(self, other):
-        return False
 
     def __str__(self):
         return ("{} (\n"
