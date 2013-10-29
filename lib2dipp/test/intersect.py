@@ -46,8 +46,8 @@ if __name__ == "__main__":
     l = Line(begin=(0.0, 0.0), end=(0.0, 50.0))
     l.move(x=75)
     s.outer_loop.append(l)
-    l = Line(begin=(0.0, 0.0), end=(50.0, 1.0))
-    l.move(x=110, y=60)
+    l = Line(begin=(0.0, 0.0), end=(50.0, 0.0))
+    l.move(x=100, y=60)
     s.outer_loop.append(l)
 
     aabb = s.bounds()

@@ -16,8 +16,6 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 
 import file_io
-import intersect
 import render
 import shape
-import util
 

@@ -18,18 +18,24 @@
 import math
 
 def wrap_2pi(angle):
+    """Limits the angle to the range [0, 2pi)."""
+
     return angle % (math.pi * 2)
 
 def wrap_360(angle):
+    """Limits the angle to the range [0, 360)."""
+
     return angle % 360
 
 def angle_in_range(angle, start, end):
     """Checks whether an angle is between start and end.
 
-    params:
-        angle in radians in range [0, math.pi*2)
-        start angle in radians in range [0, math.pi*2)
-        end angle in range in range [0, math.pi*2)
+    Parameters:
+        angle a angle in radians in range [0, math.pi*2)
+        start a angle in radians in range [0, math.pi*2)
+        end a angle in range in range [0, math.pi*2)
+    Return:
+        True if the angle is within the range, or False otherwise.
     """
 
     if wrap_2pi(start) >= wrap_2pi(end):
@@ -41,6 +47,16 @@ def angle_in_range(angle, start, end):
     return start <= angle <= end
 
 def calculate_line_circle_points(line, circle):
+    """Calculate the points between a line and a circle.
+
+    Parameters:
+        line a Line object.
+        circle a Arc object.
+    Return:
+        An empty list if delta < 0, a list with a point if delta == 0 and a list
+        with two points of delta> 0.
+    """
+
     x1, y1 = line.begin
     x2, y2 = line.end
     cx, cy = circle.centre_point
@@ -71,6 +87,17 @@ def calculate_line_circle_points(line, circle):
         return [Point(x_, y_), Point(x__, y__)]
 
 def calculate_circles_points(circle1, circle2, distance=None):
+    """Calculate the points between two circles.
+
+    Parameters:
+        circle1 a Arc object.
+        circle2 a Arc object.
+        distance the distance between the center points of the circles, or None
+        to calculate the distance.
+    Return:
+        A list with two points.
+    """
+
     p1 = circle1.centre_point
     r1 = circle1.radius
     p2 = circle2.centre_point
@@ -91,7 +118,46 @@ def calculate_circles_points(circle1, circle2, distance=None):
 
     return [Point(x3, y3), Point(x4, y4)]
 
+def calculate_lines_point(line1, line2):
+    """Calculate the intersection point between lines.
+
+    Parameters:
+        Two Line objects.
+    Return:
+        a dictionary with the alpha, beta and the denominator values.
+    """
+
+    result = { "alpha": None, "beta": None, "denominator": 0.0 }
+
+    p1, p2, p3, p4 = line1.begin, line1.end, line2.begin, line2.end
+
+    a = Point(p2.x - p1.x, p2.y - p1.y)
+    b = Point(p3.x - p4.x, p3.y - p4.y)
+    c = Point(p1.x - p3.x, p1.y - p3.y)
+
+    denominator = (a.y * b.x) - (a.x * b.y)
+    result["denominator"] = denominator
+
+    collinear = (denominator == 0)
+    if collinear:
+        return result
+
+    result["alpha"] = ((b.y * c.x) - (b.x * c.y)) / denominator
+    result["beta"] = ((a.x * c.y) - (a.y * c.x)) / denominator
+
+    return result
+
 def calculate_perpendicular_line(line, point):
+    """Calculate the perpendicular line passing through the point on the other
+    line.
+
+    Parameters:
+        line a Line object.
+        point a Point object.
+    Return:
+        A perpendicular line.
+    """
+
     begin, end = line.begin, line.end
     x1, y1, x2, y2 = begin.x, begin.y, end.x, end.y
     x3, y3 = point.x, point.y
@@ -112,10 +178,27 @@ def calculate_perpendicular_line(line, point):
     return result
 
 def point_in_rect(point, rect):
+    """Checks whether a point is inside a rectangle.
+
+    Parameters:
+        point a Point object.
+        rect a 4-tuple with the values for [x, y, width, height].
+    Return:
+        True if the point is inside the rectangle, or False otherwise.
+    """
+
     return (rect[0] <= point.x <= rect[2]) and (rect[1] <= point.y <= rect[3])
 
 def lines(line1, line2):
-    """See p.199-201 of Graphic Gems 3."""
+    """Calculates the point / line collision between two lines.
+
+    Parameters:
+        line1 a Line object.
+        line2 a Line object.
+    Return:
+        A point of intersection, or a line of intersection if they are collinear
+        and None if not intersect.
+    """
 
     p1, p2, p3, p4 = line1.begin, line1.end, line2.begin, line2.end
 
@@ -123,7 +206,8 @@ def lines(line1, line2):
     b = Point(p3.x - p4.x, p3.y - p4.y)
     c = Point(p1.x - p3.x, p1.y - p3.y)
 
-    denominator = (a.y * b.x) - (a.x * b.y)
+    values = calculate_lines_point(line1, line2)
+    denominator = values["denominator"]
     collinear = (denominator == 0)
     if collinear:
         begin = None
@@ -136,24 +220,31 @@ def lines(line1, line2):
         if p1.x <= p3.x <= p2.x:
             end = p3
         elif p1.x <= p4.x <= p2.x:
-            end = p3
+            end = p4
 
         if begin and end:
             return Line(begin=begin, end=end)
 
         return None
 
-    alpha = ((b.y * c.x) - (b.x * c.y)) / denominator
-    beta = 0
-    if 0 <= alpha <= 1:
-        beta = ((a.x * c.y) - (a.y * c.x)) / denominator
-        if 0 <= beta <= 1:
-            return Point(p1.x + alpha * (p2.x - p1.x),
-                         p1.y + alpha * (p2.y - p1.y))
+    alpha = values["alpha"]
+    beta = values["beta"]
+
+    if (0.0 <= alpha <= 1.0) and (0.0 <= beta <= 1.0):
+        return Point(p1.x + alpha * (p2.x - p1.x), p1.y + alpha * (p2.y - p1.y))
 
     return None
 
 def line_arc(line, arc):
+    """Calculate the points between a line and a arc.
+
+    Parameters:
+        line a Line object.
+        arc a Arc object.
+    Return:
+        A list of 0-2 points if the same are within the angle range of the arc.
+    """
+
     result = []
     points = calculate_line_circle_points(line, arc)
     if points:
@@ -170,6 +261,16 @@ def line_arc(line, arc):
     return result
 
 def arcs(arc1, arc2):
+    """Calculate the points between two arcs.
+
+    Parameters:
+        arc1 a Arc object.
+        arc2 a Arc object.
+    Return:
+        A list of 0-2 points if the same are within the angle range of the arc.
+        Or arc if the distance between the centers is 0 and radius are equal.
+    """
+
     result = []
     p1 = arc1.centre_point
     start1 = arc1.start_angle
@@ -419,27 +520,28 @@ class Shape(Object):
         self.outer_loop = kwargs.get("outer_loop", list())
         self.inner_loops = kwargs.get("inner_loops", list())
 
+        self._last_outer_loop_size = len(self.outer_loop)
+        self._shape_aabb = [0.0, 0.0, 0.0, 0.0]
+        self.bounds()
+
     def bounds(self):
-        minimum_x, minimum_y, maximum_x, maximum_y = (0, 0, 0, 0)
-        bounding_box = None
-        first = True
+        if len(self.outer_loop) != self._last_outer_loop_size:
+            self._last_outer_loop_size = len(self.outer_loop)
 
-        for primitive in self.outer_loop:
-            if not first:
+            self._shape_aabb = list(self.outer_loop[0].bounds())
+
+            for primitive in self.outer_loop[1:]:
                 bounding_box = primitive.bounds()
-                if bounding_box[0] < minimum_x:
-                    minimum_x = bounding_box[0]
-                if bounding_box[1] < minimum_y:
-                    minimum_y = bounding_box[1]
-                if bounding_box[2] > maximum_x:
-                    maximum_x = bounding_box[2]
-                if bounding_box[3] > maximum_y:
-                    maximum_y = bounding_box[3]
-            else:
-                minimum_x, minimum_y, maximum_x, maximum_y = primitive.bounds()
-                first = False
+                if bounding_box[0] < self._shape_aabb[0]:
+                    self._shape_aabb[0] = bounding_box[0]
+                if bounding_box[1] < self._shape_aabb[1]:
+                    self._shape_aabb[1] = bounding_box[1]
+                if bounding_box[2] > self._shape_aabb[2]:
+                    self._shape_aabb[2] = bounding_box[2]
+                if bounding_box[3] > self._shape_aabb[3]:
+                    self._shape_aabb[3] = bounding_box[3]
 
-        return minimum_x, minimum_y, maximum_x, maximum_y
+        return self._shape_aabb
 
     def move(self, **kwargs):
         x = float(kwargs.get("x", 0.0))
@@ -478,6 +580,7 @@ if __name__ == "__main__":
     s.outer_loop.append(Line(begin=(1, 1), end=(0, 1)))
     s.outer_loop.append(Line(begin=(0, 1), end=(0, 0)))
     print s
+    print s.bounds()
 
     l1 = Line(begin=(0, 0), end=(5, 0))
     l2 = Line(begin=(3, 0), end=(10, 0))
