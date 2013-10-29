@@ -381,6 +381,17 @@ class Point(Object):
     def distance(self, point):
         return math.sqrt((point.x - self.x)**2 + (point.y - self.y)**2)
 
+    def intersect(self, other):
+        if isinstance(other, Point):
+            return self == other
+        elif isinstance(other, Rectangle):
+            return other.intersect_point(self)
+        elif isinstance(other, Shape):
+            # Not implemented yet.
+            return False
+
+        return False
+
     def __getitem__(self, index):
         return (self.x, self.y)[index]
 
@@ -389,6 +400,103 @@ class Point(Object):
 
     def __str__(self):
         return "{} ({}, {})".format(type(self).__name__, self.x, self.y)
+
+    def __repr__(self):
+        return "<{}>".format(self)
+
+
+class Rectangle(Object):
+
+    def __init__(self, left=0.0, bottom=0.0, right=0.0, top=0.0):
+        super(Object, self).__init__()
+
+        self._left_bottom = Point(left, bottom)
+        self._right_top = Point(right, top)
+
+    @property
+    def left(self):
+        return self._left_bottom.x
+
+    @left.setter
+    def left(self, value):
+        self._left_bottom.x = value
+
+    @property
+    def bottom(self):
+        return self._left_bottom.y
+
+    @bottom.setter
+    def bottom(self, value):
+        self._left_bottom.y = value
+
+    @property
+    def right(self):
+        return self._right_top.x
+
+    @right.setter
+    def right(self, value):
+        self._right_top.x = value
+
+    @property
+    def top(self):
+        return self._right_top.y
+
+    @top.setter
+    def top(self, value):
+        self._right_top.y = value
+
+    def move(self, **kwargs):
+        x = kwargs.get("x", 0)
+        y = kwargs.get("y", 0)
+
+        self._left_bottom.move(x, y)
+        self._right_top.move(x, y)
+
+    def intersect(self, other):
+        if isinstance(other, Point):
+            return self.intersect_point(other)
+        elif isinstance(other, Rectangle):
+            return self.intersect_rect(other)
+        elif isinstance(other, Shape):
+            return self.intersect_shape(other)
+
+        return False
+
+    def intersect_point(self, point):
+        return ((rect.left <= point.x <= rect.right) and
+                (rect.bottom <= point.y <= rect.top))
+
+    def intersect_rectangle(self, rectangle):
+        return (self.intersect_point(rectangle.left) or
+                self.intersect_point(rectangle.bottom) or
+                self.intersect_point(rectangle.right) or
+                self.intersect_point(rectangle.top))
+
+    def intersect_shape(self, shape):
+        # Do not know if it will need, but I'm leaving a hook.
+        return False
+
+    def __getitem__(self, index):
+        if index == 0:
+            return self._left_bottom.x
+        elif index == 1:
+            return self._left_bottom.y
+        elif index == 2:
+            return self._right_top.x
+        elif index == 3:
+            return self._right_top.y
+        else:
+            raise IndexError("index out of range")
+
+    def __eq__(self, rectangle):
+        return ((self.left == rectangle.left) and
+                (self.bottom == rectangle.bottom) and
+                (self.right == rectangle.right) and
+                (self.top == rectangle.top))
+
+    def __str__(self):
+        return "{} ({}, {}, {}, {})".format(type(self).__name__,
+            self.left, self.bottom, self.right, self.top)
 
     def __repr__(self):
         return "<{}>".format(self)
