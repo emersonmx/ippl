@@ -76,6 +76,12 @@ class Point(Object):
     def distance(self, point):
         return math.sqrt((point.x - self.x)**2 + (point.y - self.y)**2)
 
+    def intersect_point(self, point):
+        return self == point
+
+    def intersect_rectangle(self, rectangle):
+        return rectangle.intersect_point(self)
+
     def __getitem__(self, index):
         return (self.x, self.y)[index]
 
