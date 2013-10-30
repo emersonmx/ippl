@@ -17,37 +17,7 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import math
-
-def wrap_2pi(angle):
-    """Limits the angle to the range [0, 2pi)."""
-
-    return angle % (math.pi * 2)
-
-def wrap_360(angle):
-    """Limits the angle to the range [0, 360)."""
-
-    return angle % 360
-
-def angle_in_range(angle, start, end):
-    """Checks whether an angle is between start and end.
-
-    Parameters:
-        angle a angle in radians in range [0, math.pi*2)
-        start a angle in radians in range [0, math.pi*2)
-        end a angle in range in range [0, math.pi*2)
-    Return:
-        True if the angle is within the range, or False otherwise.
-    """
-
-    if wrap_2pi(start) >= wrap_2pi(end):
-        if (start <= angle <= (math.pi * 2)) or (0.0 <= angle <= end):
-            return True
-        else:
-            return False
-
-    return start <= angle <= end
-
+from util import *
 
 class Object(object):
 
