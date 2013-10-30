@@ -19,6 +19,7 @@
 
 from util import *
 
+
 class Object(object):
 
     def __init__(self):
@@ -435,16 +436,6 @@ class Arc(Line):
     def offset_angle(self, value):
         self._offset_angle = wrap_2pi(float(value))
 
-    def calculate_ends(self):
-        self.x1 = (self.centre_point.x +
-            self.radius * math.cos(self.start_angle))
-        self.y1 = (self.centre_point.y +
-            self.radius * math.sin(self.start_angle))
-        self.x2 = (self.centre_point.x +
-            self.radius * math.cos(self.offset_angle))
-        self.y2 = (self.centre_point.y +
-            self.radius * math.sin(self.offset_angle))
-
     def bounds(self):
         self.calculate_ends()
 
@@ -526,6 +517,16 @@ class Arc(Line):
                 result.offset_angle = arc.offset_angle
 
         return result
+
+    def calculate_ends(self):
+        self.x1 = (self.centre_point.x +
+            self.radius * math.cos(self.start_angle))
+        self.y1 = (self.centre_point.y +
+            self.radius * math.sin(self.start_angle))
+        self.x2 = (self.centre_point.x +
+            self.radius * math.cos(self.offset_angle))
+        self.y2 = (self.centre_point.y +
+            self.radius * math.sin(self.offset_angle))
 
     def calculate_intersection_circle_points(self, circle, distance=None):
         """Calculate the points between two circles.
@@ -613,6 +614,40 @@ class Shape(Object):
         for loop in self.inner_loops:
             for primitive in loop:
                 primitive.move(x=x, y=y)
+
+    def contains(self, shape):
+        """Verifica se uma forma esta contida dentro desta forma."""
+
+        # Internet fdp! vai esse nome por enquanto...
+        vertical_line = Line()
+        for primitive in shape.outer_loop:
+            if isinstance(primitive, Arc):
+                primitive.calculate_ends()
+
+            # No caso linha-linha, a reta vertical sera alfa e as linhas serao
+            # beta. Logo, se o ponto de colisao estiver entre
+            # 0.0 <= beta <= 1.0 das linhas entao deve-se incrementar count em
+            # 1.
+            # Para o caso linha-arco, deve calcular os pontos de colisao no arco
+            # e incrementar count com a quantidade dos pontos que foram
+            # encontrados.
+            # Lembrar de considerar os casos especiais: linha colinear e arcos
+            # na mesma posicao e com mesmo raio.
+            vertical_line = primitive
+            vertical_line.end.move(0, 1)
+            count = 0
+
+            for outer in self.outer_loop:
+                pass
+
+            for loop in self.inner_loops:
+                for inner in loop:
+                    pass
+
+            if (count % 2) == 1:
+                return True
+
+        return False
 
     def __str__(self):
         return ("{} (\n"

@@ -9,6 +9,7 @@ CURRENT TASKS:
     - Implementar algoritmo para resolver o problema das formas contidas.
       @ Added [Sáb 2013-10-26]
       @ Start [Ter 2013-10-29] [05:29], end [05:36]
+      @ Start [Qua 2013-10-30] [00:06], end [00:58]
     - Criar algumas formas para teste.
       @ Added [Sáb 2013-10-26]
     - Verificar se as funções de colisão de forma podem ser movidas para as
@@ -44,7 +45,7 @@ CURRENT TASKS:
       @ Added [Sáb 2013-10-26]
     - Implementar mutação.
       @ Added [Sáb 2013-10-26]
-  - Implementar aplicação OpenGL para vizualizar formas.
+  - Implementar aplicação OpenGL para visualizar formas.
     @ Added [Seg 2013-10-28]
 COMPLETED TASKS:
   - Caso linha-linha
@@ -96,4 +97,4 @@ COMPLETED TASKS:
       @ DONE [Sáb 2013-10-19]
     @ DONE [Seg 2013-10-28]
 
-# vim:ft=quicktask
+# vim:ft=quicktask nowrap spell spl=pt
