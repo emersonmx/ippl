@@ -245,19 +245,38 @@ class Line(Primitive):
         denominator = values["denominator"]
         collinear = (denominator == 0)
         if collinear:
-            begin = None
-            end = None
+            begin = Point()
+            end = Point()
 
             if p3.x <= p1.x <= p4.x:
-                begin = p1
+                begin.x = p1.x
             elif p3.x <= p2.x <= p4.x:
-                begin = p2
-            if p1.x <= p3.x <= p2.x:
-                end = p3
-            elif p1.x <= p4.x <= p2.x:
-                end = p4
+                begin.x = p2.x
+            else:
+                return None
+            if p3.y <= p1.y <= p4.y:
+                begin.y = p1.y
+            elif p3.y <= p2.y <= p4.y:
+                begin.y = p2.y
+            else:
+                return None
 
-            if begin and end:
+            if p1.x <= p3.x <= p2.x:
+                end.x = p3.x
+            elif p1.x <= p4.x <= p2.x:
+                end.x = p4.x
+            else:
+                return None
+            if p1.y <= p3.y <= p2.y:
+                end.y = p3.y
+            elif p1.y <= p4.y <= p2.y:
+                end.y = p4.y
+            else:
+                return None
+
+            if begin == end:
+                return Point(begin.x, begin.y)
+            else:
                 return Line(begin=begin, end=end)
 
             return None

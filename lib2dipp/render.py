@@ -84,10 +84,7 @@ class Render(object):
 
             i += 1
 
-    def _aabb(self, primitive, color):
-        aabb = primitive.bounds()
-        print aabb
-
+    def _aabb(self, aabb, color):
         lines = []
         lines.append(Line(begin=(aabb.left, aabb.bottom),
                           end=(aabb.right, aabb.bottom)))
@@ -102,17 +99,16 @@ class Render(object):
             self._line(line, color)
 
     def intersect(self, a, b):
-        print a, b
-        result = a.intersect_line(b)
-        print result
+        result = None
+        if isinstance(a, Line) and isinstance(b, Line):
+            result = a.intersect_line(b)
+
         if isinstance(result, Point):
-            xy = (int(result.x) - 1, int(result.y) - 1,
+            xy = Rectangle(int(result.x) - 1, int(result.y) - 1,
                 int(result.x) + 1, int(result.y) + 1)
-            self._image_drawer.rectangle(xy, self.intersect_color)
+            self._aabb(xy, self.intersect_color)
         elif isinstance(result, Line):
-            xy = ((result.begin.x, result.begin.y),
-                  (result.end.x, result.end.y))
-            self._line(xy, self.intersect_color)
+            self._line(result, self.intersect_color)
 
     def shape(self, shape):
         bounding_box = shape.bounds()
