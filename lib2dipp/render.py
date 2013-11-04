@@ -44,11 +44,11 @@ class Render(object):
         self._image = None
         self._image_drawer = None
 
-    def _line(self, line, color):
+    def _line(self, line, color, width=1):
         xy = ((line.begin.x, line.begin.y), (line.end.x, line.end.y))
-        self._image_drawer.line(xy, color)
+        self._image_drawer.line(xy, color, width)
 
-    def _arc(self, arc, color):
+    def _arc(self, arc, color, width=1):
         start = math.degrees(arc.start_angle)
         end = math.degrees(arc.offset_angle)
 
@@ -73,7 +73,7 @@ class Render(object):
                      arc.radius * math.sin(math.radians(degrees)))
                 end_point = (x, y)
 
-                self._line(Line(begin=begin_point, end=end_point), color)
+                self._line(Line(begin=begin_point, end=end_point), color, width)
                 begin_point = end_point
             else:
                 x = (arc.centre_point.x +
@@ -108,7 +108,7 @@ class Render(object):
                 int(result.x) + 1, int(result.y) + 1)
             self._aabb(xy, self.intersect_color)
         elif isinstance(result, Line):
-            self._line(result, self.intersect_color)
+            self._line(result, self.intersect_color, 3)
 
     def shape(self, shape):
         bounding_box = shape.bounds()
