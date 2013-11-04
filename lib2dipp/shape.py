@@ -242,9 +242,7 @@ class Line(Primitive):
         c = Point(p1.x - p3.x, p1.y - p3.y)
 
         values = self.calculate_intersection_line_point(line)
-        denominator = values["denominator"]
-        collinear = (denominator == 0)
-        if collinear:
+        if values["collinear"]:
             begin = Point()
             end = Point()
 
@@ -324,7 +322,7 @@ class Line(Primitive):
             a dictionary with the alpha, beta and the denominator values.
         """
 
-        result = { "alpha": None, "beta": None, "denominator": 0.0 }
+        result = { "alpha": None, "beta": None, "collinear": False }
 
         p1, p2, p3, p4 = self.begin, self.end, line.begin, line.end
 
@@ -333,10 +331,9 @@ class Line(Primitive):
         c = Point(p1.x - p3.x, p1.y - p3.y)
 
         denominator = (a.y * b.x) - (a.x * b.y)
-        result["denominator"] = denominator
 
-        collinear = (denominator == 0)
-        if collinear:
+        result["collinear"] = (denominator == 0)
+        if result["collinear"]:
             return result
 
         result["alpha"] = ((b.y * c.x) - (b.x * c.y)) / denominator
