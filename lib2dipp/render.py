@@ -44,15 +44,11 @@ class Render(object):
         self._image = None
         self._image_drawer = None
 
-    def _line(self, line, type):
+    def _line(self, line, color):
         xy = ((line.begin.x, line.begin.y), (line.end.x, line.end.y))
+        self._image_drawer.line(xy, color)
 
-        if type == "external":
-            self._image_drawer.line(xy, self.shape_external_color)
-        elif type == "internal":
-            self._image_drawer.line(xy, self.shape_internal_color)
-
-    def _arc(self, arc, type):
+    def _arc(self, arc, color):
         start = math.degrees(arc.start_angle)
         end = math.degrees(arc.offset_angle)
 
@@ -77,8 +73,7 @@ class Render(object):
                      arc.radius * math.sin(math.radians(degrees)))
                 end_point = (x, y)
 
-                self._image_drawer.line((begin_point, end_point),
-                                        self.shape_external_color)
+                self._line(Line(begin=begin_point, end=end_point), color)
                 begin_point = end_point
             else:
                 x = (arc.centre_point.x +
@@ -89,7 +84,7 @@ class Render(object):
 
             i += 1
 
-    def _aabb(self, primitive):
+    def _aabb(self, primitive, color):
         aabb = primitive.bounds()
         print aabb
 
@@ -104,8 +99,7 @@ class Render(object):
                           end=(aabb.left, aabb.bottom)))
 
         for line in lines:
-            xy = ((line.begin.x, line.begin.y), (line.end.x, line.end.y))
-            self._image_drawer.line(xy, self.aabb_color)
+            self._line(line, color)
 
     def intersect(self, a, b):
         print a, b
@@ -118,7 +112,7 @@ class Render(object):
         elif isinstance(result, Line):
             xy = ((result.begin.x, result.begin.y),
                   (result.end.x, result.end.y))
-            self._image_drawer.line(xy, self.intersect_color)
+            self._line(xy, self.intersect_color)
 
     def shape(self, shape):
         bounding_box = shape.bounds()
@@ -129,11 +123,18 @@ class Render(object):
 
         for primitive in shape.outer_loop:
             if isinstance(primitive, Arc):
-                self._arc(primitive, "external")
+                self._arc(primitive, self.shape_external_color)
             elif isinstance(primitive, Line):
-                self._line(primitive, "external")
+                self._line(primitive, self.shape_external_color)
             if self.draw_bounds:
-                self._aabb(primitive)
+                self._aabb(primitive, self.aabb_color)
+
+        for loop in shape.inner_loops:
+            for primitive in loop:
+                if isinstance(primitive, Arc):
+                    self._arc(primitive, self.shape_internal_color)
+                elif isinstance(primitive, Line):
+                    self._line(primitive, self.shape_internal_color)
 
     def save(self, file_name):
         flipped_image = self._image.transpose(Image.FLIP_TOP_BOTTOM)
