@@ -88,7 +88,7 @@ class Point(Object):
         return (self.x, self.y)[index]
 
     def __eq__(self, point):
-        return (self.x == point.x) and (self.y == point.y)
+        return (approx_equal(self.x, point.x) and approx_equal(self.y, point.y))
 
     def __str__(self):
         return "{} ({}, {})".format(type(self).__name__, self.x, self.y)
@@ -155,10 +155,10 @@ class Rectangle(Object):
                 self.intersect_point(rectangle.top))
 
     def __eq__(self, rectangle):
-        return ((self.left == rectangle.left) and
-                (self.bottom == rectangle.bottom) and
-                (self.right == rectangle.right) and
-                (self.top == rectangle.top))
+        return (approx_equal(self.left, rectangle.left) and
+                approx_equal(self.bottom, rectangle.bottom) and
+                approx_equal(self.right, rectangle.right) and
+                approx_equal(self.top, rectangle.top))
 
     def __str__(self):
         return "{} ({}, {}, {}, {})".format(type(self).__name__,
@@ -243,7 +243,7 @@ class Line(Primitive):
         c = Point(p1.x - p3.x, p1.y - p3.y)
 
         values = self.calculate_intersection_line_point(line)
-        if (values["denominator"] == 0.0):
+        if approx_equal(values["denominator"], 0.0):
             begin = Point()
             end = Point()
 
@@ -322,7 +322,7 @@ class Line(Primitive):
         denominator = (a.y * b.x) - (a.x * b.y)
         result["denominator"] = denominator
 
-        if denominator == 0.0:
+        if approx_equal(denominator, 0.0):
             return result
 
         result["alpha"] = ((b.y * c.x) - (b.x * c.y)) / denominator
@@ -360,7 +360,7 @@ class Line(Primitive):
             result = (-b + math.sqrt(delta)) / (2 * a)
             x_ = x1 + result * dx
             y_ = y1 + result * dy
-            if delta == 0:
+            if approx_equal(delta, 0.0):
                 return [Point(x_, y_)]
 
             result = (-b - math.sqrt(delta)) / (2 * a)
@@ -535,7 +535,8 @@ class Arc(Line):
                         angle_in_range(angle2, start2, end2)):
 
                     result.append(point)
-        elif (distance == 0) and (self.radius == arc.radius):
+        elif (approx_equal(distance, 0.0) and
+                approx_equal(self.radius, arc.radius)):
             result = Arc(centre_point=self.centre_point, radius=self.radius)
 
             if angle_in_range(start1, start2, end2):

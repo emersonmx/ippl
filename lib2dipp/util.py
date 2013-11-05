@@ -19,8 +19,19 @@
 
 import math
 
-def approximately_equal(a, b, tol=1e-16):
-    return (abs(a-b) / max(abs(a), abs(b))) < tol
+def approx_equal(a, b, tol=1e-16):
+    """Checks if a number is approx equal to each other.
+
+    Parameters:
+        a a float point value.
+        b a float point value.
+        tol the threshold that defines whether the values are equal.
+    Return:
+        True if the differences of the values is within the threshold, and False
+        otherwise.
+    """
+
+    return abs(a - b) <= tol
 
 def wrap_2pi(angle):
     """Limits the angle to the range [0, 2pi)."""
