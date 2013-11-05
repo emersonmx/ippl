@@ -77,6 +77,14 @@ if __name__ == "__main__":
     s.outer_loop.append(l)
     shapes.append(s)
 
+    l = Line(begin=(0, 0), end=(50, 50))
+    l.move(x=580)
+    s.outer_loop.append(l)
+    l = Line(begin=(0, 0), end=(50, 50))
+    l.move(x=610)
+    s.outer_loop.append(l)
+    shapes.append(s)
+
     # Line-Arc
 
     aabb = s.bounds()
