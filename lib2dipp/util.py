@@ -19,6 +19,9 @@
 
 import math
 
+def approximately_equal(a, b, tol=1e-16):
+    return (abs(a-b) / max(abs(a), abs(b))) < tol
+
 def wrap_2pi(angle):
     """Limits the angle to the range [0, 2pi)."""
 

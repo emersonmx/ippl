@@ -75,7 +75,8 @@ class Point(Object):
         self.y += y
 
     def distance(self, point):
-        return math.sqrt((point.x - self.x)**2 + (point.y - self.y)**2)
+        return math.sqrt((point.x - self.x) * (point.x - self.x) +
+            (point.y - self.y) * (point.y - self.y))
 
     def intersect_point(self, point):
         return self == point
@@ -246,29 +247,17 @@ class Line(Primitive):
             begin = Point()
             end = Point()
 
-            if p3.x <= p1.x <= p4.x:
-                begin.x = p1.x
-            elif p3.x <= p2.x <= p4.x:
-                begin.x = p2.x
-            else:
-                return None
-            if p3.y <= p1.y <= p4.y:
-                begin.y = p1.y
-            elif p3.y <= p2.y <= p4.y:
-                begin.y = p2.y
+            if line.point_in_segment(p1):
+                begin = p1
+            elif line.point_in_segment(p2):
+                begin = p2
             else:
                 return None
 
-            if p1.x <= p3.x <= p2.x:
-                end.x = p3.x
-            elif p1.x <= p4.x <= p2.x:
-                end.x = p4.x
-            else:
-                return None
-            if p1.y <= p3.y <= p2.y:
-                end.y = p3.y
-            elif p1.y <= p4.y <= p2.y:
-                end.y = p4.y
+            if self.point_in_segment(p3):
+                end = p3
+            elif self.point_in_segment(p4):
+                end = p4
             else:
                 return None
 
@@ -357,14 +346,14 @@ class Line(Primitive):
 
         dx = x2 - x1
         dy = y2 - y1
-        a = dx**2 + dy**2
+        a = (dx * dx) + (dy * dy)
         b = 2 * (dx * (x1 - cx) + dy * (y1 - cy))
-        c = cx**2 + cy**2
-        c += x1**2 + y1**2
+        c = (cx * cx) + (cy * cy)
+        c += (x1 * x1) + (y1 * y1)
         c -= 2 * (cx * x1 + cy * y1)
-        c -= circle.radius**2
+        c -= circle.radius * circle.radius
 
-        delta = b**2 - 4 * a * c
+        delta = (b * b) - 4 * a * c
         if delta < 0:
             return []
         else:
@@ -394,7 +383,7 @@ class Line(Primitive):
         x3, y3 = point.x, point.y
 
         k = (((y2 - y1) * (x3 - x1) - (x2 - x1) * (y3 - y1)) /
-            ((y2 - y1)**2 + (x2 - x1)**2))
+            (((y2 - y1) * (y2 - y1)) + ((x2 - x1) * (x2 - x1))))
         x4 = x3 - k * (y2 - y1)
         y4 = y3 + k * (x2 - x1)
 
@@ -407,6 +396,32 @@ class Line(Primitive):
             result.move(x=x4, y=y4)
 
         return result
+
+    def point_in_segment(self, point):
+        """Checks whether a point is collinear and is within the line segment.
+
+        Parameters:
+            point a Point object.
+        Return:
+            True if it is within the segment, and False otherwise.
+        """
+
+        cross_product = ((point.y - self.y1) * (self.x2 - self.x1) -
+            (point.x - self.x1) * (self.y2 - self.y1))
+        if abs(cross_product) != 0.0:
+            return False
+
+        dot_product = ((point.x - self.x1) * (self.x2 - self.x1) +
+            (point.y - self.y1) * (self.y2 - self.y1))
+        if dot_product < 0.0:
+            return False
+
+        squared_length_line = ((self.x2 - self.x1) * (self.x2 - self.x1) +
+            (self.y2 - self.y1) * (self.y2 - self.y1))
+        if dot_product > squared_length_line:
+            return False
+
+        return True
 
     def __str__(self):
         return "{} (begin={}, end={})".format(
@@ -563,8 +578,8 @@ class Arc(Line):
         if not distance:
             distance = p1.distance(p2)
 
-        a = (r1**2 - r2**2 + distance**2) / (2 * distance)
-        h = math.sqrt(r1**2 - a**2)
+        a = ((r1 * r1) - (r2 * r2) + (distance * distance)) / (2 * distance)
+        h = math.sqrt(r1 * r1 - a * a)
         s = a / distance
         p3 = Point(p1.x + s * (p2.x - p1.x), p1.y + s * (p2.y - p1.y))
 
