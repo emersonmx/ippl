@@ -534,7 +534,8 @@ class Arc(Primitive):
         end2 = arc.offset_angle
 
         distance = p1.distance(p2)
-        if (arc.radius - self.radius) < distance < (self.radius + arc.radius):
+        if (abs(arc.radius - self.radius) < distance <
+                (self.radius + arc.radius)):
             points = self.calculate_intersection_circle_points(arc, distance)
             for point in points:
                 angle1 = wrap_2pi(math.atan2(point.y - p1.y, point.x - p1.x))

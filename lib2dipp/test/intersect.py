@@ -182,6 +182,60 @@ if __name__ == "__main__":
     a.move(x=560, y=50)
     shape.outer_loop.append(a)
 
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=0)
+    a.move(x=670, y=50)
+    shape.outer_loop.append(a)
+    a = Arc(centre_point=Point(0, 0), radius=25,
+            start_angle=0, offset_angle=0)
+    a.move(x=670, y=50)
+    shape.outer_loop.append(a)
+
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=0)
+    a.move(x=780, y=50)
+    shape.outer_loop.append(a)
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=0)
+    a.move(x=780, y=50)
+    shape.outer_loop.append(a)
+
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=0)
+    a.move(x=780, y=50)
+    shape.outer_loop.append(a)
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=0)
+    a.move(x=780, y=50)
+    shape.outer_loop.append(a)
+
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=math.pi)
+    a.move(x=890, y=50)
+    shape.outer_loop.append(a)
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=math.pi)
+    a.move(x=890, y=149.9999999999999)
+    shape.outer_loop.append(a)
+
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=math.pi)
+    a.move(x=1000, y=50)
+    shape.outer_loop.append(a)
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=math.pi)
+    a.move(x=1000, y=125)
+    shape.outer_loop.append(a)
+
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=math.pi)
+    a.move(x=1110, y=50)
+    shape.outer_loop.append(a)
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=math.pi/2.0, offset_angle=3*math.pi/2.0)
+    a.move(x=1110, y=50)
+    shape.outer_loop.append(a)
+
     shapes.append(shape)
 
     i = 0
