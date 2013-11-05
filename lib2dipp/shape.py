@@ -431,7 +431,7 @@ class Line(Primitive):
         return "<{}>".format(self)
 
 
-class Arc(Line):
+class Arc(Primitive):
 
     def __init__(self, **kwargs):
         super(Arc, self).__init__(**kwargs)
@@ -440,6 +440,7 @@ class Arc(Line):
         self._radius = float(kwargs.get("radius", 1.0))
         self._start_angle = wrap_2pi(float(kwargs.get("start_angle", 0.0)))
         self._offset_angle = wrap_2pi(float(kwargs.get("offset_angle", 0.0)))
+        self._line = Line()
 
         self.calculate_ends()
 
@@ -467,6 +468,14 @@ class Arc(Line):
     def offset_angle(self, value):
         self._offset_angle = wrap_2pi(float(value))
 
+    @property
+    def line(self):
+        return self._line
+
+    @line.setter
+    def line(self, value):
+        self._line = value
+
     def bounds(self):
         self.calculate_ends()
 
@@ -477,20 +486,20 @@ class Arc(Line):
         if wrap_360(start) >= wrap_360(end):
             maximum_x = self.centre_point.x + self.radius
         else:
-            maximum_x = max(self.x1, self.x2)
+            maximum_x = max(self.line.x1, self.line.x2)
         if wrap_360(start - 90) >= wrap_360(end - 90):
             maximum_y = self.centre_point.y + self.radius
         else:
-            maximum_y = max(self.y1, self.y2)
+            maximum_y = max(self.line.y1, self.line.y2)
 
         if wrap_360(start - 180) >= wrap_360(end - 180):
             minimum_x = self.centre_point.x - self.radius
         else:
-            minimum_x = min(self.x1, self.x2)
+            minimum_x = min(self.line.x1, self.line.x2)
         if wrap_360(start - 270) >= wrap_360(end - 270):
             minimum_y = self.centre_point.y - self.radius
         else:
-            minimum_y = min(self.y1, self.y2)
+            minimum_y = min(self.line.y1, self.line.y2)
 
         return Rectangle(minimum_x, minimum_y, maximum_x, maximum_y)
 
@@ -551,13 +560,13 @@ class Arc(Line):
         return result
 
     def calculate_ends(self):
-        self.x1 = (self.centre_point.x +
+        self.line.x1 = (self.centre_point.x +
             self.radius * math.cos(self.start_angle))
-        self.y1 = (self.centre_point.y +
+        self.line.y1 = (self.centre_point.y +
             self.radius * math.sin(self.start_angle))
-        self.x2 = (self.centre_point.x +
+        self.line.x2 = (self.centre_point.x +
             self.radius * math.cos(self.offset_angle))
-        self.y2 = (self.centre_point.y +
+        self.line.y2 = (self.centre_point.y +
             self.radius * math.sin(self.offset_angle))
 
     def calculate_intersection_circle_points(self, circle, distance=None):
