@@ -152,6 +152,38 @@ if __name__ == "__main__":
 
     shapes.append(shape)
 
+    # Arc-Arc
+    shape = Shape()
+
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=0)
+    a.move(x=50, y=50)
+    shape.outer_loop.append(a)
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=0)
+    a.move(x=149.9999999999999, y=50)
+    shape.outer_loop.append(a)
+
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=0)
+    a.move(x=260, y=50)
+    shape.outer_loop.append(a)
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=0)
+    a.move(x=340, y=50)
+    shape.outer_loop.append(a)
+
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=0)
+    a.move(x=450, y=50)
+    shape.outer_loop.append(a)
+    a = Arc(centre_point=Point(0, 0), radius=50,
+            start_angle=0, offset_angle=0)
+    a.move(x=560, y=50)
+    shape.outer_loop.append(a)
+
+    shapes.append(shape)
+
     i = 0
     for s in shapes:
         aabb = s.bounds()

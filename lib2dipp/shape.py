@@ -546,16 +546,18 @@ class Arc(Primitive):
                     result.append(point)
         elif (approx_equal(distance, 0.0) and
                 approx_equal(self.radius, arc.radius)):
-            result = Arc(centre_point=self.centre_point, radius=self.radius)
+            result_arc = Arc(centre_point=self.centre_point, radius=self.radius)
 
             if angle_in_range(start1, start2, end2):
-                result.start_angle = self.start_angle
+                result_arc.start_angle = self.start_angle
             elif angle_in_range(start2, start1, end1):
-                result.start_angle = arc.start_angle
+                result_arc.start_angle = arc.start_angle
             if angle_in_range(end1, start2, end2):
-                result.offset_angle = self.offset_angle
+                result_arc.offset_angle = self.offset_angle
             elif angle_in_range(end2, start1, end1):
-                result.offset_angle = arc.offset_angle
+                result_arc.offset_angle = arc.offset_angle
+
+            result = [result_arc]
 
         return result
 
