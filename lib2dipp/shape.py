@@ -62,11 +62,19 @@ class Primitive(Object):
 
 class Point(Object):
 
-    def __init__(self, x=0.0, y=0.0):
+    def __init__(self, *args, **kwargs):
         super(Point, self).__init__()
 
-        self._x = float(x)
-        self._y = float(y)
+        x = y = 0.0
+        if args:
+            x = args[0]
+            y = args[1]
+        elif kwargs:
+            x = kwargs.get("x", x)
+            y = kwargs.get("y", y)
+
+        self._x = x
+        self._y = y
 
     @property
     def x(self):
@@ -119,8 +127,20 @@ class Point(Object):
 
 class Rectangle(Object):
 
-    def __init__(self, left=0.0, bottom=0.0, right=0.0, top=0.0):
+    def __init__(self, *args, **kwargs):
         super(Rectangle, self).__init__()
+
+        left = bottom = right = top = 0.0
+        if args:
+            left = args[0]
+            bottom = args[1]
+            right = args[2]
+            top = args[3]
+        elif kwargs:
+            left = kwargs.get("left", left)
+            bottom = kwargs.get("bottom", bottom)
+            right = kwargs.get("right", right)
+            x = kwargs.get("top", top)
 
         self._left_bottom = Point(left, bottom)
         self._right_top = Point(right, top)
