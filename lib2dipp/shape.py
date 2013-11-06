@@ -67,11 +67,11 @@ class Point(Object):
 
         x = y = 0.0
         if args:
-            x = args[0]
-            y = args[1]
+            x = float(args[0])
+            y = float(args[1])
         elif kwargs:
-            x = kwargs.get("x", x)
-            y = kwargs.get("y", y)
+            x = float(kwargs.get("x", x))
+            y = float(kwargs.get("y", y))
 
         self._x = x
         self._y = y
