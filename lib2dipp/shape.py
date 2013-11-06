@@ -75,20 +75,16 @@ class Point(Object):
 
         super(Point, self).__init__()
 
-        x = y = 0.0
+        values = [0.0] * 2
         if args:
             for i in range(len(args)):
-                value = args[i]
-                if i == 0:
-                    x = float(value)
-                elif i == 1:
-                    y = float(value)
+                values[i] = float(args[i])
         elif kwargs:
-            x = float(kwargs.get("x", x))
-            y = float(kwargs.get("y", y))
+            values[0] = float(kwargs.get("x", values[0]))
+            values[1] = float(kwargs.get("y", values[1]))
 
-        self._x = x
-        self._y = y
+        self._x = values[0]
+        self._y = values[1]
 
     @property
     def x(self):
@@ -155,26 +151,18 @@ class Rectangle(Object):
 
         super(Rectangle, self).__init__()
 
-        left = bottom = right = top = 0.0
+        values = [0.0] * 4
         if args:
             for i in range(len(args)):
-                value = args[i]
-                if i == 0:
-                    left = value
-                elif i == 1:
-                    bottom = value
-                elif i == 2:
-                    right = value
-                elif i == 3:
-                    top = value
+                values[i] = args[i]
         elif kwargs:
-            left = kwargs.get("left", left)
-            bottom = kwargs.get("bottom", bottom)
-            right = kwargs.get("right", right)
-            x = kwargs.get("top", top)
+            values[0] = kwargs.get("left", values[0])
+            values[1] = kwargs.get("bottom", values[1])
+            values[2] = kwargs.get("right", values[2])
+            values[3] = kwargs.get("top", values[3])
 
-        self._left_bottom = Point(left, bottom)
-        self._right_top = Point(right, top)
+        self._left_bottom = Point(values[0], values[1])
+        self._right_top = Point(values[2], values[3])
 
     @property
     def left(self):
@@ -271,21 +259,17 @@ class Line(Primitive):
 
         super(Line, self).__init__()
 
-        begin = Point()
-        end = Point()
+        values = [Point()] * 2
         if args:
             for i in range(len(args)):
-                value = args[i]
-                if i == 0:
-                    begin = value
-                elif i == 1:
-                    end = value
+                values[i] = args[i]
         elif kwargs:
-            begin = kwargs.get("begin", Point())
-            end = kwargs.get("end", Point())
+            values[0] = kwargs.get("begin", values[0])
+            values[1] = kwargs.get("end", values[1])
 
-        self.begin = Point(x=begin[0], y=begin[1])
-        self.end = Point(x=end[0], y=end[1])
+        x1, y1, x2, y2 = values[0].x, values[0].y, values[1].x, values[1].y
+        self.begin = Point(x1, y1)
+        self.end = Point(x2, y2)
 
     @property
     def x1(self):
@@ -375,7 +359,7 @@ class Line(Primitive):
             if begin == end:
                 return Point(begin.x, begin.y)
             else:
-                return Line(begin=begin, end=end)
+                return Line(begin, end)
 
             return None
 
@@ -498,12 +482,12 @@ class Line(Primitive):
         x4 = x3 - k * (y2 - y1)
         y4 = y3 + k * (x2 - x1)
 
-        result = Line(begin=(x4, y4), end=point)
+        result = Line(Point(x4, y4), point)
 
         if point == Point(x4, y4):
             dx = x2 - x1
             dy = y2 - y1
-            result = Line(end=(-dy, dx))
+            result = Line(end=Point(-dy, dx))
             result.move(x=x4, y=y4)
 
         return result
@@ -561,30 +545,23 @@ class Arc(Primitive):
 
         super(Arc, self).__init__()
 
-        centre_point = Point()
-        radius = 1.0
-        start_angle = offset_angle = 0.0
+        values = [Point(), 1.0, 0.0, 0.0]
         if args:
             for i in range(len(args)):
-                value = args[i]
                 if i == 0:
-                    centre_point = value
-                elif i == 1:
-                    radius = float(value)
-                elif i == 2:
-                    start_angle = float(value)
-                elif i == 3:
-                    offset_angle = float(value)
+                    args[i] = args[i]
+                else:
+                    args[i] = float(args[i])
         elif kwargs:
-            centre_point = kwargs.get("centre_point", Point())
-            radius = float(kwargs.get("radius", 1.0))
-            start_angle = wrap_2pi(float(kwargs.get("start_angle", 0.0)))
-            offset_angle = wrap_2pi(float(kwargs.get("offset_angle", 0.0)))
+            values[0] = kwargs.get("centre_point", values[0])
+            values[1] = float(kwargs.get("radius", values[1]))
+            values[2] = wrap_2pi(float(kwargs.get("start_angle", values[2])))
+            values[3] = wrap_2pi(float(kwargs.get("offset_angle", values[3])))
 
-        self.centre_point = centre_point
-        self._radius = radius
-        self._start_angle = start_angle
-        self._offset_angle = offset_angle
+        self.centre_point = values[0]
+        self._radius = values[1]
+        self._start_angle = values[2]
+        self._offset_angle = values[3]
         self._line = Line()
 
         self.calculate_ends()
@@ -777,21 +754,16 @@ class Shape(Object):
 
         super(Shape, self).__init__()
 
-        outer_loop = list()
-        inner_loops = list()
+        values = [list()] * 2
         if args:
             for i in range(len(args)):
-                value = args[i]
-                if i == 0:
-                    outer_loop = value
-                elif i == 1:
-                    inner_loops = value
+                values[i] = args[i]
         elif kwargs:
-            outer_loop = kwargs.get("outer_loop", list())
-            inner_loops = kwargs.get("inner_loops", list())
+            values[0] = kwargs.get("outer_loop", values[0])
+            values[1] = kwargs.get("inner_loops", values[1])
 
-        self.outer_loop = outer_loop
-        self.inner_loops = inner_loops
+        self.outer_loop = values[0]
+        self.inner_loops = values[1]
 
         self._last_outer_loop_size = len(self.outer_loop)
         self._shape_aabb = Rectangle()
@@ -876,23 +848,23 @@ if __name__ == "__main__":
     print Point()
     print Point(50, 10)
     print Line()
-    print Line(begin=(0, 0), end=(1, 1))
+    print Line(Point(0, 0), Point(1, 1))
     print Arc()
     print Arc(centre_point=Point(10, 10), radius=5.0,
               start_angle=10.0, offset_angle=100.0)
 
     s = Shape()
-    s.outer_loop.append(Line(begin=(0, 0), end=(1, 0)))
-    s.outer_loop.append(Line(begin=(1, 0), end=(1, 1)))
-    s.outer_loop.append(Line(begin=(1, 1), end=(0, 1)))
-    s.outer_loop.append(Line(begin=(0, 1), end=(0, 0)))
+    s.outer_loop.append(Line(Point(0, 0), Point(1, 0)))
+    s.outer_loop.append(Line(Point(1, 0), Point(1, 1)))
+    s.outer_loop.append(Line(Point(1, 1), Point(0, 1)))
+    s.outer_loop.append(Line(Point(0, 1), Point(0, 0)))
     print s
     print s.bounds()
 
-    l1 = Line(begin=(0, 0), end=(5, 0))
-    l2 = Line(begin=(3, 0), end=(10, 0))
+    l1 = Line(Point(0, 0), Point(5, 0))
+    l2 = Line(Point(3, 0), Point(10, 0))
     print "Line-Line: {}".format(l1.intersect_line(l2))
-    l = Line(begin=(0, 2), end=(4, 2))
+    l = Line(Point(0, 2), Point(4, 2))
     a = Arc(centre_point=Point(2, 2), radius=2,
             start_angle=0, offset_angle=0)
     b = Arc(centre_point=Point(5, 2), radius=2,
@@ -901,10 +873,10 @@ if __name__ == "__main__":
     print "Arcs: {}".format(a.intersect_arc(b))
     print "Arcs: {}".format(a.intersect_arc(a))
     p = Point(0, 1)
-    pl = Line(begin=(1, 1), end=(5, 5))
+    pl = Line(Point(1, 1), Point(5, 5))
     print "Perpendicular: {}".format(pl.calculate_perpendicular_line(p))
 
-    l3 = Line(begin=(1, 1), end=(3, 2))
+    l3 = Line(Point(1, 1), Point(3, 2))
     pc = Point(2, 1.5)
     print "Perpendicular collinear: {}".format(
         l3.calculate_perpendicular_line(pc))
