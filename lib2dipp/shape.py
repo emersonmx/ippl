@@ -41,8 +41,22 @@ class Primitive(Object):
         """
         pass
 
+    def position(self, **kwargs):
+        """Positions the primitive.
+
+        Parameters:
+            kwargs["x"] a floating point value.
+            kwargs["y"] a floating point value.
+        """
+        pass
+
     def move(self, **kwargs):
-        """Moves the primitive."""
+        """Moves the primitive.
+
+        Parameters:
+            kwargs["x"] a floating point value.
+            kwargs["y"] a floating point value.
+        """
         pass
 
 
