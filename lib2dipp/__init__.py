@@ -17,6 +17,7 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import bottom_left_fill
 import file_io
 import render
 import shape
