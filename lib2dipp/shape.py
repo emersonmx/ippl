@@ -27,21 +27,27 @@ class Object(object):
 
         self.type = type(self).__name__
 
-    def position(self, **kwargs):
+    def position(self, *args, **kwargs):
         """Positions the primitive.
 
         Parameters:
-            kwargs["x"] a real number.
-            kwargs["y"] a real number.
+            args[0] a real number for x.
+            args[1] a real number for y
+            OR
+            kwargs["x"] a real number for x.
+            kwargs["y"] a real number for y.
         """
         pass
 
-    def move(self, **kwargs):
+    def move(self, *args, **kwargs):
         """Moves the primitive.
 
         Parameters:
-            kwargs["x"] a real number.
-            kwargs["y"] a real number.
+            args[0] a real number for x.
+            args[1] a real number for y.
+            OR
+            kwargs["x"] a real number for x.
+            kwargs["y"] a real number for y.
         """
         pass
 
@@ -102,10 +108,19 @@ class Point(Object):
     def y(self, value):
         self._y = float(value)
 
-    def position(self, **kwargs):
+    def position(self, *args, **kwargs):
         pass
 
-    def move(self, x, y):
+    def move(self, *args, **kwargs):
+        values = [0.0, 0.0]
+        if args:
+            for i in range(len(args)):
+                values[i] = float(args[i])
+        elif kwargs:
+            values[0] = float(kwargs.get("x", values[0]))
+            values[1] = float(kwargs.get("y", values[1]))
+
+        x, y = values
         self.x += x
         self.y += y
 
@@ -212,13 +227,19 @@ class Rectangle(Object):
     def right_top(self, value):
         self._right_top = value
 
-    def position(self, **kwargs):
+    def position(self, *args, **kwargs):
         pass
 
-    def move(self, **kwargs):
-        x = kwargs.get("x", 0)
-        y = kwargs.get("y", 0)
+    def move(self, *args, **kwargs):
+        values = [0.0, 0.0]
+        if args:
+            for i in range(len(args)):
+                values[i] = args[i]
+        elif kwargs:
+            values[0] = kwargs.get("x", values[0])
+            values[1] = kwargs.get("y", values[1])
 
+        x, y = values
         self._left_bottom.move(x, y)
         self._right_top.move(x, y)
 
@@ -303,13 +324,19 @@ class Line(Primitive):
     def y2(self, value):
         self.end.y = value
 
-    def position(self, **kwargs):
+    def position(self, *args, **kwargs):
         pass
 
-    def move(self, **kwargs):
-        x = kwargs.get("x", 0)
-        y = kwargs.get("y", 0)
+    def move(self, *args, **kwargs):
+        values = [0.0, 0.0]
+        if args:
+            for i in range(len(args)):
+                values[i] = args[i]
+        elif kwargs:
+            values[0] = kwargs.get("x", values[0])
+            values[1] = kwargs.get("y", values[1])
 
+        x, y = values
         self.begin.move(x, y)
         self.end.move(x, y)
 
@@ -488,7 +515,7 @@ class Line(Primitive):
             dx = x2 - x1
             dy = y2 - y1
             result = Line(end=Point(-dy, dx))
-            result.move(x=x4, y=y4)
+            result.move(x4, y4)
 
         return result
 
@@ -598,9 +625,19 @@ class Arc(Primitive):
     def line(self, value):
         self._line = value
 
-    def move(self, **kwargs):
-        x = kwargs.get("x", 0)
-        y = kwargs.get("y", 0)
+    def position(self, *args, **kwargs):
+        pass
+
+    def move(self, *args, **kwargs):
+        values = [0.0, 0.0]
+        if args:
+            for i in range(len(args)):
+                values[i] = args[i]
+        elif kwargs:
+            values[0] = kwargs.get("x", values[0])
+            values[1] = kwargs.get("y", values[1])
+
+        x, y = values
         self.centre_point.x += x
         self.centre_point.y += y
 
@@ -769,16 +806,25 @@ class Shape(Object):
         self._shape_aabb = Rectangle()
         self.bounds()
 
-    def move(self, **kwargs):
-        x = float(kwargs.get("x", 0.0))
-        y = float(kwargs.get("y", 0.0))
+    def position(self, *args, **kwargs):
+        pass
 
+    def move(self, *args, **kwargs):
+        values = [0.0, 0.0]
+        if args:
+            for i in range(len(args)):
+                values[i] = args[i]
+        elif kwargs:
+            values[0] = kwargs.get("x", values[0])
+            values[1] = kwargs.get("y", values[1])
+
+        x, y = values
         for primitive in self.outer_loop:
-            primitive.move(x=x, y=y)
+            primitive.move(x, y)
 
         for loop in self.inner_loops:
             for primitive in loop:
-                primitive.move(x=x, y=y)
+                primitive.move(x, y)
 
     def bounds(self):
         if len(self.outer_loop) != self._last_outer_loop_size:
