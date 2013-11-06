@@ -75,7 +75,7 @@ class Point(Object):
 
         super(Point, self).__init__()
 
-        values = [0.0] * 2
+        values = [0.0, 0.0]
         if args:
             for i in range(len(args)):
                 values[i] = float(args[i])
@@ -151,7 +151,7 @@ class Rectangle(Object):
 
         super(Rectangle, self).__init__()
 
-        values = [0.0] * 4
+        values = [0.0, 0.0, 0.0, 0.0]
         if args:
             for i in range(len(args)):
                 values[i] = args[i]
@@ -259,7 +259,7 @@ class Line(Primitive):
 
         super(Line, self).__init__()
 
-        values = [Point()] * 2
+        values = [Point(), Point()]
         if args:
             for i in range(len(args)):
                 values[i] = args[i]
@@ -754,7 +754,7 @@ class Shape(Object):
 
         super(Shape, self).__init__()
 
-        values = [list()] * 2
+        values = [list(), list()]
         if args:
             for i in range(len(args)):
                 values[i] = args[i]

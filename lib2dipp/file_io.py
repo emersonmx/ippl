@@ -49,10 +49,10 @@ class ShapeEncoder(json.JSONEncoder):
 
 if __name__ == "__main__":
     outer = []
-    outer.append(shape.Line(begin=(0, 0), end=(5, 0)))
-    outer.append(shape.Line(begin=(5, 0), end=(5, 5)))
-    outer.append(shape.Line(begin=(5, 5), end=(0, 5)))
-    outer.append(shape.Line(begin=(0, 5), end=(0, 0)))
+    outer.append(shape.Line(shape.Point(0, 0), shape.Point(5, 0)))
+    outer.append(shape.Line(shape.Point(5, 0), shape.Point(5, 5)))
+    outer.append(shape.Line(shape.Point(5, 5), shape.Point(0, 5)))
+    outer.append(shape.Line(shape.Point(0, 5), shape.Point(0, 0)))
     sh = shape.Shape(outer_loop=outer)
     sjson = json.dumps(sh, cls=ShapeEncoder, indent=4)
     print "SERIALIZE"

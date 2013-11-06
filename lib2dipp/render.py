@@ -73,7 +73,8 @@ class Render(object):
                      arc.radius * math.sin(math.radians(degrees)))
                 end_point = (x, y)
 
-                self._line(Line(begin=begin_point, end=end_point), color, width)
+                x1, y1, x2, y2 = begin_point + end_point
+                self._line(Line(Point(x1, y1), Point(x2, y2)), color, width)
                 begin_point = end_point
             else:
                 x = (arc.centre_point.x +
@@ -86,14 +87,14 @@ class Render(object):
 
     def _aabb(self, aabb, color):
         lines = []
-        lines.append(Line(begin=(aabb.left, aabb.bottom),
-                          end=(aabb.right, aabb.bottom)))
-        lines.append(Line(begin=(aabb.right, aabb.bottom),
-                          end=(aabb.right, aabb.top)))
-        lines.append(Line(begin=(aabb.right, aabb.top),
-                          end=(aabb.left, aabb.top)))
-        lines.append(Line(begin=(aabb.left, aabb.top),
-                          end=(aabb.left, aabb.bottom)))
+        lines.append(Line(Point(aabb.left, aabb.bottom),
+                          Point(aabb.right, aabb.bottom)))
+        lines.append(Line(Point(aabb.right, aabb.bottom),
+                          Point(aabb.right, aabb.top)))
+        lines.append(Line(Point(aabb.right, aabb.top),
+                          Point(aabb.left, aabb.top)))
+        lines.append(Line(Point(aabb.left, aabb.top),
+                          Point(aabb.left, aabb.bottom)))
 
         for line in lines:
             self._line(line, color)
@@ -128,6 +129,7 @@ class Render(object):
                                 self.image_background_color)
         self._image_drawer = ImageDraw.ImageDraw(self._image)
 
+        print shape
         for primitive in shape.outer_loop:
             if isinstance(primitive, Line):
                 self._line(primitive, self.shape_external_color)
@@ -152,11 +154,13 @@ if __name__ == "__main__":
     a = Arc(centre_point=Point(50.0, 50.0),
             radius=50.0, start_angle=0.0, offset_angle=math.pi)
     s.outer_loop.append(a)
-    s.outer_loop.append(Line(begin=(0.0, 50.0), end=(0.0, 0.0)))
-    s.outer_loop.append(Line(begin=(0.0, 0.0), end=(100.0, 0.0)))
-    s.outer_loop.append(Line(begin=(100.0, 0.0), end=(100.0, 50.0)))
+    s.outer_loop.append(Line(Point(0.0, 50.0), Point(0.0, 0.0)))
+    s.outer_loop.append(Line(Point(0.0, 0.0), Point(100.0, 0.0)))
+    s.outer_loop.append(Line(Point(100.0, 0.0), Point(100.0, 50.0)))
     r = Render()
-    r.image_size = (120, 120)
+    aabb = s.bounds()
+    r.image_size = (int(aabb.right - aabb.left) + 1,
+                    int(aabb.top - aabb.bottom) + 1)
     r.shape(s)
     r.save("render.png")
 

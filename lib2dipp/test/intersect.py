@@ -27,59 +27,59 @@ if __name__ == "__main__":
     shape = Shape()
 
     # Lines
-    l = Line(begin=(0, 0), end=(50, 0))
+    l = Line(Point(0, 0), Point(50, 0))
     l.move(y=25)
     shape.outer_loop.append(l)
-    l = Line(begin=(0, 0), end=(0, 50))
+    l = Line(Point(0, 0), Point(0, 50))
     l.move(x=25)
     shape.outer_loop.append(l)
 
-    l = Line(begin=(0, 0), end=(0, 50))
+    l = Line(Point(0, 0), Point(0, 50))
     l.move(x=60)
     shape.outer_loop.append(l)
-    l = Line(begin=(0, 0), end=(50, 0))
+    l = Line(Point(0, 0), Point(50, 0))
     l.move(x=60)
     shape.outer_loop.append(l)
 
-    l = Line(begin=(0, 0), end=(50, 0))
+    l = Line(Point(0, 0), Point(50, 0))
     l.move(x=120)
     shape.outer_loop.append(l)
-    l = Line(begin=(50, 0), end=(100, 0))
+    l = Line(Point(50, 0), Point(100, 0))
     l.move(x=120)
     shape.outer_loop.append(l)
 
-    l = Line(begin=(0, 0), end=(75, 0))
+    l = Line(Point(0, 0), Point(75, 0))
     l.move(x=230)
     shape.outer_loop.append(l)
-    l = Line(begin=(25, 0), end=(100, 0))
+    l = Line(Point(25, 0), Point(100, 0))
     l.move(x=230)
     shape.outer_loop.append(l)
 
-    l = Line(begin=(0, 0), end=(50, 0))
+    l = Line(Point(0, 0), Point(50, 0))
     l.move(x=340)
     shape.outer_loop.append(l)
-    l = Line(begin=(0, 0), end=(0, 50))
+    l = Line(Point(0, 0), Point(0, 50))
     l.move(x=365, y=25)
     shape.outer_loop.append(l)
 
-    l = Line(begin=(0, 0), end=(50, 0))
+    l = Line(Point(0, 0), Point(50, 0))
     l.move(x=400)
     shape.outer_loop.append(l)
-    l = Line(begin=(0, 0), end=(50, 0))
+    l = Line(Point(0, 0), Point(50, 0))
     l.move(x=460)
     shape.outer_loop.append(l)
 
-    l = Line(begin=(0, 0), end=(50, 0))
+    l = Line(Point(0, 0), Point(50, 0))
     l.move(x=520)
     shape.outer_loop.append(l)
-    l = Line(begin=(0, 0), end=(50, 0))
+    l = Line(Point(0, 0), Point(50, 0))
     l.move(x=520, y=25)
     shape.outer_loop.append(l)
 
-    l = Line(begin=(0, 0), end=(50, 50))
+    l = Line(Point(0, 0), Point(50, 50))
     l.move(x=580)
     shape.outer_loop.append(l)
-    l = Line(begin=(0, 0), end=(50, 50))
+    l = Line(Point(0, 0), Point(50, 50))
     l.move(x=610)
     shape.outer_loop.append(l)
     shapes.append(shape)
@@ -87,14 +87,14 @@ if __name__ == "__main__":
     # Line-Arc
     shape = Shape()
 
-    l = Line(begin=(0, 0), end=(100, 0))
+    l = Line(Point(0, 0), Point(100, 0))
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=0, offset_angle=0)
     a.move(x=50, y=50)
     shape.outer_loop.append(a)
 
-    l = Line(begin=(0, 0), end=(100, 0))
+    l = Line(Point(0, 0), Point(100, 0))
     l.move(x=110, y=10)
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     a.move(x=160, y=50)
     shape.outer_loop.append(a)
 
-    l = Line(begin=(0, 0), end=(100, 0))
+    l = Line(Point(0, 0), Point(100, 0))
     l.move(x=220, y=0)
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     a.move(x=270, y=60)
     shape.outer_loop.append(a)
 
-    l = Line(begin=(0, 0), end=(0, 50))
+    l = Line(Point(0, 0), Point(0, 50))
     l.move(x=380, y=25)
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     a.move(x=380, y=50)
     shape.outer_loop.append(a)
 
-    l = Line(begin=(0, 0), end=(0, 150))
+    l = Line(Point(0, 0), Point(0, 150))
     l.move(x=490)
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     a.move(x=490, y=75)
     shape.outer_loop.append(a)
 
-    l = Line(begin=(0, 0), end=(100, 0))
+    l = Line(Point(0, 0), Point(100, 0))
     l.move(x=550)
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     a.move(x=600, y=50)
     shape.outer_loop.append(a)
 
-    l = Line(begin=(0, 0), end=(100, 0))
+    l = Line(Point(0, 0), Point(100, 0))
     l.move(x=660, y=10)
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     a.move(x=710, y=50)
     shape.outer_loop.append(a)
 
-    l = Line(begin=(0, 0), end=(0, 150))
+    l = Line(Point(0, 0), Point(0, 150))
     l.move(x=820, y=0)
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
