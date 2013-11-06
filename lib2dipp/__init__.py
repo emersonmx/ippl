@@ -19,6 +19,7 @@
 
 import bottom_left_fill
 import file_io
+import genetic_algorithm
 import render
 import shape
 import util
