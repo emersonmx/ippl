@@ -31,8 +31,8 @@ class Object(object):
         """Positions the primitive.
 
         Parameters:
-            kwargs["x"] a floating point value.
-            kwargs["y"] a floating point value.
+            kwargs["x"] a real number.
+            kwargs["y"] a real number.
         """
         pass
 
@@ -40,10 +40,16 @@ class Object(object):
         """Moves the primitive.
 
         Parameters:
-            kwargs["x"] a floating point value.
-            kwargs["y"] a floating point value.
+            kwargs["x"] a real number.
+            kwargs["y"] a real number.
         """
         pass
+
+
+class Primitive(Object):
+
+    def __init__(self):
+        super(Primitive, self).__init__()
 
     def bounds(self):
         """Returns the AABB of Primitive.
@@ -54,21 +60,29 @@ class Object(object):
         pass
 
 
-class Primitive(Object):
-
-    def __init__(self, **kwargs):
-        super(Primitive, self).__init__()
-
-
 class Point(Object):
 
     def __init__(self, *args, **kwargs):
+        """Creates a Point object.
+
+        Parameters:
+            args[0] a real number for x.
+            args[1] a real number for y.
+            OR
+            kwargs["x"] a real number for x.
+            kwargs["y"] a real number for y.
+        """
+
         super(Point, self).__init__()
 
         x = y = 0.0
         if args:
-            x = float(args[0])
-            y = float(args[1])
+            for i in range(len(args)):
+                value = args[i]
+                if i == 0:
+                    x = float(value)
+                elif i == 1:
+                    y = float(value)
         elif kwargs:
             x = float(kwargs.get("x", x))
             y = float(kwargs.get("y", y))
@@ -99,9 +113,6 @@ class Point(Object):
         self.x += x
         self.y += y
 
-    def bounds(self):
-        return Rectangle(x, y, x, y)
-
     def distance(self, point):
         return math.sqrt((point.x - self.x) * (point.x - self.x) +
             (point.y - self.y) * (point.y - self.y))
@@ -128,14 +139,34 @@ class Point(Object):
 class Rectangle(Object):
 
     def __init__(self, *args, **kwargs):
+        """Creates a Rectangle object.
+
+        Parameters:
+            args[0] a real number for left.
+            args[1] a real number for bottom.
+            args[2] a real number for right.
+            args[3] a real number for top.
+            OR
+            kwargs["left"] a real number for left.
+            kwargs["bottom"] a real number for bottom.
+            kwargs["right"] a real number for right.
+            kwargs["top"] a real number for top.
+        """
+
         super(Rectangle, self).__init__()
 
         left = bottom = right = top = 0.0
         if args:
-            left = args[0]
-            bottom = args[1]
-            right = args[2]
-            top = args[3]
+            for i in range(len(args)):
+                value = args[i]
+                if i == 0:
+                    left = value
+                elif i == 1:
+                    bottom = value
+                elif i == 2:
+                    right = value
+                elif i == 3:
+                    top = value
         elif kwargs:
             left = kwargs.get("left", left)
             bottom = kwargs.get("bottom", bottom)
@@ -227,11 +258,31 @@ class Rectangle(Object):
 
 class Line(Primitive):
 
-    def __init__(self, **kwargs):
-        super(Line, self).__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        """Creates a Line object.
 
-        begin = kwargs.get("begin", Point())
-        end = kwargs.get("end", Point())
+        Parameters:
+            args[0] a Point object for begin.
+            args[1] a Point object for end.
+            OR
+            kwargs["begin"] a Point object for begin.
+            kwargs["end"] a Point object for end.
+        """
+
+        super(Line, self).__init__()
+
+        begin = Point()
+        end = Point()
+        if args:
+            for i in range(len(args)):
+                value = args[i]
+                if i == 0:
+                    begin = value
+                elif i == 1:
+                    end = value
+        elif kwargs:
+            begin = kwargs.get("begin", Point())
+            end = kwargs.get("end", Point())
 
         self.begin = Point(x=begin[0], y=begin[1])
         self.end = Point(x=end[0], y=end[1])
@@ -268,14 +319,6 @@ class Line(Primitive):
     def y2(self, value):
         self.end.y = value
 
-    def bounds(self):
-        minimum_x = min(self.x1, self.x2)
-        maximum_x = max(self.x1, self.x2)
-        minimum_y = min(self.y1, self.y2)
-        maximum_y = max(self.y1, self.y2)
-
-        return Rectangle(minimum_x, minimum_y, maximum_x, maximum_y)
-
     def position(self, **kwargs):
         pass
 
@@ -285,6 +328,14 @@ class Line(Primitive):
 
         self.begin.move(x, y)
         self.end.move(x, y)
+
+    def bounds(self):
+        minimum_x = min(self.x1, self.x2)
+        maximum_x = max(self.x1, self.x2)
+        minimum_y = min(self.y1, self.y2)
+        maximum_y = max(self.y1, self.y2)
+
+        return Rectangle(minimum_x, minimum_y, maximum_x, maximum_y)
 
     def intersect_line(self, line):
         """Calculates the point / line collision between two lines.
@@ -493,13 +544,47 @@ class Line(Primitive):
 
 class Arc(Primitive):
 
-    def __init__(self, **kwargs):
-        super(Arc, self).__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        """Creates a Arc object.
 
-        self.centre_point = kwargs.get("centre_point", Point())
-        self._radius = float(kwargs.get("radius", 1.0))
-        self._start_angle = wrap_2pi(float(kwargs.get("start_angle", 0.0)))
-        self._offset_angle = wrap_2pi(float(kwargs.get("offset_angle", 0.0)))
+        Parameters:
+            args[0] a Point object for centre_point.
+            args[1] a real number for radius.
+            args[2] a real number for start_angle.
+            args[3] a real number for offset_angle.
+            OR
+            kwargs["centre_point"] a Point object for centre_point.
+            kwargs["radius"] a real number for radius.
+            kwargs["start_angle"] a real number for start_angle.
+            kwargs["offset_angle"] a real number for offset_angle.
+        """
+
+        super(Arc, self).__init__()
+
+        centre_point = Point()
+        radius = 1.0
+        start_angle = offset_angle = 0.0
+        if args:
+            for i in range(len(args)):
+                value = args[i]
+                if i == 0:
+                    centre_point = value
+                elif i == 1:
+                    radius = float(value)
+                elif i == 2:
+                    start_angle = float(value)
+                elif i == 3:
+                    offset_angle = float(value)
+        elif kwargs:
+            centre_point = kwargs.get("centre_point", Point())
+            radius = float(kwargs.get("radius", 1.0))
+            start_angle = wrap_2pi(float(kwargs.get("start_angle", 0.0)))
+            offset_angle = wrap_2pi(float(kwargs.get("offset_angle", 0.0)))
+
+        self.centre_point = centre_point
+        self._radius = radius
+        self._start_angle = start_angle
+        self._offset_angle = offset_angle
         self._line = Line()
 
         self.calculate_ends()
@@ -536,6 +621,14 @@ class Arc(Primitive):
     def line(self, value):
         self._line = value
 
+    def move(self, **kwargs):
+        x = kwargs.get("x", 0)
+        y = kwargs.get("y", 0)
+        self.centre_point.x += x
+        self.centre_point.y += y
+
+        super(Arc, self).move(**kwargs)
+
     def bounds(self):
         self.calculate_ends()
 
@@ -562,14 +655,6 @@ class Arc(Primitive):
             minimum_y = min(self.line.y1, self.line.y2)
 
         return Rectangle(minimum_x, minimum_y, maximum_x, maximum_y)
-
-    def move(self, **kwargs):
-        x = kwargs.get("x", 0)
-        y = kwargs.get("y", 0)
-        self.centre_point.x += x
-        self.centre_point.y += y
-
-        super(Arc, self).move(**kwargs)
 
     def intersect_line(self, line):
         return line.intersect_arc(self)
@@ -679,15 +764,49 @@ class Arc(Primitive):
 
 class Shape(Object):
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
+        """Creates a Shape object.
+
+        Parameters:
+            args[0] a list of Primitives for outer_loop.
+            args[1] a list of list of Primitives for inner_loops.
+            OR
+            kwargs["outer_loop"] a list of Primitives for outer_loop.
+            kwargs["inner_loops"]  a list of list of Primitives for inner_loops.
+        """
+
         super(Shape, self).__init__()
 
-        self.outer_loop = kwargs.get("outer_loop", list())
-        self.inner_loops = kwargs.get("inner_loops", list())
+        outer_loop = list()
+        inner_loops = list()
+        if args:
+            for i in range(len(args)):
+                value = args[i]
+                if i == 0:
+                    outer_loop = value
+                elif i == 1:
+                    inner_loops = value
+        elif kwargs:
+            outer_loop = kwargs.get("outer_loop", list())
+            inner_loops = kwargs.get("inner_loops", list())
+
+        self.outer_loop = outer_loop
+        self.inner_loops = inner_loops
 
         self._last_outer_loop_size = len(self.outer_loop)
         self._shape_aabb = Rectangle()
         self.bounds()
+
+    def move(self, **kwargs):
+        x = float(kwargs.get("x", 0.0))
+        y = float(kwargs.get("y", 0.0))
+
+        for primitive in self.outer_loop:
+            primitive.move(x=x, y=y)
+
+        for loop in self.inner_loops:
+            for primitive in loop:
+                primitive.move(x=x, y=y)
 
     def bounds(self):
         if len(self.outer_loop) != self._last_outer_loop_size:
@@ -707,17 +826,6 @@ class Shape(Object):
                     self._shape_aabb.top = bounding_box.top
 
         return self._shape_aabb
-
-    def move(self, **kwargs):
-        x = float(kwargs.get("x", 0.0))
-        y = float(kwargs.get("y", 0.0))
-
-        for primitive in self.outer_loop:
-            primitive.move(x=x, y=y)
-
-        for loop in self.inner_loops:
-            for primitive in loop:
-                primitive.move(x=x, y=y)
 
     def contains(self, shape):
         """Verifica se uma forma esta contida dentro desta forma."""
