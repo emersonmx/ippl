@@ -91,6 +91,9 @@ class Point(Object):
         self.x += x
         self.y += y
 
+    def bounds(self):
+        return Rectangle(x, y, x, y)
+
     def distance(self, point):
         return math.sqrt((point.x - self.x) * (point.x - self.x) +
             (point.y - self.y) * (point.y - self.y))
