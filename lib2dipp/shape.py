@@ -27,20 +27,6 @@ class Object(object):
 
         self.type = type(self).__name__
 
-
-class Primitive(Object):
-
-    def __init__(self, **kwargs):
-        super(Primitive, self).__init__()
-
-    def bounds(self):
-        """Returns the AABB of Primitive.
-
-        Return:
-            A Rectangle object.
-        """
-        pass
-
     def position(self, **kwargs):
         """Positions the primitive.
 
@@ -58,6 +44,20 @@ class Primitive(Object):
             kwargs["y"] a floating point value.
         """
         pass
+
+    def bounds(self):
+        """Returns the AABB of Primitive.
+
+        Return:
+            A Rectangle object.
+        """
+        pass
+
+
+class Primitive(Object):
+
+    def __init__(self, **kwargs):
+        super(Primitive, self).__init__()
 
 
 class Point(Object):
@@ -83,6 +83,9 @@ class Point(Object):
     @y.setter
     def y(self, value):
         self._y = float(value)
+
+    def position(self, **kwargs):
+        pass
 
     def move(self, x, y):
         self.x += x
@@ -114,7 +117,7 @@ class Point(Object):
 class Rectangle(Object):
 
     def __init__(self, left=0.0, bottom=0.0, right=0.0, top=0.0):
-        super(Object, self).__init__()
+        super(Rectangle, self).__init__()
 
         self._left_bottom = Point(left, bottom)
         self._right_top = Point(right, top)
@@ -166,6 +169,9 @@ class Rectangle(Object):
     @right_top.setter
     def right_top(self, value):
         self._right_top = value
+
+    def position(self, **kwargs):
+        pass
 
     def move(self, **kwargs):
         x = kwargs.get("x", 0)
@@ -246,6 +252,9 @@ class Line(Primitive):
         maximum_y = max(self.y1, self.y2)
 
         return Rectangle(minimum_x, minimum_y, maximum_x, maximum_y)
+
+    def position(self, **kwargs):
+        pass
 
     def move(self, **kwargs):
         x = kwargs.get("x", 0)
