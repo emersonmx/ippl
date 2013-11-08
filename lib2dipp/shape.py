@@ -846,9 +846,14 @@ class Shape(Object):
         return self._shape_aabb
 
     def contains(self, shape):
-        """Verifica se uma forma esta contida dentro desta forma."""
+        """Checks whether a form is contained within this form.
 
-        # Internet fdp! vai esse nome por enquanto...
+        Parameters:
+            shape a Shape object.
+        Return:
+            True if the form is contained, or False otherwise.
+        """
+
         vertical_line = Line()
         for primitive in shape.outer_loop:
             if isinstance(primitive, Arc):
@@ -876,6 +881,21 @@ class Shape(Object):
 
             if (count % 2) == 1:
                 return True
+
+        return False
+
+    def simple_contains(self, shape):
+        """Checks whether a form is contained within this form. Excludes shapes
+        with holes.
+
+        Parameters:
+            shape a Shape object.
+        Return:
+            True if the form is contained, or False otherwise.
+        """
+
+        for primitive in self.outer_loop:
+            print primitive
 
         return False
 
@@ -926,4 +946,5 @@ if __name__ == "__main__":
     pc = Point(2, 1.5)
     print "Perpendicular collinear: {}".format(
         l3.calculate_perpendicular_line(pc))
+
 
