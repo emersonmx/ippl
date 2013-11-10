@@ -81,6 +81,11 @@ class Point(Object):
 
         super(Point, self).__init__()
 
+        x, y = self._parse_args(*args, **kwargs)
+        self._x = x
+        self._y = y
+
+    def _parse_args(self, *args, **kwargs):
         values = [0.0, 0.0]
         if args:
             for i in range(len(args)):
@@ -89,8 +94,7 @@ class Point(Object):
             values[0] = float(kwargs.get("x", values[0]))
             values[1] = float(kwargs.get("y", values[1]))
 
-        self._x = values[0]
-        self._y = values[1]
+        return values
 
     @property
     def x(self):
@@ -109,18 +113,10 @@ class Point(Object):
         self._y = float(value)
 
     def position(self, *args, **kwargs):
-        pass
+        x, y = self._parse_args(*args, **kwargs)
 
     def move(self, *args, **kwargs):
-        values = [0.0, 0.0]
-        if args:
-            for i in range(len(args)):
-                values[i] = float(args[i])
-        elif kwargs:
-            values[0] = float(kwargs.get("x", values[0]))
-            values[1] = float(kwargs.get("y", values[1]))
-
-        x, y = values
+        x, y = self._parse_args(*args, **kwargs)
         self.x += x
         self.y += y
 
@@ -166,6 +162,11 @@ class Rectangle(Object):
 
         super(Rectangle, self).__init__()
 
+        x1, y1, x2, y2 = self._parse_args(*args, **kwargs)
+        self._left_bottom = Point(x1, y1)
+        self._right_top = Point(x2, y2)
+
+    def _parse_args(self, *args, **kwargs):
         values = [0.0, 0.0, 0.0, 0.0]
         if args:
             for i in range(len(args)):
@@ -176,8 +177,7 @@ class Rectangle(Object):
             values[2] = kwargs.get("right", values[2])
             values[3] = kwargs.get("top", values[3])
 
-        self._left_bottom = Point(values[0], values[1])
-        self._right_top = Point(values[2], values[3])
+        return values
 
     @property
     def left(self):
@@ -280,6 +280,12 @@ class Line(Primitive):
 
         super(Line, self).__init__()
 
+
+        values = self._parse_args(*args, **kwargs)
+        self.begin = values[0]
+        self.end = values[1]
+
+    def _parse_args(self, *args, **kwargs):
         values = [Point(), Point()]
         if args:
             for i in range(len(args)):
@@ -288,9 +294,7 @@ class Line(Primitive):
             values[0] = kwargs.get("begin", values[0])
             values[1] = kwargs.get("end", values[1])
 
-        x1, y1, x2, y2 = values[0].x, values[0].y, values[1].x, values[1].y
-        self.begin = Point(x1, y1)
-        self.end = Point(x2, y2)
+        return values
 
     @property
     def x1(self):
@@ -572,6 +576,16 @@ class Arc(Primitive):
 
         super(Arc, self).__init__()
 
+        values = self._parse_args(*args, **kwargs)
+        self.centre_point = values[0]
+        self._radius = values[1]
+        self._start_angle = values[2]
+        self._offset_angle = values[3]
+        self._line = Line()
+
+        self.calculate_ends()
+
+    def _parse_args(self, *args, **kwargs):
         values = [Point(), 1.0, 0.0, 0.0]
         if args:
             for i in range(len(args)):
@@ -585,13 +599,7 @@ class Arc(Primitive):
             values[2] = wrap_2pi(float(kwargs.get("start_angle", values[2])))
             values[3] = wrap_2pi(float(kwargs.get("offset_angle", values[3])))
 
-        self.centre_point = values[0]
-        self._radius = values[1]
-        self._start_angle = values[2]
-        self._offset_angle = values[3]
-        self._line = Line()
-
-        self.calculate_ends()
+        return values
 
     @property
     def radius(self):
@@ -778,6 +786,20 @@ class Arc(Primitive):
 
 class Shape(Object):
 
+    @staticmethod
+    def loop_contained(loop1, loop2):
+        counts = 0
+        vertical_line = Line(Point(0, 0), Point(0, 1))
+
+        for primitive1 in loop1:
+            for primitive2 in loop2:
+                if isinstance(primitive1, Line):
+                    pass
+                elif isinstance(primitive1, Arc):
+                    pass
+
+        return (counts % 2) == 1
+
     def __init__(self, *args, **kwargs):
         """Creates a Shape object.
 
@@ -791,6 +813,15 @@ class Shape(Object):
 
         super(Shape, self).__init__()
 
+        values = self._parse_args(*args, **kwargs)
+        self.outer_loop = values[0]
+        self.inner_loops = values[1]
+
+        self._last_outer_loop_size = len(self.outer_loop)
+        self._shape_aabb = Rectangle()
+        self.bounds()
+
+    def _parse_args(self, *args, **kwargs):
         values = [list(), list()]
         if args:
             for i in range(len(args)):
@@ -799,12 +830,7 @@ class Shape(Object):
             values[0] = kwargs.get("outer_loop", values[0])
             values[1] = kwargs.get("inner_loops", values[1])
 
-        self.outer_loop = values[0]
-        self.inner_loops = values[1]
-
-        self._last_outer_loop_size = len(self.outer_loop)
-        self._shape_aabb = Rectangle()
-        self.bounds()
+        return values
 
     def position(self, *args, **kwargs):
         pass
