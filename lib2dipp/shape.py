@@ -114,6 +114,8 @@ class Point(Object):
 
     def position(self, *args, **kwargs):
         x, y = self._parse_args(*args, **kwargs)
+        self.x = x
+        self.y = y
 
     def move(self, *args, **kwargs):
         x, y = self._parse_args(*args, **kwargs)
@@ -228,7 +230,10 @@ class Rectangle(Object):
         self._right_top = value
 
     def position(self, *args, **kwargs):
-        pass
+        point = Point(*args, **kwargs)
+        x, y = (point.x - self.left, point.y - self.bottom)
+
+        self.move(x, y)
 
     def move(self, *args, **kwargs):
         values = [0.0, 0.0]
@@ -329,7 +334,11 @@ class Line(Primitive):
         self.end.y = value
 
     def position(self, *args, **kwargs):
-        pass
+        point = Point(*args, **kwargs)
+        aabb = self.bounds()
+        x, y = (point.x - aabb.left, point.y - aabb.bottom)
+
+        self.move(x, y)
 
     def move(self, *args, **kwargs):
         values = [0.0, 0.0]
@@ -634,7 +643,8 @@ class Arc(Primitive):
         self._line = value
 
     def position(self, *args, **kwargs):
-        pass
+        point = Point(*args, **kwargs)
+        self.centre_point = point
 
     def move(self, *args, **kwargs):
         values = [0.0, 0.0]
@@ -833,7 +843,10 @@ class Shape(Object):
         return values
 
     def position(self, *args, **kwargs):
-        pass
+        point = Point(*args, **kwargs)
+        aabb = self.bounds()
+        x, y = (point.x - aabb.left, point.y - aabb.bottom)
+        self.move(x, y)
 
     def move(self, *args, **kwargs):
         values = [0.0, 0.0]
