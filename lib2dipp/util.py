@@ -19,7 +19,9 @@
 
 import math
 
-def approx_equal(a, b, tol=1e-16):
+epsilon = tol=1e-16
+
+def approx_equal(a, b):
     """Checks if a number is approx equal to each other.
 
     Parameters:
@@ -31,7 +33,7 @@ def approx_equal(a, b, tol=1e-16):
         otherwise.
     """
 
-    return abs(a - b) <= tol
+    return abs(a - b) <= epsilon
 
 def wrap_2pi(angle):
     """Limits the angle to the range [0, 2pi)."""

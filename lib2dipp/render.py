@@ -129,7 +129,6 @@ class Render(object):
                                 self.image_background_color)
         self._image_drawer = ImageDraw.ImageDraw(self._image)
 
-        print shape
         for primitive in shape.outer_loop:
             if isinstance(primitive, Line):
                 self._line(primitive, self.shape_external_color)

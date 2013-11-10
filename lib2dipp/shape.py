@@ -132,6 +132,12 @@ class Point(Object):
     def intersect_rectangle(self, rectangle):
         return rectangle.intersect_point(self)
 
+    def collinear(self, line):
+        cross_product = ((self.y - line.y1) * (line.x2 - line.x1) -
+            (self.x - line.x1) * (line.y2 - line.y1))
+
+        return not (abs(cross_product) > epsilon)
+
     def __getitem__(self, index):
         return (self.x, self.y)[index]
 
@@ -371,44 +377,19 @@ class Line(Primitive):
             collinear and None if not intersect.
         """
 
-        p1, p2, p3, p4 = self.begin, self.end, line.begin, line.end
-
-        a = Point(p2.x - p1.x, p2.y - p1.y)
-        b = Point(p3.x - p4.x, p3.y - p4.y)
-        c = Point(p1.x - p3.x, p1.y - p3.y)
-
         values = self.calculate_intersection_line_point(line)
         if approx_equal(values["denominator"], 0.0):
-            begin = Point()
-            end = Point()
-
-            if line.point_in_segment(p1):
-                begin = p1
-            elif line.point_in_segment(p2):
-                begin = p2
+            if self.collinear(line.begin):
+                return self.calculate_collinear_intersection(line)
             else:
                 return None
-
-            if self.point_in_segment(p3):
-                end = p3
-            elif self.point_in_segment(p4):
-                end = p4
-            else:
-                return None
-
-            if begin == end:
-                return Point(begin.x, begin.y)
-            else:
-                return Line(begin, end)
-
-            return None
 
         alpha = values["alpha"]
         beta = values["beta"]
 
         if (0.0 <= alpha <= 1.0) and (0.0 <= beta <= 1.0):
-            return Point(p1.x + alpha * (p2.x - p1.x),
-                         p1.y + alpha * (p2.y - p1.y))
+            return Point(self.begin.x + alpha * (self.end.x - self.begin.x),
+                         self.begin.y + alpha * (self.end.y - self.begin.y))
 
         return None
 
@@ -448,11 +429,9 @@ class Line(Primitive):
 
         result = { "alpha": None, "beta": None, "collinear": False }
 
-        p1, p2, p3, p4 = self.begin, self.end, line.begin, line.end
-
-        a = Point(p2.x - p1.x, p2.y - p1.y)
-        b = Point(p3.x - p4.x, p3.y - p4.y)
-        c = Point(p1.x - p3.x, p1.y - p3.y)
+        a = Point(self.end.x - self.begin.x, self.end.y - self.begin.y)
+        b = Point(line.begin.x - line.end.x, line.begin.y - line.end.y)
+        c = Point(self.begin.x - line.begin.x, self.begin.y - line.begin.y)
 
         denominator = (a.y * b.x) - (a.x * b.y)
         result["denominator"] = denominator
@@ -532,6 +511,34 @@ class Line(Primitive):
 
         return result
 
+    def calculate_collinear_intersection(self, line):
+        begin = Point()
+        end = Point()
+
+        if line.point_in_segment(self.begin):
+            begin = self.begin
+        elif line.point_in_segment(self.end):
+            begin = self.end
+        else:
+            return None
+
+        if self.point_in_segment(line.begin):
+            end = line.begin
+        elif self.point_in_segment(line.end):
+            end = line.end
+        else:
+            return None
+
+        if begin == end:
+            return Point(begin.x, begin.y)
+        else:
+            return Line(begin, end)
+
+        return None
+
+    def collinear(self, point):
+        return point.collinear(self)
+
     def point_in_segment(self, point):
         """Checks whether a point is collinear and is within the line segment.
 
@@ -541,10 +548,7 @@ class Line(Primitive):
             True if it is within the segment, and False otherwise.
         """
 
-        cross_product = ((point.y - self.y1) * (self.x2 - self.x1) -
-            (point.x - self.x1) * (self.y2 - self.y1))
-        if abs(cross_product) != 0.0:
-            return False
+        if not point.collinear(self): return False
 
         dot_product = ((point.x - self.x1) * (self.x2 - self.x1) +
             (point.y - self.y1) * (self.y2 - self.y1))
@@ -802,10 +806,11 @@ class Shape(Object):
         vertical_line = Line(Point(0, 0), Point(0, 1))
 
         for primitive1 in loop1:
+            vertical_line.position(primitive1.x, primitive1.y)
             for primitive2 in loop2:
-                if isinstance(primitive1, Line):
+                if isinstance(primitive2, Line):
                     pass
-                elif isinstance(primitive1, Arc):
+                elif isinstance(primitive2, Arc):
                     pass
 
         return (counts % 2) == 1
