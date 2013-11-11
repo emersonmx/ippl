@@ -381,8 +381,11 @@ class Line(Primitive):
 
         values = self.calculate_intersection_line_point(line)
         if approx_equal(values["denominator"], 0.0):
-            return self.calculate_collinear_intersection(line, ignore_alpha,
-                                                         ignore_beta)
+            if self.begin.collinear(line):
+                return self.calculate_collinear_intersection(line, ignore_alpha,
+                                                             ignore_beta)
+            else:
+                return None
 
         alpha = values["alpha"]
         beta = values["beta"]
@@ -525,13 +528,9 @@ class Line(Primitive):
             ignore_alpha a bool object.
             ignore_beta a bool object.
         Return:
-            A Point object if the line intersects in just one point. A Line
-            object if a gap is created between the segments and None if the
-            segments are not collinear.
+            A Point object if the line intersects in just one point or a Line
+            object if a gap is created between the segments.
         """
-
-        if not self.begin.collinear(line):
-            return None
 
         begin = Point()
         end = Point()
