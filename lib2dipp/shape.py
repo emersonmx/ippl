@@ -518,29 +518,59 @@ class Line(Primitive):
 
     def calculate_collinear_intersection(self, line,
             ignore_alpha=False, ignore_beta=False):
+        """Calculates the range of intersection between the lines.
+
+        Parameters:
+            line a Line object.
+            ignore_alpha a bool object.
+            ignore_beta a bool object.
+        Return:
+            A Point object if the line intersects in just one point. A Line
+            object if a gap is created between the segments and None if the
+            segments are not collinear.
+        """
+
+        if not self.begin.collinear(line):
+            return None
+
         begin = Point()
         end = Point()
 
-        if line.point_in_segment(self.begin):
-            begin = self.begin
-        elif line.point_in_segment(self.end):
-            begin = self.end
+        if ignore_alpha and ignore_beta:
+            if self.x1 < line.x1 or self.y1 < line.y1:
+                begin = self.begin
+            else:
+                begin = line.begin
+            if self.x2 > line.x2 or self.y2 > line.y2:
+                end = self.end
+            else:
+                end = line.end
         else:
-            return None
+            if ignore_alpha:
+                begin = self.begin
+                end = self.end
+            elif ignore_beta:
+                begin = line.begin
+                end = line.end
+            else:
+                if line.point_in_segment(self.begin):
+                    begin = self.begin
+                elif line.point_in_segment(self.end):
+                    begin = self.end
+                else:
+                    return None
 
-        if self.point_in_segment(line.begin):
-            end = line.begin
-        elif self.point_in_segment(line.end):
-            end = line.end
-        else:
-            return None
+                if self.point_in_segment(line.begin):
+                    end = line.begin
+                elif self.point_in_segment(line.end):
+                    end = line.end
+                else:
+                    return None
 
         if begin == end:
             return Point(begin.x, begin.y)
-        else:
-            return Line(begin, end)
 
-        return None
+        return Line(begin, end)
 
     def collinear(self, point):
         return point.collinear(self)
