@@ -381,7 +381,8 @@ class Line(Primitive):
 
         values = self.calculate_intersection_line_point(line)
         if approx_equal(values["denominator"], 0.0):
-            return self.calculate_collinear_intersection(line)
+            return self.calculate_collinear_intersection(line, ignore_alpha,
+                                                         ignore_beta)
 
         alpha = values["alpha"]
         beta = values["beta"]
@@ -515,7 +516,8 @@ class Line(Primitive):
 
         return result
 
-    def calculate_collinear_intersection(self, line):
+    def calculate_collinear_intersection(self, line,
+            ignore_alpha=False, ignore_beta=False):
         begin = Point()
         end = Point()
 
