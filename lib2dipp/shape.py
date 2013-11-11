@@ -367,11 +367,13 @@ class Line(Primitive):
 
         return Rectangle(minimum_x, minimum_y, maximum_x, maximum_y)
 
-    def intersect_line(self, line):
-        """Calculates the point / line collision between two lines.
+    def intersect_line(self, line, ignore_alpha=False, ignore_beta=False):
+        """Calculate the collision between lines.
 
         Parameters:
             line a Line object.
+            ignore_alpha a bool value.
+            ignore_beta a bool value.
         Return:
             A point of intersection, or a line of intersection if they are
             collinear and None if not intersect.
@@ -379,25 +381,26 @@ class Line(Primitive):
 
         values = self.calculate_intersection_line_point(line)
         if approx_equal(values["denominator"], 0.0):
-            if self.collinear(line.begin):
-                return self.calculate_collinear_intersection(line)
-            else:
-                return None
+            return self.calculate_collinear_intersection(line)
 
         alpha = values["alpha"]
         beta = values["beta"]
 
-        if (0.0 <= alpha <= 1.0) and (0.0 <= beta <= 1.0):
+        if ((ignore_alpha or (0.0 <= alpha <= 1.0)) and
+                (ignore_beta or (0.0 <= beta <= 1.0))):
             return Point(self.begin.x + alpha * (self.end.x - self.begin.x),
                          self.begin.y + alpha * (self.end.y - self.begin.y))
 
         return None
 
-    def intersect_arc(self, arc):
+    def intersect_arc(self, arc,
+                      ignore_line_interval=False, ignore_arc_interval=False):
         """Calculate the points between a line and a arc.
 
         Parameters:
             arc a Arc object.
+            ignore_line_interval a bool value.
+            ignore_arc_interval a bool value.
         Return:
             A list of 0-2 points if the same are within the angle range of the
             arc.
@@ -408,12 +411,13 @@ class Line(Primitive):
         if points:
             aabb = self.bounds()
             for point in points:
-                if aabb.intersect_point(point):
+                if (ignore_line_interval or aabb.intersect_point(point)):
                     angle = wrap_2pi(math.atan2(point.y - arc.centre_point.y,
                                                 point.x - arc.centre_point.x))
                     start = arc.start_angle
                     end = arc.offset_angle
-                    if angle_in_range(angle, start, end):
+                    if (ignore_arc_interval or
+                            angle_in_range(angle, start, end)):
                         result.append(point)
 
         return result
