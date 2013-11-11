@@ -432,7 +432,7 @@ class Line(Primitive):
             a dictionary with the alpha, beta and the denominator values.
         """
 
-        result = { "alpha": None, "beta": None, "collinear": False }
+        result = { "alpha": None, "beta": None, "denominator": 0.0 }
 
         a = Point(self.end.x - self.begin.x, self.end.y - self.begin.y)
         b = Point(line.begin.x - line.end.x, line.begin.y - line.end.y)
