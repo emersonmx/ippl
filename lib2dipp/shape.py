@@ -132,6 +132,24 @@ class Point(Object):
     def intersect_rectangle(self, rectangle):
         return rectangle.intersect_point(self)
 
+    def in_polygon(self, polygon):
+        odd_nodes = False
+        polygon_size = len(polygon)
+
+        for primitive in polygon:
+            if isinstance(primitive, Line):
+                if ((primitive.y2 < self.y and primitive.y1 >= self.y) or
+                        primitive.y1 < self.y and primitive.y2 >= self.y):
+                    x_value = (primitive.x2 + (self.y - primitive.y2) /
+                        (primitive.y1 - primitive.y2) *
+                        (primitive.x1 - primitive.x2))
+                    if x_value < self.x:
+                        odd_nodes = not odd_nodes
+            elif isinstance(primitive, Arc):
+                pass
+
+        return odd_nodes
+
     def collinear(self, line):
         cross_product = ((self.y - line.y1) * (line.x2 - line.x1) -
             (self.x - line.x1) * (line.y2 - line.y1))
