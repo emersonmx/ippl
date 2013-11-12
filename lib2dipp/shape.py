@@ -132,21 +132,35 @@ class Point(Object):
     def intersect_rectangle(self, rectangle):
         return rectangle.intersect_point(self)
 
-    def in_polygon(self, polygon):
+    def intersect_polygon(self, polygon):
         odd_nodes = False
         polygon_size = len(polygon)
 
         for primitive in polygon:
             if isinstance(primitive, Line):
-                if ((primitive.y2 < self.y and primitive.y1 >= self.y) or
-                        primitive.y1 < self.y and primitive.y2 >= self.y):
-                    x_value = (primitive.x2 + (self.y - primitive.y2) /
-                        (primitive.y1 - primitive.y2) *
-                        (primitive.x1 - primitive.x2))
+                line = primitive
+                if ((line.y2 < self.y and line.y1 >= self.y) or
+                        line.y1 < self.y and line.y2 >= self.y):
+                    x_value = (line.x2 + (self.y - line.y2) /
+                        (line.y1 - line.y2) * (line.x1 - line.x2))
                     if x_value < self.x:
                         odd_nodes = not odd_nodes
             elif isinstance(primitive, Arc):
-                pass
+                arc = primitive
+                horizontal_line = Line(self, Point(self.x - 1, self.y))
+                points = (
+                    horizontal_line.calculate_intersection_circle_points(arc))
+
+                if len(points) > 1:
+                    for point in points:
+                        angle = wrap_2pi(
+                            math.atan2(point.y - arc.centre_point.y,
+                                       point.x - arc.centre_point.x))
+                        start = arc.start_angle
+                        end = arc.offset_angle
+                        if (angle_in_range(angle, start, end)):
+                            if point.x < self.x:
+                                odd_nodes = not odd_nodes
 
         return odd_nodes
 
@@ -656,9 +670,9 @@ class Arc(Primitive):
         if args:
             for i in range(len(args)):
                 if i == 0:
-                    args[i] = args[i]
+                    values[i] = args[i]
                 else:
-                    args[i] = float(args[i])
+                    values[i] = float(args[i])
         elif kwargs:
             values[0] = kwargs.get("centre_point", values[0])
             values[1] = float(kwargs.get("radius", values[1]))
