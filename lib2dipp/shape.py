@@ -133,6 +133,14 @@ class Point(Object):
         return rectangle.intersect_point(self)
 
     def intersect_polygon(self, polygon):
+        """Checks whether a point is inside a polygon.
+
+        Parameters:
+            polygon a list of Primitives.
+        Return:
+            True if the point is inside the polygon, or False otherwise.
+        """
+
         odd_nodes = False
         polygon_size = len(polygon)
 
@@ -662,6 +670,7 @@ class Arc(Primitive):
         self._start_angle = values[2]
         self._offset_angle = values[3]
         self._line = Line()
+        self._update_ends = True
 
         self.calculate_ends()
 
@@ -687,6 +696,8 @@ class Arc(Primitive):
 
     @radius.setter
     def radius(self, value):
+        if approx_equal(self.radius, value):
+            self._update_ends = True
         self._radius = float(value)
 
     @property
@@ -695,6 +706,8 @@ class Arc(Primitive):
 
     @start_angle.setter
     def start_angle(self, value):
+        if approx_equal(self.start_angle, value):
+            self._update_ends = True
         self._start_angle = wrap_2pi(float(value))
 
     @property
@@ -703,15 +716,13 @@ class Arc(Primitive):
 
     @offset_angle.setter
     def offset_angle(self, value):
+        if approx_equal(self.offset_angle, value):
+            self._update_ends = True
         self._offset_angle = wrap_2pi(float(value))
 
     @property
     def line(self):
         return self._line
-
-    @line.setter
-    def line(self, value):
-        self._line = value
 
     def position(self, *args, **kwargs):
         point = Point(*args, **kwargs)
@@ -813,14 +824,16 @@ class Arc(Primitive):
         return result
 
     def calculate_ends(self):
-        self.line.x1 = (self.centre_point.x +
-            self.radius * math.cos(self.start_angle))
-        self.line.y1 = (self.centre_point.y +
-            self.radius * math.sin(self.start_angle))
-        self.line.x2 = (self.centre_point.x +
-            self.radius * math.cos(self.offset_angle))
-        self.line.y2 = (self.centre_point.y +
-            self.radius * math.sin(self.offset_angle))
+        if self._update_ends:
+            self.line.x1 = (self.centre_point.x +
+                self.radius * math.cos(self.start_angle))
+            self.line.y1 = (self.centre_point.y +
+                self.radius * math.sin(self.start_angle))
+            self.line.x2 = (self.centre_point.x +
+                self.radius * math.cos(self.offset_angle))
+            self.line.y2 = (self.centre_point.y +
+                self.radius * math.sin(self.offset_angle))
+            self._update_ends = False
 
     def calculate_intersection_circle_points(self, circle, distance=None):
         """Calculate the points between two circles.
@@ -870,19 +883,31 @@ class Arc(Primitive):
 class Shape(Object):
 
     @staticmethod
-    def loop_contained(loop1, loop2):
-        counts = 0
-        vertical_line = Line(Point(0, 0), Point(0, 1))
+    def polygon_contained(polygon1, polygon2):
+        """Checks whether the first polygon is inside the second.
+        Will only work properly if the AABB polygons are intersecting and that
+        has no intersection between the polygon primitives.
 
-        for primitive1 in loop1:
-            vertical_line.position(primitive1.x, primitive1.y)
-            for primitive2 in loop2:
-                if isinstance(primitive2, Line):
-                    pass
-                elif isinstance(primitive2, Arc):
-                    pass
+        Parameters:
+            polygon1 a list of Primitives.
+            polygon2 a list of Primitives.
 
-        return (counts % 2) == 1
+        Return:
+            True if polygon1 is within polygon2, or False otherwise.
+        """
+
+        for primitive1 in polygon1:
+            if isinstance(primitive1, Line):
+                line = primitive1
+                if not line.begin.intersect_polygon(polygon2):
+                    return False
+            if isinstance(primitive1, Arc):
+                arc = primitive1
+                arc.calculate_ends()
+                if not arc.line.begin.intersect_polygon(polygon2):
+                    return False
+
+        return True
 
     def __init__(self, *args, **kwargs):
         """Creates a Shape object.
@@ -967,35 +992,7 @@ class Shape(Object):
             True if the form is contained, or False otherwise.
         """
 
-        vertical_line = Line()
-        for primitive in shape.outer_loop:
-            if isinstance(primitive, Arc):
-                primitive.calculate_ends()
-
-            # No caso linha-linha, a reta vertical sera alfa e as linhas serao
-            # beta. Logo, se o ponto de colisao estiver entre
-            # 0.0 <= beta <= 1.0 das linhas entao deve-se incrementar count em
-            # 1.
-            # Para o caso linha-arco, deve calcular os pontos de colisao no arco
-            # e incrementar count com a quantidade dos pontos que foram
-            # encontrados.
-            # Lembrar de considerar os casos especiais: linha colinear e arcos
-            # na mesma posicao e com mesmo raio.
-            vertical_line = primitive
-            vertical_line.end.move(0, 1)
-            count = 0
-
-            for outer in self.outer_loop:
-                pass
-
-            for loop in self.inner_loops:
-                for inner in loop:
-                    pass
-
-            if (count % 2) == 1:
-                return True
-
-        return False
+        return Shape.polygon_contained(shape.outer_loop, self.outer_loop)
 
     def simple_contains(self, shape):
         """Checks whether a form is contained within this form. Excludes shapes

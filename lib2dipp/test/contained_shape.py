@@ -30,4 +30,20 @@ if __name__ == "__main__":
 
     pt=Point(40, 10)
 
-    print pt.intersect_polygon(poly_1)
+    print "The point is inside the polygon? {}".format(
+        pt.intersect_polygon(poly_1))
+
+    s1 = Shape()
+    s1.outer_loop.append(Line(Point(0, 0), Point(10, 0)))
+    s1.outer_loop.append(Line(Point(10, 0), Point(5, 10)))
+    s1.outer_loop.append(Line(Point(5, 10), Point(0, 0)))
+    s1.position(50, 40)
+    s2 = Shape()
+    s2.outer_loop.append(Line(Point(40, 0), Point(80, 0)))
+    s2.outer_loop.append(Arc(Point(80, 40), 40, 3*math.pi/2, math.pi/2))
+    s2.outer_loop.append(Line(Point(80, 80), Point(40, 80)))
+    s2.outer_loop.append(Arc(Point(40, 40), 40, math.pi/2, 3*math.pi/2))
+
+    print "s1 is contained in s2? {}".format(
+        Shape.polygon_contained(s1.outer_loop, s2.outer_loop))
+    print "s2 contains s1? {}".format(s2.contains(s1))
