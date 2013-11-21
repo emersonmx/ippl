@@ -17,9 +17,9 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from base import *
-from point import *
-from rectangle import *
-from line import *
-from arc import *
-from shape import *
+from lib2dipp.shape.base import *
+from lib2dipp.shape.point import *
+from lib2dipp.shape.rectangle import *
+from lib2dipp.shape.line import *
+from lib2dipp.shape.arc import *
+from lib2dipp.shape.shape import *

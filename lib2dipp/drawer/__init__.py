@@ -17,5 +17,5 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import drawer
+import lib2dipp.drawer
 

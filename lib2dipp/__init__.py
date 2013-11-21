@@ -17,10 +17,10 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import shape
-import bottom_left_fill
-import file_io
-import genetic_algorithm
-import render
-import util
+import lib2dipp.shape
+import lib2dipp.bottom_left_fill
+import lib2dipp.file_io
+import lib2dipp.genetic_algorithm
+import lib2dipp.render
+import lib2dipp.util
 
