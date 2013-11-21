@@ -17,10 +17,17 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import shape
-import bottom_left_fill
-import file_io
-import genetic_algorithm
-import render
-import util
+from lib2dipp.file_io import *
 
+if __name__ == "__main__":
+    outer = []
+    outer.append(Line(Point(0, 0), Point(5, 0)))
+    outer.append(Line(Point(5, 0), Point(5, 5)))
+    outer.append(Line(Point(5, 5), Point(0, 5)))
+    outer.append(Line(Point(0, 5), Point(0, 0)))
+    sh = Shape(outer_loop=outer)
+    sjson = json.dumps(sh, cls=ShapeEncoder, indent=4)
+    print "SERIALIZE"
+    print sjson
+    print "DESERIALIZE"
+    print json.loads(sjson, object_hook=shape_decoder)

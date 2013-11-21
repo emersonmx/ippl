@@ -19,20 +19,25 @@
 
 import json
 
-import shape
+from lib2dipp.shape.base import Object
+from lib2dipp.shape.point import Point
+from lib2dipp.shape.rectangle import Rectangle
+from lib2dipp.shape.line import Line
+from lib2dipp.shape.arc import Arc
+from lib2dipp.shape.shape import Shape
 
 def shape_decoder(o):
     new_object = None
     if o["type"] == "Point":
-        new_object = shape.Point()
+        new_object = Point()
     elif o["type"] == "Line":
-        new_object = shape.Line()
+        new_object = Line()
     elif o["type"] == "Arc":
-        new_object = shape.Arc()
+        new_object = Arc()
     elif o["type"] == "Shape":
-        new_object = shape.Shape()
+        new_object = Shape()
     else:
-        new_object = shape.Object()
+        new_object = Object()
 
     new_object.__dict__ = o
 
@@ -42,20 +47,7 @@ def shape_decoder(o):
 class ShapeEncoder(json.JSONEncoder):
 
     def default(self, o):
-        if not isinstance(o, shape.Object):
+        if not isinstance(o, Object):
             return super(ShapeEncoder, self).default(o)
 
         return o.__dict__
-
-if __name__ == "__main__":
-    outer = []
-    outer.append(shape.Line(shape.Point(0, 0), shape.Point(5, 0)))
-    outer.append(shape.Line(shape.Point(5, 0), shape.Point(5, 5)))
-    outer.append(shape.Line(shape.Point(5, 5), shape.Point(0, 5)))
-    outer.append(shape.Line(shape.Point(0, 5), shape.Point(0, 0)))
-    sh = shape.Shape(outer_loop=outer)
-    sjson = json.dumps(sh, cls=ShapeEncoder, indent=4)
-    print "SERIALIZE"
-    print sjson
-    print "DESERIALIZE"
-    print json.loads(sjson, object_hook=shape_decoder)

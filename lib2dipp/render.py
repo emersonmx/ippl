@@ -21,7 +21,12 @@ import math
 from PIL import Image
 from PIL import ImageDraw
 
-from shape import *
+from lib2dipp.util import *
+from lib2dipp.shape.point import Point
+from lib2dipp.shape.rectangle import Rectangle
+from lib2dipp.shape.line import Line
+from lib2dipp.shape.arc import Arc
+from lib2dipp.shape.shape import Shape
 
 
 class Render(object):
@@ -135,7 +140,7 @@ class Render(object):
             elif isinstance(primitive, Arc):
                 self._arc(primitive, self.shape_external_color)
             if self.draw_bounds:
-                self._aabb(primitive, self.aabb_color)
+                self._aabb(primitive.bounds(), self.aabb_color)
 
         for loop in shape.inner_loops:
             for primitive in loop:

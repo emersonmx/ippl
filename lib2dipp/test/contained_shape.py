@@ -17,7 +17,9 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from lib2dipp.shape import *
+import math
+
+from lib2dipp.shape.shape import Shape
 
 if __name__ == "__main__":
     poly_1 = []

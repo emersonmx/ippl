@@ -3,7 +3,7 @@ import json
 import re
 import sys
 
-import lib2dipp
+from lib2dipp.file_io import *
 
 
 class StateMachine(object):
@@ -73,7 +73,7 @@ class StateMachine(object):
             elif self.current_state == self.STATES["shape"]:
                 match = self.EXPRESSIONS["shape"].search(line)
                 if match:
-                    sh = lib2dipp.shape.Shape()
+                    sh = Shape()
                     self.shape(match.groupdict())
                     i += 1
                 elif re.search(r"^Loop \d+", line):
@@ -107,11 +107,11 @@ class StateMachine(object):
                     self.current_state = self.STATES["loop"]
                 elif re.search(r"^Shape \d+", line):
                     shapes.append(sh)
-                    sh = lib2dipp.shape.Shape()
+                    sh = Shape()
                     self.current_state = self.STATES["shape"]
                 elif re.search(r"^Profiles\d+:", line):
                     shapes.append(sh)
-                    sh = shape.Shape()
+                    sh = Shape()
                     self.current_state = self.STATES["profile"]
                 else:
                     self.current_state = self.STATES["end"]
@@ -139,11 +139,11 @@ class StateMachine(object):
                     self.current_state = self.STATES["loop"]
                 elif re.search(r"^Shape \d+", line):
                     shapes.append(sh)
-                    sh = lib2dipp.shape.Shape()
+                    sh = Shape()
                     self.current_state = self.STATES["shape"]
                 elif re.search(r"^Profiles\d+:", line):
                     shapes.append(sh)
-                    sh = shape.Shape()
+                    sh = Shape()
                     self.current_state = self.STATES["profile"]
                 else:
                     self.current_state = self.STATES["end"]
@@ -152,7 +152,7 @@ class StateMachine(object):
                 break
 
         self.end()
-        print json.dumps(shapes, cls=lib2dipp.file_io.ShapeEncoder, indent=4)
+        print json.dumps(shapes, cls=ShapeEncoder, indent=4)
 
         f.close()
 
@@ -169,7 +169,7 @@ class StateMachine(object):
         pass
 
     def line(self, groups):
-        line_shape = lib2dipp.shape.Line()
+        line_shape = Line()
 
         line_shape.begin = ast.literal_eval(groups["begin"])
         line_shape.end = ast.literal_eval(groups["end"])
@@ -177,7 +177,7 @@ class StateMachine(object):
         return line_shape
 
     def arc(self, groups):
-        arc_shape = lib2dipp.shape.Arc()
+        arc_shape = Arc()
 
         arc_shape.begin = ast.literal_eval(groups["begin"])
         arc_shape.end = ast.literal_eval(groups["end"])

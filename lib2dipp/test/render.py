@@ -19,7 +19,6 @@
 
 import math
 
-import lib2dipp
 from lib2dipp.shape import *
 from lib2dipp.render import *
 
@@ -80,15 +79,15 @@ if __name__ == "__main__":
     s.outer_loop.append(a)
 
     # IV - Lines
-    l = Line(begin=(0, 0), end=(50, 25))
+    l = Line(Point(0, 0), Point(50, 25))
     s.outer_loop.append(l)
-    l = Line(begin=(50, 25), end=(0, 0))
+    l = Line(Point(50, 25), Point(0, 0))
     l.move(y=30)
     s.outer_loop.append(l)
-    l = Line(begin=(0, 25), end=(50, 0))
+    l = Line(Point(0, 25), Point(50, 0))
     l.move(x=55)
     s.outer_loop.append(l)
-    l = Line(begin=(50, 0), end=(0, 25))
+    l = Line(Point(50, 0), Point(0, 25))
     l.move(x=55, y=30)
     s.outer_loop.append(l)
 
