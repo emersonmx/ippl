@@ -22,7 +22,7 @@ from random import randint as rand
 from PIL import Image
 from PIL import ImageDraw
 
-from lib2dipp.shape.point import Point
+from lib2dipp.shape import Point
 
 if __name__ == "__main__":
     mode = "RGB"

@@ -19,7 +19,7 @@
 
 import math
 
-from lib2dipp.shape.shape import Shape
+from lib2dipp.shape import *
 
 if __name__ == "__main__":
     poly_1 = []

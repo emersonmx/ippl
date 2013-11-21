@@ -18,10 +18,7 @@
 #
 
 from lib2dipp.util import *
-from lib2dipp.shape.point import Point
-from lib2dipp.shape.line import Line
-from lib2dipp.shape.arc import Arc
-from lib2dipp.shape.shape import Shape
+from lib2dipp.shape import *
 
 if __name__ == "__main__":
     print Point()

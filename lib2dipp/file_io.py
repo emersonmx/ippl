@@ -19,12 +19,7 @@
 
 import json
 
-from lib2dipp.shape.base import Object
-from lib2dipp.shape.point import Point
-from lib2dipp.shape.rectangle import Rectangle
-from lib2dipp.shape.line import Line
-from lib2dipp.shape.arc import Arc
-from lib2dipp.shape.shape import Shape
+from lib2dipp.shape import *
 
 def shape_decoder(o):
     new_object = None
