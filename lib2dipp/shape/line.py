@@ -175,12 +175,8 @@ class Line(Primitive):
 
     def intersection_points_of_shape(self, shape):
         points = []
-        loops = shape.outer_loop
 
-        for loop in shape.inner_loops:
-            loops += loop
-
-        for primitive in loops:
+        for primitive in shape.primitive_iterator():
             if isinstance(primitive, Line):
                 line = primitive
                 point = self.intersect_line(line, True)

@@ -146,7 +146,7 @@ if __name__ == "__main__":
     l.move(820, 0)
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=math.pi)
+            start_angle=0.0, offset_angle=math.pi)
     a.move(820, 50)
     shape.outer_loop.append(a)
 

@@ -23,7 +23,6 @@ if __name__ == "__main__":
     il.append(Line(Point(6, 9), Point(6, 6)))
     s.inner_loops.append(il)
 
-    print "Outer loop"
     for primitive in s.outer_loop_iterator():
         print primitive
 
@@ -35,3 +34,4 @@ if __name__ == "__main__":
     for primitive in s.primitive_iterator():
         print primitive
 
+    print s.bounds()

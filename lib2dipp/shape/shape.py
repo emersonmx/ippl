@@ -100,21 +100,19 @@ class Shape(Object):
             values[1] = kwargs.get("y", values[1])
 
         x, y = values
-        for primitive in self.outer_loop:
+        for primitive in self.primitive_iterator():
             primitive.move(x, y)
-
-        for loop in self.inner_loops:
-            for primitive in loop:
-                primitive.move(x, y)
 
     def bounds(self):
         if len(self.outer_loop) != self._last_outer_loop_size:
             self._last_outer_loop_size = len(self.outer_loop)
 
-            self._shape_aabb = self.outer_loop[0].bounds()
+            iterator = self.outer_loop_iterator()
+            self._shape_aabb = iterator.next().bounds()
 
-            for primitive in self.outer_loop[1:]:
+            for primitive in iterator:
                 bounding_box = primitive.bounds()
+                print self._shape_aabb, bounding_box
                 if bounding_box.left < self._shape_aabb.left:
                     self._shape_aabb.left = bounding_box.left
                 if bounding_box.bottom < self._shape_aabb.bottom:
@@ -129,9 +127,10 @@ class Shape(Object):
     def resolve_contained_shape(self, shape):
         if shape.contains(self):
             aabb = self.bounds()
+
             lowest_point = self.outer_loop[0]
 
-            for primitive in self.outer_loop:
+            for primitive in self.outer_loop_iterator():
                 if isinstance(primitive, Line):
                     line = primitive
                     if (line.begin.distance(aabb.left_bottom) <
@@ -171,7 +170,7 @@ class Shape(Object):
             True if the form is contained, or False otherwise.
         """
 
-        for primitive in self.outer_loop:
+        for primitive in self.outer_loop_iterator():
             print primitive
 
         return False
