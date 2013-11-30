@@ -18,11 +18,9 @@
 #
 
 import ast
-import json
 import re
 import sys
 
-from lib2dipp.file_io import *
 from lib2dipp.render import *
 
 
@@ -59,6 +57,8 @@ class StateMachine(object):
 
         self.current_state = self.STATES["profile"]
         self.file = ""
+        self.sheetshape_size = [0.0, 0.0]
+        self.sheetshape_rotation = 0.0
 
     def run(self):
         f = open(self.file, "r")
@@ -66,8 +66,7 @@ class StateMachine(object):
         self.begin()
         self.current_state = self.STATES["profile"]
 
-        i = 0
-        line_data = None
+        line_number = 0
         arc_data = None
         sh = None
         inner_loop = []
@@ -76,10 +75,11 @@ class StateMachine(object):
         loop_type = ""
         lines = f.readlines()
         while self.current_state != self.STATES["end"]:
-            line = lines[i].strip()
+            line = lines[line_number].strip()
+
             if not line:
-                i += 1
-                if i >= len(lines):
+                line_number += 1
+                if line_number >= len(lines):
                     self.current_state = self.STATES["end"]
                 else:
                     continue
@@ -88,7 +88,7 @@ class StateMachine(object):
                 match = self.EXPRESSIONS["profile"].search(line)
                 if match:
                     self.profile(match.groupdict())
-                    i += 1
+                    line_number += 1
                 elif re.search(r"Shape \d+", line):
                     self.current_state = self.STATES["shape"]
                 else:
@@ -98,7 +98,7 @@ class StateMachine(object):
                 if match:
                     sh = Shape()
                     self.shape(match.groupdict())
-                    i += 1
+                    line_number += 1
                 elif re.search(r"^Loop \d+", line):
                     self.current_state = self.STATES["loop"]
                 else:
@@ -109,7 +109,7 @@ class StateMachine(object):
                     loop_data = match.groupdict()
                     loop_type = loop_data["type"]
                     self.loop(loop_data)
-                    i += 1
+                    line_number += 1
                 elif re.search(r"^Line:", line):
                     self.current_state = self.STATES["line"]
                 elif re.search(r"^Arc:", line):
@@ -122,21 +122,37 @@ class StateMachine(object):
                     if loop_type == "external":
                         sh.outer_loop.append(self.line(match.groupdict()))
                     elif loop_type == "internal":
-                        sh.inner_loops.append(self.line(match.groupdict()))
-                    i += 1
+                        inner_loop.append(self.line(match.groupdict()))
+                    line_number += 1
                 elif re.search(r"^Arc:", line):
                     self.current_state = self.STATES["arc"]
                 elif re.search(r"^Loop \d+", line):
+                    if inner_loop:
+                        sh.inner_loops.append(inner_loop)
+                    inner_loop = []
+
                     self.current_state = self.STATES["loop"]
                 elif re.search(r"^Shape \d+", line):
+                    if inner_loop:
+                        sh.inner_loops.append(inner_loop)
+                    inner_loop = []
+
                     shapes.append(sh)
                     sh = Shape()
                     self.current_state = self.STATES["shape"]
                 elif re.search(r"^Profiles\d+:", line):
+                    if inner_loop:
+                        sh.inner_loops.append(inner_loop)
+                    inner_loop = []
+
                     shapes.append(sh)
                     sh = Shape()
                     self.current_state = self.STATES["profile"]
                 else:
+                    if inner_loop:
+                        sh.inner_loops.append(inner_loop)
+                    inner_loop = []
+
                     self.current_state = self.STATES["end"]
             elif self.current_state == self.STATES["arc"]:
                 match_init = self.EXPRESSIONS["arc_init"].search(line)
@@ -144,38 +160,53 @@ class StateMachine(object):
                 match_angles = self.EXPRESSIONS["arc_angles"].search(line)
                 if match_init:
                     arc_data = match_init.groupdict().items()
-                    i += 1
+                    line_number += 1
                 elif match_position:
                     arc_data = arc_data + match_position.groupdict().items()
-                    i += 1
+                    line_number += 1
                 elif match_angles:
                     arc_data = dict(arc_data + match_angles.groupdict().items())
                     if loop_type == "external":
                         sh.outer_loop.append(self.arc(arc_data))
                     elif loop_type == "internal":
-                        sh.inner_loops.append(self.arc(arc_data))
+                        inner_loop.append(self.arc(arc_data))
                     arc_data = None
-                    i += 1
+                    line_number += 1
                 elif re.search(r"^Line:", line):
                     self.current_state = self.STATES["line"]
                 elif re.search(r"^Loop \d+", line):
+                    if inner_loop:
+                        sh.inner_loops.append(inner_loop)
+                    inner_loop = []
+
                     self.current_state = self.STATES["loop"]
                 elif re.search(r"^Shape \d+", line):
+                    if inner_loop:
+                        sh.inner_loops.append(inner_loop)
+                    inner_loop = []
+
                     shapes.append(sh)
                     sh = Shape()
                     self.current_state = self.STATES["shape"]
                 elif re.search(r"^Profiles\d+:", line):
+                    if inner_loop:
+                        sh.inner_loops.append(inner_loop)
+                    inner_loop = []
+
                     shapes.append(sh)
                     sh = Shape()
                     self.current_state = self.STATES["profile"]
                 else:
+                    if inner_loop:
+                        sh.inner_loops.append(inner_loop)
+                    inner_loop = []
+
                     self.current_state = self.STATES["end"]
             elif self.current_state == self.STATES["end"]:
                 shapes.append(sh)
                 break
 
         self.end()
-        print json.dumps(shapes, cls=ShapeEncoder, indent=4)
         print shapes
 
         for i in xrange(len(shapes)):
@@ -196,7 +227,11 @@ class StateMachine(object):
         pass
 
     def profile(self, groups):
-        pass
+        size = ast.literal_eval(groups["size"])
+        rotation = ast.literal_eval(groups["rotations"])
+
+        self.sheetshape_size = size
+        self.sheetshape_rotation = rotation
 
     def shape(self, groups):
         pass
