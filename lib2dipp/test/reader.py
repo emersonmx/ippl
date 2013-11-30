@@ -22,6 +22,7 @@ import re
 import sys
 
 from lib2dipp.render import *
+from lib2dipp.shape import *
 
 
 class StateMachine(object):
@@ -30,8 +31,9 @@ class StateMachine(object):
         "shape": 2,
         "loop": 3,
         "line": 4,
-        "arc": 5,
-        "end": 6
+        "arc_info": 5,
+        "arc": 6,
+        "end": 7
     }
 
     EXPRESSIONS = {
@@ -42,12 +44,14 @@ class StateMachine(object):
                             r"Quantity: (?P<quantity>\d+)\)$"),
         "loop": re.compile(r"^Loop (?P<id>\d+) \((?P<type>\w+)\): "
                            r"(?P<primitives>\d+) Primitives$"),
-        "line": re.compile(r"^Line: (?P<begin>\(\d+\.\d+, \d+\.\d+\)),"
-                           r"(?P<end>\(\d+\.\d+, \d+\.\d+\))$"),
-        "arc_init": re.compile(r"^Arc: (?P<begin>\(\d+\.\d+, \d+\.\d+\)),"
-                               r"(?P<end>\(\d+\.\d+, \d+\.\d+\)),$"),
-        "arc_position": re.compile(r"^Cen: (?P<centre_point>\(\d+\.\d+, "
-                                   r"\d+\.\d+\)), Rad: (?P<radius>\d+\.\d+),$"),
+        "line": re.compile(r"^Line: (?P<begin>\([-]*\d+\.\d+, [-]*\d+\.\d+\)),"
+                           r"(?P<end>\([-]*\d+\.\d+, [-]*\d+\.\d+\))$"),
+        "arc_init": re.compile(r"^Arc: (?P<begin>\([-]*\d+\.\d+, "
+                               r"[-]*\d+\.\d+\)),(?P<end>\([-]*\d+\.\d+, "
+                               r"[-]*\d+\.\d+\)),$"),
+        "arc_position": re.compile(r"^Cen: (?P<centre_point>\([-]*\d+\.\d+, "
+                                   r"[-]*\d+\.\d+\)), "
+                                   r"Rad: (?P<radius>\d+\.\d+),$"),
         "arc_angles": re.compile(r"^StAng: (?P<start_angle>[-]*\d+\.\d+), "
                                  r"Offset (?P<offset_angle>[-]*\d+\.\d+)$")
     }
@@ -113,7 +117,7 @@ class StateMachine(object):
                 elif re.search(r"^Line:", line):
                     self.current_state = self.STATES["line"]
                 elif re.search(r"^Arc:", line):
-                    self.current_state = self.STATES["arc"]
+                    self.current_state = self.STATES["arc_info"]
                 else:
                     self.current_state = self.STATES["end"]
             elif self.current_state == self.STATES["line"]:
@@ -125,7 +129,7 @@ class StateMachine(object):
                         inner_loop.append(self.line(match.groupdict()))
                     line_number += 1
                 elif re.search(r"^Arc:", line):
-                    self.current_state = self.STATES["arc"]
+                    self.current_state = self.STATES["arc_info"]
                 elif re.search(r"^Loop \d+", line):
                     if inner_loop:
                         sh.inner_loops.append(inner_loop)
@@ -149,12 +153,8 @@ class StateMachine(object):
                     sh = Shape()
                     self.current_state = self.STATES["profile"]
                 else:
-                    if inner_loop:
-                        sh.inner_loops.append(inner_loop)
-                    inner_loop = []
-
                     self.current_state = self.STATES["end"]
-            elif self.current_state == self.STATES["arc"]:
+            elif self.current_state == self.STATES["arc_info"]:
                 match_init = self.EXPRESSIONS["arc_init"].search(line)
                 match_position = self.EXPRESSIONS["arc_position"].search(line)
                 match_angles = self.EXPRESSIONS["arc_angles"].search(line)
@@ -172,6 +172,12 @@ class StateMachine(object):
                         inner_loop.append(self.arc(arc_data))
                     arc_data = None
                     line_number += 1
+                    self.current_state = self.STATES["arc"]
+                else:
+                    self.current_state = self.STATES["end"]
+            elif self.current_state == self.STATES["arc"]:
+                if re.search(r"^Arc:", line):
+                    self.current_state = self.STATES["arc_info"]
                 elif re.search(r"^Line:", line):
                     self.current_state = self.STATES["line"]
                 elif re.search(r"^Loop \d+", line):
@@ -197,22 +203,26 @@ class StateMachine(object):
                     sh = Shape()
                     self.current_state = self.STATES["profile"]
                 else:
-                    if inner_loop:
-                        sh.inner_loops.append(inner_loop)
-                    inner_loop = []
-
                     self.current_state = self.STATES["end"]
             elif self.current_state == self.STATES["end"]:
+                if inner_loop:
+                    sh.inner_loops.append(inner_loop)
+                inner_loop = []
+
                 shapes.append(sh)
+
                 break
 
         self.end()
-        print shapes
 
         for i in xrange(len(shapes)):
             shape = shapes[i]
-
             shape.position(0, 0)
+
+            if isinstance(shape, Arc):
+                shape.calculate_angles()
+                shape.calculate_ends()
+
             aabb = shape.bounds()
             size = (int(aabb.right - aabb.left) + 1,
                     int(aabb.top - aabb.bottom) + 1)
@@ -260,12 +270,23 @@ class StateMachine(object):
         start_angle = ast.literal_eval(groups["start_angle"])
         offset_angle = ast.literal_eval(groups["offset_angle"])
 
-        arc_shape.begin = Point(begin[0], begin[1])
-        arc_shape.end = Point(end[0], end[1])
+        if offset_angle < 0:
+            begin, end = end, begin
+        else:
+            start_angle, offset_angle = offset_angle, start_angle
+
+        start_angle = util.wrap_2pi(start_angle)
+        offset_angle = util.wrap_2pi(offset_angle)
+
+        arc_shape.line.begin = Point(begin[0], begin[1])
+        arc_shape.line.end = Point(end[0], end[1])
         arc_shape.centre_point = Point(centre_point[0], centre_point[1])
         arc_shape.radius = radius
         arc_shape.start_angle = start_angle
         arc_shape.offset_angle = offset_angle
+
+        arc_shape.calculate_angles()
+        arc_shape.calculate_ends()
 
         return arc_shape
 
