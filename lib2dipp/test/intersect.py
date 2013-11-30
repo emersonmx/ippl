@@ -21,6 +21,7 @@ import copy
 
 from lib2dipp.shape import *
 from lib2dipp.render import *
+from lib2dipp import util
 
 if __name__ == "__main__":
     shapes = []
@@ -130,7 +131,7 @@ if __name__ == "__main__":
     l.move(x=550)
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=math.pi)
+            start_angle=0, offset_angle=util.pi)
     a.move(600, 50)
     shape.outer_loop.append(a)
 
@@ -138,7 +139,7 @@ if __name__ == "__main__":
     l.move(660, 10)
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=math.pi)
+            start_angle=0, offset_angle=util.pi)
     a.move(710, 50)
     shape.outer_loop.append(a)
 
@@ -146,7 +147,7 @@ if __name__ == "__main__":
     l.move(820, 0)
     shape.outer_loop.append(l)
     a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0.0, offset_angle=math.pi)
+            start_angle=0.0, offset_angle=util.pi)
     a.move(820, 50)
     shape.outer_loop.append(a)
 
@@ -210,29 +211,29 @@ if __name__ == "__main__":
     shape.outer_loop.append(a)
 
     a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=math.pi)
+            start_angle=0, offset_angle=util.pi)
     a.move(890, 50)
     shape.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=math.pi)
+            start_angle=0, offset_angle=util.pi)
     a.move(890, 149.9999999999999)
     shape.outer_loop.append(a)
 
     a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=math.pi)
+            start_angle=0, offset_angle=util.pi)
     a.move(1000, 50)
     shape.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=math.pi)
+            start_angle=0, offset_angle=util.pi)
     a.move(1000, 125)
     shape.outer_loop.append(a)
 
     a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=math.pi)
+            start_angle=0, offset_angle=util.pi)
     a.move(1110, 50)
     shape.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.pi/2.0, offset_angle=3*math.pi/2.0)
+            start_angle=util.pi/2.0, offset_angle=3*util.pi/2.0)
     a.move(1110, 50)
     shape.outer_loop.append(a)
 

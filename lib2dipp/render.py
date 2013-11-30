@@ -22,7 +22,7 @@ import math
 from PIL import Image
 from PIL import ImageDraw
 
-from lib2dipp.util import *
+from lib2dipp import util
 from lib2dipp.shape.point import Point
 from lib2dipp.shape.rectangle import Rectangle
 from lib2dipp.shape.line import Line
@@ -70,7 +70,7 @@ class Render(object):
             if i >= size:
                 done = True
 
-            degrees = wrap_360(start + i)
+            degrees = util.wrap_360(start + i)
 
             if begin_point:
                 x = (arc.centre_point.x +
@@ -157,7 +157,7 @@ class Render(object):
 if __name__ == "__main__":
     s = Shape()
     a = Arc(centre_point=Point(50.0, 50.0),
-            radius=50.0, start_angle=0.0, offset_angle=math.pi)
+            radius=50.0, start_angle=0.0, offset_angle=util.pi)
     s.outer_loop.append(a)
     s.outer_loop.append(Line(Point(0.0, 50.0), Point(0.0, 0.0)))
     s.outer_loop.append(Line(Point(0.0, 0.0), Point(100.0, 0.0)))

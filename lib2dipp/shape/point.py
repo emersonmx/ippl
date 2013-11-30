@@ -17,6 +17,7 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import math
 from lib2dipp.util import *
 from lib2dipp.shape.base import Object
 

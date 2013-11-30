@@ -19,7 +19,7 @@
 
 import math
 
-from lib2dipp.util import *
+from lib2dipp import util
 from lib2dipp.shape.base import Primitive
 from lib2dipp.shape.point import Point
 from lib2dipp.shape.rectangle import Rectangle
@@ -65,8 +65,10 @@ class Arc(Primitive):
         elif kwargs:
             values[0] = kwargs.get("centre_point", values[0])
             values[1] = float(kwargs.get("radius", values[1]))
-            values[2] = wrap_2pi(float(kwargs.get("start_angle", values[2])))
-            values[3] = wrap_2pi(float(kwargs.get("offset_angle", values[3])))
+            values[2] = util.wrap_2pi(
+                float(kwargs.get("start_angle", values[2])))
+            values[3] = util.wrap_2pi(
+                float(kwargs.get("offset_angle", values[3])))
 
         return values
 
@@ -84,7 +86,7 @@ class Arc(Primitive):
 
     @start_angle.setter
     def start_angle(self, value):
-        self._start_angle = wrap_2pi(float(value))
+        self._start_angle = util.wrap_2pi(float(value))
 
     @property
     def offset_angle(self):
@@ -92,7 +94,7 @@ class Arc(Primitive):
 
     @offset_angle.setter
     def offset_angle(self, value):
-        self._offset_angle = wrap_2pi(float(value))
+        self._offset_angle = util.wrap_2pi(float(value))
 
     @property
     def line(self):
@@ -129,21 +131,22 @@ class Arc(Primitive):
             self.centre_point.y + self.radius
         )
 
-        if wrap_2pi(start) >= wrap_2pi(end):
+        if util.wrap_2pi(start) >= util.wrap_2pi(end):
             maximum_x = self.centre_point.x + self.radius
         else:
             maximum_x = max(self.line.x1, self.line.x2)
-        if wrap_2pi(start - math.pi / 2.0) >= wrap_2pi(end - math.pi / 2.0):
+        if (util.wrap_2pi(start - util.pi / 2.0) >=
+                util.wrap_2pi(end - util.pi / 2.0)):
             maximum_y = self.centre_point.y + self.radius
         else:
             maximum_y = max(self.line.y1, self.line.y2)
 
-        if wrap_2pi(start - math.pi) >= wrap_2pi(end - math.pi):
+        if util.wrap_2pi(start - util.pi) >= util.wrap_2pi(end - util.pi):
             minimum_x = self.centre_point.x - self.radius
         else:
             minimum_x = min(self.line.x1, self.line.x2)
-        if (wrap_2pi(start - 3.0 * math.pi / 2.0) >=
-                wrap_2pi(end - 3.0 * math.pi / 2.0)):
+        if (util.wrap_2pi(start - 3.0 * util.pi / 2.0) >=
+                util.wrap_2pi(end - 3.0 * util.pi / 2.0)):
             minimum_y = self.centre_point.y - self.radius
         else:
             minimum_y = min(self.line.y1, self.line.y2)
