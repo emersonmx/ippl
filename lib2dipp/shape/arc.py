@@ -52,8 +52,6 @@ class Arc(Primitive):
         self._offset_angle = values[3]
         self._line = Line()
 
-        self.calculate_ends()
-
     def _parse_args(self, *args, **kwargs):
         values = [Point(), 1.0, 0.0, 0.0]
         if args:
@@ -120,8 +118,6 @@ class Arc(Primitive):
         super(Arc, self).move(**kwargs)
 
     def bounds(self):
-        self.calculate_ends()
-
         start = self.start_angle
         end = self.offset_angle
         minimum_x, maximum_x, minimum_y, maximum_y = (
@@ -182,24 +178,26 @@ class Arc(Primitive):
                 (self.radius + arc.radius)):
             points = self.calculate_intersection_circle_points(arc, distance)
             for point in points:
-                angle1 = wrap_2pi(math.atan2(point.y - p1.y, point.x - p1.x))
-                angle2 = wrap_2pi(math.atan2(point.y - p2.y, point.x - p2.x))
+                angle1 = (
+                    util.wrap_2pi(math.atan2(point.y - p1.y, point.x - p1.x)))
+                angle2 = (
+                    util.wrap_2pi(math.atan2(point.y - p2.y, point.x - p2.x)))
 
-                if (angle_in_range(angle1, start1, end1) and
-                        angle_in_range(angle2, start2, end2)):
+                if (util.angle_in_range(angle1, start1, end1) and
+                        util.angle_in_range(angle2, start2, end2)):
 
                     result.append(point)
-        elif (approx_equal(distance, 0.0) and
-                approx_equal(self.radius, arc.radius)):
+        elif (util.approx_equal(distance, 0.0) and
+                util.approx_equal(self.radius, arc.radius)):
             result_arc = Arc(centre_point=self.centre_point, radius=self.radius)
 
-            if angle_in_range(start1, start2, end2):
+            if util.angle_in_range(start1, start2, end2):
                 result_arc.start_angle = self.start_angle
-            elif angle_in_range(start2, start1, end1):
+            elif util.angle_in_range(start2, start1, end1):
                 result_arc.start_angle = arc.start_angle
-            if angle_in_range(end1, start2, end2):
+            if util.angle_in_range(end1, start2, end2):
                 result_arc.offset_angle = self.offset_angle
-            elif angle_in_range(end2, start1, end1):
+            elif util.angle_in_range(end2, start1, end1):
                 result_arc.offset_angle = arc.offset_angle
 
             result = [result_arc]
@@ -215,6 +213,14 @@ class Arc(Primitive):
             self.radius * math.cos(self.offset_angle))
         self.line.y2 = (self.centre_point.y +
             self.radius * math.sin(self.offset_angle))
+
+    def calculate_angles(self):
+        self.start_angle = util.wrap_2pi(
+            math.atan2(self.line.y1 - self.centre_point.y,
+                       self.line.x1 - self.centre_point.x))
+        self.offset_angle = util.wrap_2pi(
+            math.atan2(self.line.y2 - self.centre_point.y,
+                       self.line.x2 - self.centre_point.x))
 
     def calculate_intersection_circle_points(self, circle, distance=None):
         """Calculate the points between two circles.
@@ -249,12 +255,13 @@ class Arc(Primitive):
 
     def __str__(self):
         return ("{} (\n"
+                "  {}\n"
                 "  centre_point={},\n"
                 "  radius={},\n"
                 "  start_angle={},\n"
                 "  offset_angle={}\n"
-                ")".format(type(self).__name__, self.centre_point,
-                           self.radius, self.start_angle,
+                ")".format(type(self).__name__, str(self.line),
+                           self.centre_point, self.radius, self.start_angle,
                            self.offset_angle))
 
     def __repr__(self):

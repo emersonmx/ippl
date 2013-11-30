@@ -31,6 +31,10 @@ if __name__ == "__main__":
     poly_1.append(Line(Point(50, 30), Point(0, 30)))
     poly_1.append(Line(Point(0, 30), Point(0, 0)))
 
+    for poly in poly_1:
+        if isinstance(poly, Arc):
+            poly.calculate_ends()
+
     pt=Point(40, 10)
 
     print "The point is inside the polygon? {}".format(

@@ -45,6 +45,9 @@ if __name__ == "__main__":
             start_angle=0, offset_angle=0)
     b = Arc(centre_point=Point(5, 2), radius=2,
             start_angle=0, offset_angle=0)
+    a.calculate_ends()
+    b.calculate_ends()
+
     print "Line-Arc: {}".format(l.intersect_arc(a))
     print "Arcs: {}".format(a.intersect_arc(b))
     print "Arcs: {}".format(a.intersect_arc(a))
