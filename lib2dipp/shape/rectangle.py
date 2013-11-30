@@ -105,6 +105,24 @@ class Rectangle(Object):
     def right_top(self, value):
         self._right_top = value
 
+    @property
+    def right_bottom(self):
+        return Point(self.right, self.bottom)
+
+    @right_bottom.setter
+    def right_bottom(self, value):
+        right = value.x
+        bottom = value.y
+
+    @property
+    def left_top(self):
+        return Point(self.left, self.top)
+
+    @left_top.setter
+    def left_top(self, value):
+        left = value.x
+        top = value.y
+
     def position(self, *args, **kwargs):
         point = Point(*args, **kwargs)
         x, y = (point.x - self.left, point.y - self.bottom)
@@ -130,7 +148,9 @@ class Rectangle(Object):
 
     def intersect_rectangle(self, rectangle):
         return (self.intersect_point(rectangle.left_bottom) or
-                self.intersect_point(rectangle.right_top))
+                self.intersect_point(rectangle.right_top) or
+                self.intersect_point(rectangle.left_top) or
+                self.intersect_point(rectangle.right_bottom))
 
     def __eq__(self, rectangle):
         return (approx_equal(self.left, rectangle.left) and

@@ -27,7 +27,20 @@ class BottomLeftFill(object):
 
         self.sheetshape = RectangularSheetShape()
         self.shapes = []
-        self.x_resolution = 1.0
+        self._x_resolution = 1.0
+        self._primitive = None
+
+    @property
+    def x_resolution(self):
+        return self._x_resolution
+
+    @x_resolution.setter
+    def x_resolution(self, value):
+        self._x_resolution = float(value)
+
+    @property
+    def primitive(self):
+        return self._primitive
 
     def run(self):
         best_orientation = 0
@@ -43,11 +56,12 @@ class BottomLeftFill(object):
                 shape.position(0, 0)
 
                 while(self.overlap(shape)):
-                    primitives = self.calculate_intersecting_primitives(shape)
-                    self.resolve_overlapping(primitives)
+                    self.resolve_overlapping()
                     if self.sheetshape.out(shape):
                         shape.move(x=self.x_resolution)
                         shape.position(y=0)
+
+                    self._primitive = None
 
                 if self.best_orientation(shape):
                     best_orientation = j
@@ -55,12 +69,38 @@ class BottomLeftFill(object):
             self.sheetshape.shapes.append(orientations[best_orientation])
 
     def overlap(self, shape):
-        pass
+        aabb = shape.bounds()
 
-    def calculate_intersecting_primitives(self, shape):
-        pass
+        for static_shape in self.sheetshape.shapes:
+            static_aabb = static_shape.bounds()
+            if aabb.intersect_rectangle(static_aabb):
+                result = intersect_next_primitives(shape.outer_loop,
+                    static_shape.outer_loop)
+                if result:
+                    self.primitive = result
+                    return self.primitive
 
-    def resolve_overlapping(self, primitives):
+        return None
+
+    def intersect_next_primitives(self, dynamic_loop, static_loop):
+        for dynamic_primitive in dynamic_loop:
+            for static_primitive in static_loop:
+                if intersect_primitives(dynamic_primitive, static_primitive):
+                    return static_primitive
+
+        return None
+
+    def intersect_primitives(self, primitive1, primitive2):
+        if isinstance(primitive2, Line):
+            if primitive1.intersect_line(primitive2):
+                return True
+        elif isinstance(primitive2, Arc):
+            if primitive1.intersect_arc(primitive2):
+                return True
+
+        return False
+
+    def resolve_overlapping(self):
         pass
 
     def check_best_orientation(self, shape):

@@ -176,6 +176,22 @@ class Shape(Object):
 
         return False
 
+    def outer_loop_iterator(self):
+        for primitive in self.outer_loop:
+            yield primitive
+
+    def inner_loops_iterator(self):
+        for loop in self.inner_loops:
+            for primitive in loop:
+                yield primitive
+
+    def primitive_iterator(self):
+        for primitive in self.outer_loop_iterator():
+            yield primitive
+
+        for primitive in self.inner_loops_iterator():
+            yield primitive
+
     def __str__(self):
         return ("{} (\n"
                 "  outer_loop={},\n"
