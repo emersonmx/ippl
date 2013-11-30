@@ -98,6 +98,10 @@ class Arc(Primitive):
     def line(self):
         return self._line
 
+    @line.setter
+    def line(self, value):
+        self.line = value
+
     def position(self, *args, **kwargs):
         point = Point(*args, **kwargs)
         self.centre_point = point
