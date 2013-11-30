@@ -27,16 +27,8 @@ class BottomLeftFill(object):
 
         self.sheetshape = RectangularSheetShape()
         self.shapes = []
-        self._x_resolution = 1.0
+        self.resolution = Point(1, 1)
         self._primitive = None
-
-    @property
-    def x_resolution(self):
-        return self._x_resolution
-
-    @x_resolution.setter
-    def x_resolution(self, value):
-        self._x_resolution = float(value)
 
     @property
     def primitive(self):
@@ -58,7 +50,7 @@ class BottomLeftFill(object):
                 while(self.overlap(shape)):
                     self.resolve_overlapping()
                     if self.sheetshape.out(shape):
-                        shape.move(x=self.x_resolution)
+                        shape.move(x=self.resolution.x)
                         shape.position(y=0)
 
                     self._primitive = None
