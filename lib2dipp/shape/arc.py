@@ -51,7 +51,6 @@ class Arc(Primitive):
         self._start_angle = values[2]
         self._offset_angle = values[3]
         self._line = Line()
-        self._update_ends = True
 
         self.calculate_ends()
 
@@ -77,8 +76,6 @@ class Arc(Primitive):
 
     @radius.setter
     def radius(self, value):
-        if approx_equal(self.radius, value):
-            self._update_ends = True
         self._radius = float(value)
 
     @property
@@ -87,8 +84,6 @@ class Arc(Primitive):
 
     @start_angle.setter
     def start_angle(self, value):
-        if approx_equal(self.start_angle, value):
-            self._update_ends = True
         self._start_angle = wrap_2pi(float(value))
 
     @property
@@ -97,8 +92,6 @@ class Arc(Primitive):
 
     @offset_angle.setter
     def offset_angle(self, value):
-        if approx_equal(self.offset_angle, value):
-            self._update_ends = True
         self._offset_angle = wrap_2pi(float(value))
 
     @property
@@ -127,24 +120,30 @@ class Arc(Primitive):
     def bounds(self):
         self.calculate_ends()
 
-        start = math.degrees(self.start_angle)
-        end = math.degrees(self.offset_angle)
-        minimum_x, maximum_x, minimum_y, maximum_y = (0, 0, 0, 0)
+        start = self.start_angle
+        end = self.offset_angle
+        minimum_x, maximum_x, minimum_y, maximum_y = (
+            self.centre_point.x - self.radius,
+            self.centre_point.x + self.radius,
+            self.centre_point.y - self.radius,
+            self.centre_point.y + self.radius
+        )
 
-        if wrap_360(start) >= wrap_360(end):
+        if wrap_2pi(start) >= wrap_2pi(end):
             maximum_x = self.centre_point.x + self.radius
         else:
             maximum_x = max(self.line.x1, self.line.x2)
-        if wrap_360(start - 90) >= wrap_360(end - 90):
+        if wrap_2pi(start - math.pi / 2.0) >= wrap_2pi(end - math.pi / 2.0):
             maximum_y = self.centre_point.y + self.radius
         else:
             maximum_y = max(self.line.y1, self.line.y2)
 
-        if wrap_360(start - 180) >= wrap_360(end - 180):
+        if wrap_2pi(start - math.pi) >= wrap_2pi(end - math.pi):
             minimum_x = self.centre_point.x - self.radius
         else:
             minimum_x = min(self.line.x1, self.line.x2)
-        if wrap_360(start - 270) >= wrap_360(end - 270):
+        if (wrap_2pi(start - 3.0 * math.pi / 2.0) >=
+                wrap_2pi(end - 3.0 * math.pi / 2.0)):
             minimum_y = self.centre_point.y - self.radius
         else:
             minimum_y = min(self.line.y1, self.line.y2)
@@ -205,16 +204,14 @@ class Arc(Primitive):
         return result
 
     def calculate_ends(self):
-        if self._update_ends:
-            self.line.x1 = (self.centre_point.x +
-                self.radius * math.cos(self.start_angle))
-            self.line.y1 = (self.centre_point.y +
-                self.radius * math.sin(self.start_angle))
-            self.line.x2 = (self.centre_point.x +
-                self.radius * math.cos(self.offset_angle))
-            self.line.y2 = (self.centre_point.y +
-                self.radius * math.sin(self.offset_angle))
-            self._update_ends = False
+        self.line.x1 = (self.centre_point.x +
+            self.radius * math.cos(self.start_angle))
+        self.line.y1 = (self.centre_point.y +
+            self.radius * math.sin(self.start_angle))
+        self.line.x2 = (self.centre_point.x +
+            self.radius * math.cos(self.offset_angle))
+        self.line.y2 = (self.centre_point.y +
+            self.radius * math.sin(self.offset_angle))
 
     def calculate_intersection_circle_points(self, circle, distance=None):
         """Calculate the points between two circles.
