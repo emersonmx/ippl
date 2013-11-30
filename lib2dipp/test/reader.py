@@ -23,6 +23,7 @@ import re
 import sys
 
 from lib2dipp.file_io import *
+from lib2dipp.render import *
 
 
 class StateMachine(object):
@@ -66,8 +67,11 @@ class StateMachine(object):
         self.current_state = self.STATES["profile"]
 
         i = 0
+        line_data = None
         arc_data = None
         sh = None
+        inner_loop = []
+
         shapes = []
         loop_type = ""
         lines = f.readlines()
@@ -172,6 +176,19 @@ class StateMachine(object):
 
         self.end()
         print json.dumps(shapes, cls=ShapeEncoder, indent=4)
+        print shapes
+
+        for i in xrange(len(shapes)):
+            shape = shapes[i]
+
+            shape.position(0, 0)
+            aabb = shape.bounds()
+            size = (int(aabb.right - aabb.left) + 1,
+                    int(aabb.top - aabb.bottom) + 1)
+            r = Render()
+            r.image_size = size
+            r.shape(shape)
+            r.save("reader{}.png".format(i))
 
         f.close()
 
@@ -190,20 +207,30 @@ class StateMachine(object):
     def line(self, groups):
         line_shape = Line()
 
-        line_shape.begin = ast.literal_eval(groups["begin"])
-        line_shape.end = ast.literal_eval(groups["end"])
+        begin = ast.literal_eval(groups["begin"])
+        end = ast.literal_eval(groups["end"])
+
+        line_shape.begin = Point(begin[0], begin[1])
+        line_shape.end = Point(end[0], end[1])
 
         return line_shape
 
     def arc(self, groups):
         arc_shape = Arc()
 
-        arc_shape.begin = ast.literal_eval(groups["begin"])
-        arc_shape.end = ast.literal_eval(groups["end"])
-        arc_shape.centre_point = ast.literal_eval(groups["centre_point"])
-        arc_shape.radius = ast.literal_eval(groups["radius"])
-        arc_shape.start_angle = ast.literal_eval(groups["start_angle"])
-        arc_shape.offset_angle = ast.literal_eval(groups["offset_angle"])
+        begin = ast.literal_eval(groups["begin"])
+        end = ast.literal_eval(groups["end"])
+        centre_point = ast.literal_eval(groups["centre_point"])
+        radius = ast.literal_eval(groups["radius"])
+        start_angle = ast.literal_eval(groups["start_angle"])
+        offset_angle = ast.literal_eval(groups["offset_angle"])
+
+        arc_shape.begin = Point(begin[0], begin[1])
+        arc_shape.end = Point(end[0], end[1])
+        arc_shape.centre_point = Point(centre_point[0], centre_point[1])
+        arc_shape.radius = radius
+        arc_shape.start_angle = start_angle
+        arc_shape.offset_angle = offset_angle
 
         return arc_shape
 

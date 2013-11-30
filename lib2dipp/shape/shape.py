@@ -69,7 +69,7 @@ class Shape(Object):
         self.outer_loop = values[0]
         self.inner_loops = values[1]
 
-        self._last_outer_loop_size = len(self.outer_loop)
+        self._last_outer_loop_size = 0
         self._shape_aabb = Rectangle()
         self.bounds()
 
@@ -112,7 +112,6 @@ class Shape(Object):
 
             for primitive in iterator:
                 bounding_box = primitive.bounds()
-                print self._shape_aabb, bounding_box
                 if bounding_box.left < self._shape_aabb.left:
                     self._shape_aabb.left = bounding_box.left
                 if bounding_box.bottom < self._shape_aabb.bottom:

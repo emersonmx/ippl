@@ -18,6 +18,7 @@
 #
 
 from lib2dipp.file_io import *
+from lib2dipp.render import *
 
 if __name__ == "__main__":
     outer = []
@@ -31,3 +32,11 @@ if __name__ == "__main__":
     print sjson
     print "DESERIALIZE"
     print json.loads(sjson, object_hook=shape_decoder)
+
+    aabb = sh.bounds()
+    size = (int(aabb.right - aabb.left) + 1, int(aabb.top - aabb.bottom) + 1)
+    r = Render()
+    r.draw_bounds = True
+    r.image_size = size
+    r.shape(sh)
+    r.save("file_io_test.png")
