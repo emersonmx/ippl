@@ -18,7 +18,7 @@
 #
 
 import math
-from lib2dipp.util import *
+from lib2dipp import util
 from lib2dipp.shape.base import Object
 
 
@@ -117,12 +117,12 @@ class Point(Object):
 
                 if len(points) > 1:
                     for point in points:
-                        angle = wrap_2pi(
+                        angle = util.wrap_2pi(
                             math.atan2(point.y - arc.centre_point.y,
                                        point.x - arc.centre_point.x))
                         start = arc.start_angle
                         end = arc.offset_angle
-                        if (angle_in_range(angle, start, end)):
+                        if (util.angle_in_range(angle, start, end)):
                             if point.x < self.x:
                                 odd_nodes = not odd_nodes
 
@@ -132,13 +132,14 @@ class Point(Object):
         cross_product = ((self.y - line.y1) * (line.x2 - line.x1) -
             (self.x - line.x1) * (line.y2 - line.y1))
 
-        return not (abs(cross_product) > epsilon)
+        return util.approx_equal(abs(cross_product), 0.0)
 
     def __getitem__(self, index):
         return (self.x, self.y)[index]
 
     def __eq__(self, point):
-        return (approx_equal(self.x, point.x) and approx_equal(self.y, point.y))
+        return ((util.approx_equal(self.x, point.x) and
+            util.approx_equal(self.y, point.y)))
 
     def __str__(self):
         return "{} ({}, {})".format(type(self).__name__, self.x, self.y)

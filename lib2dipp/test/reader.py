@@ -221,7 +221,6 @@ class StateMachine(object):
 
             if isinstance(shape, Arc):
                 shape.calculate_angles()
-                shape.calculate_ends()
 
             aabb = shape.bounds()
             size = (int(aabb.right - aabb.left) + 1,
@@ -286,7 +285,6 @@ class StateMachine(object):
         arc_shape.offset_angle = offset_angle
 
         arc_shape.calculate_angles()
-        arc_shape.calculate_ends()
 
         return arc_shape
 

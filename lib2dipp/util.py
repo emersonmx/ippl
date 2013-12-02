@@ -18,9 +18,8 @@
 #
 
 pi = 3.141593
-epsilon = 1e-16
 
-def approx_equal(a, b):
+def approx_equal(a, b, epsilon=1e-16):
     """Checks if a number is approx equal to each other.
 
     Parameters:
