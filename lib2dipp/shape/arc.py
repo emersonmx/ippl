@@ -122,6 +122,8 @@ class Arc(Primitive):
         super(Arc, self).move(**kwargs)
 
     def bounds(self):
+        self.calculate_ends()
+
         start = self.start_angle
         end = self.offset_angle
         minimum_x, maximum_x, minimum_y, maximum_y = (

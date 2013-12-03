@@ -219,9 +219,6 @@ class StateMachine(object):
             shape = shapes[i]
             shape.position(0, 0)
 
-            if isinstance(shape, Arc):
-                shape.calculate_angles()
-
             aabb = shape.bounds()
             size = (int(aabb.right - aabb.left) + 1,
                     int(aabb.top - aabb.bottom) + 1)

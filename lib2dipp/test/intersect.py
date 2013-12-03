@@ -241,10 +241,6 @@ if __name__ == "__main__":
 
     i = 0
     for s in shapes:
-        for primitive in s.primitive_iterator():
-            if isinstance(primitive, Arc):
-                primitive.calculate_ends()
-
         aabb = s.bounds()
         size = (int(aabb.right - aabb.left) + 1,
                 int(aabb.top - aabb.bottom) + 1)
