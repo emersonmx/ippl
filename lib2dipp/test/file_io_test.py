@@ -21,7 +21,7 @@ from lib2dipp.file_io import *
 from lib2dipp.render import *
 
 if __name__ == "__main__":
-    outer = []
+    outer = Loop()
     outer.append(Line(Point(0, 0), Point(5, 0)))
     outer.append(Line(Point(5, 0), Point(5, 5)))
     outer.append(Line(Point(5, 5), Point(0, 5)))

@@ -88,19 +88,19 @@ class Point(Object):
     def intersect_rectangle(self, rectangle):
         return rectangle.intersect_point(self)
 
-    def intersect_polygon(self, polygon):
-        """Checks whether a point is inside a polygon.
+    def intersect_loop(self, loop):
+        """Checks whether a point is inside a loop.
 
         Parameters:
-            polygon a list of Primitives.
+            loop a list of Primitives.
         Return:
-            True if the point is inside the polygon, or False otherwise.
+            True if the point is inside the loop, or False otherwise.
         """
 
         odd_nodes = False
-        polygon_size = len(polygon)
+        polygon_size = len(loop)
 
-        for primitive in polygon:
+        for primitive in loop:
             if isinstance(primitive, Line):
                 line = primitive
                 if ((line.y2 < self.y and line.y1 >= self.y) or

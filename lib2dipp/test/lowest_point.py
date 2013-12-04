@@ -33,7 +33,7 @@ if __name__ == "__main__":
     r.draw_bounds = True
     r.image_size = size
     r.shape(s)
-    lp = s.lowest_point()
+    lp = s.outer_loop.lowest_point()
     r._image_drawer.point((lp.x, lp.y), (255, 0, 0))
     r.save("lowest_point.png")
 

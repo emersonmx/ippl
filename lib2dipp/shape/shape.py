@@ -17,41 +17,15 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from lib2dipp.shape.arc import Arc
 from lib2dipp.shape.base import Object
-from lib2dipp.shape.line import Line
 from lib2dipp.shape.point import Point
 from lib2dipp.shape.rectangle import Rectangle
+from lib2dipp.shape.loop import Loop
+from lib2dipp.shape.arc import Arc
+from lib2dipp.shape.line import Line
 
 
 class Shape(Object):
-
-    @staticmethod
-    def polygon_contained(polygon1, polygon2):
-        """Checks whether the first polygon is inside the second.
-        Will only work properly if the AABB polygons are intersecting and that
-        has no intersection between the polygon primitives.
-
-        Parameters:
-            polygon1 a list of Primitives.
-            polygon2 a list of Primitives.
-
-        Return:
-            True if polygon1 is within polygon2, or False otherwise.
-        """
-
-        for primitive1 in polygon1:
-            if isinstance(primitive1, Line):
-                line = primitive1
-                if not line.begin.intersect_polygon(polygon2):
-                    return False
-            elif isinstance(primitive1, Arc):
-                arc = primitive1
-                arc.calculate_ends()
-                if not arc.line.begin.intersect_polygon(polygon2):
-                    return False
-
-        return True
 
     def __init__(self, *args, **kwargs):
         """Creates a Shape object.
@@ -75,7 +49,7 @@ class Shape(Object):
         self.bounds()
 
     def _parse_args(self, *args, **kwargs):
-        values = [list(), list()]
+        values = [Loop(), Loop()]
         if args:
             for i in range(len(args)):
                 values[i] = args[i]
@@ -124,31 +98,6 @@ class Shape(Object):
 
         return self._shape_aabb
 
-    def resolve_contained_shape(self, shape):
-        if shape.contains(self):
-            aabb = self.bounds()
-
-            lowest_point = self.outer_loop[0]
-
-            for primitive in self.outer_loop_iterator():
-                if isinstance(primitive, Line):
-                    line = primitive
-                    if (line.begin.distance(aabb.left_bottom) <
-                            lowest_point.distance(aabb.left_bottom)):
-                        lowest_point = line.begin
-                    lowest_point = line.begin
-                elif isinstance(primitive, Arc):
-                    arc = primitive
-                    arc.calculate_ends()
-                    if (arc.line.begin.distance(aabb.left_bottom) <
-                            lowest_point.distance(aabb.left_bottom)):
-                        lowest_point = arc.line.begin
-
-            vertical_line = Line(lowest_point,
-                                 Point(lowest_point.x, lowest_point.y + 1))
-
-        return None
-
     def contains(self, shape):
         """Checks whether a form is contained within this form.
 
@@ -159,50 +108,6 @@ class Shape(Object):
         """
 
         return Shape.polygon_contained(shape.outer_loop, self.outer_loop)
-
-    def simple_contains(self, shape):
-        """Checks whether a form is contained within this form. Excludes shapes
-        with holes.
-
-        Parameters:
-            shape a Shape object.
-        Return:
-            True if the form is contained, or False otherwise.
-        """
-
-        for primitive in self.outer_loop_iterator():
-            print primitive
-
-        return False
-
-    def lowest_point(self):
-        local_origin = self.bounds().left_bottom
-        point = None
-
-        iterator = self.outer_loop_iterator()
-        primitive = iterator.next()
-        if isinstance(primitive, Line):
-            point = primitive.begin
-        elif isinstance(primitive, Arc):
-            primitive.calculate_ends()
-            point = primitive.line.begin
-
-        for primitive in iterator:
-            line = primitive
-            if isinstance(primitive, Arc):
-                primitive.calculate_ends()
-                line = primitive.line
-
-            if (line.begin.distance(local_origin) <
-                    point.distance(local_origin)):
-                point = line.begin
-
-            if isinstance(primitive, Arc):
-                if (line.end.distance(local_origin) <
-                        point.distance(local_origin)):
-                    point = line.end
-
-        return point
 
     def outer_loop_iterator(self):
         for primitive in self.outer_loop:

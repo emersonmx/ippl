@@ -23,22 +23,18 @@ from lib2dipp import util
 from lib2dipp.shape import *
 
 if __name__ == "__main__":
-    poly_1 = []
-    poly_1.append(Line(Point(0, 0), Point(10, 0)))
-    poly_1.append(Arc(Point(20, 0), 10, 0, util.pi))
-    poly_1.append(Line(Point(30, 0), Point(50, 0)))
-    poly_1.append(Line(Point(50, 0), Point(50, 30)))
-    poly_1.append(Line(Point(50, 30), Point(0, 30)))
-    poly_1.append(Line(Point(0, 30), Point(0, 0)))
+    loop_1 = Loop()
+    loop_1.append(Line(Point(0, 0), Point(10, 0)))
+    loop_1.append(Arc(Point(20, 0), 10, 0, util.pi))
+    loop_1.append(Line(Point(30, 0), Point(50, 0)))
+    loop_1.append(Line(Point(50, 0), Point(50, 30)))
+    loop_1.append(Line(Point(50, 30), Point(0, 30)))
+    loop_1.append(Line(Point(0, 30), Point(0, 0)))
 
-    for poly in poly_1:
-        if isinstance(poly, Arc):
-            poly.calculate_ends()
-
-    pt=Point(40, 10)
+    pt = Point(40, 10)
 
     print "The point is inside the polygon? {}".format(
-        pt.intersect_polygon(poly_1))
+        pt.intersect_loop(loop_1))
 
     s1 = Shape()
     s1.outer_loop.append(Line(Point(0, 0), Point(10, 0)))
@@ -51,6 +47,6 @@ if __name__ == "__main__":
     s2.outer_loop.append(Line(Point(80, 80), Point(40, 80)))
     s2.outer_loop.append(Arc(Point(40, 40), 40, util.pi/2, 3*util.pi/2))
 
-    print "s1 is contained in s2? {}".format(
-        Shape.polygon_contained(s1.outer_loop, s2.outer_loop))
-    print "s2 contains s1? {}".format(s2.contains(s1))
+    print "s1 is within of s2? {}".format(
+        s1.outer_loop.contained(s2.outer_loop))
+    print "s2 contains s1? {}".format(s2.outer_loop.contains(s1.outer_loop))

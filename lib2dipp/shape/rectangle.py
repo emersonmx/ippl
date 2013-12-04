@@ -142,6 +142,9 @@ class Rectangle(Object):
         self._left_bottom.move(x, y)
         self._right_top.move(x, y)
 
+    def size(self):
+        return (self.right - self.left, self.top - self.bottom)
+
     def intersect_point(self, point):
         return ((self.left <= point.x <= self.right) and
                 (self.bottom <= point.y <= self.top))
