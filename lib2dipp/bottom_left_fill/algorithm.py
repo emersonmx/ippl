@@ -25,14 +25,9 @@ class BottomLeftFill(object):
     def __init__(self):
         super(BottomLeftFill, self).__init__()
 
-        self.sheetshape = RectangularSheetShape()
         self.shapes = []
+        self.sheetshape = RectangularSheetShape()
         self.resolution = Point(1, 1)
-        self._primitive = None
-
-    @property
-    def primitive(self):
-        return self._primitive
 
     def run(self):
         best_orientation = 0
@@ -47,13 +42,15 @@ class BottomLeftFill(object):
                 shape = orientations[j]
                 shape.position(0, 0)
 
-                while(self.overlap(shape)):
-                    self.resolve_overlapping()
+                while True:
+                    result = self.overlap(shape)
+                    if not result:
+                        break
+
+                    self.resolve_overlapping(result)
                     if self.sheetshape.out(shape):
                         shape.move(x=self.resolution.x)
                         shape.position(y=0)
-
-                    self._primitive = None
 
                 if self.best_orientation(shape):
                     best_orientation = j
@@ -66,18 +63,20 @@ class BottomLeftFill(object):
         for static_shape in self.sheetshape.shapes:
             static_aabb = static_shape.bounds()
             if aabb.intersect_rectangle(static_aabb):
-                result = intersect_next_primitives(shape.outer_loop,
-                    static_shape.outer_loop)
+                result = next_primitive(shape, static_shape)
                 if result:
-                    self.primitive = result
-                    return self.primitive
+                    return result
+
+                result = contained_shape_point(shape, static_shape)
+                if result:
+                    return result
 
         return None
 
-    def intersect_next_primitives(self, dynamic_loop, static_loop):
-        for dynamic_primitive in dynamic_loop:
-            for static_primitive in static_loop:
-                if intersect_primitives(dynamic_primitive, static_primitive):
+    def next_primitive(self, shape, static_shape):
+        for primitive in shape.primitive_iterator():
+            for static_primitive in static_shape.primitive_iterator():
+                if intersect_primitives(primitive, static_primitive):
                     return static_primitive
 
         return None
@@ -92,7 +91,14 @@ class BottomLeftFill(object):
 
         return False
 
-    def resolve_overlapping(self):
+    def contained_shape_point(self, shape, static_shape):
+        point = None
+
+
+
+        return point
+
+    def resolve_overlapping(self, primitive):
         pass
 
     def check_best_orientation(self, shape):
