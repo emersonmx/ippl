@@ -27,7 +27,7 @@ if __name__ == "__main__":
     print Line(Point(0, 0), Point(1, 1))
     print Arc()
     print Arc(centre_point=Point(10, 10), radius=5.0,
-              start_angle=10.0, offset_angle=100.0)
+              start_angle=0, offset_angle=util.pi)
 
     s = Shape()
     s.outer_loop.append(Line(Point(0, 0), Point(1, 0)))

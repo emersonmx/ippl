@@ -44,8 +44,6 @@ class Shape(Object):
         self.outer_loop = values[0]
         self.inner_loops = values[1]
 
-        self._last_outer_loop_size = 0
-        self._shape_aabb = Rectangle()
         self.bounds()
 
     def _parse_args(self, *args, **kwargs):
@@ -79,35 +77,7 @@ class Shape(Object):
             primitive.move(x, y)
 
     def bounds(self):
-        if len(self.outer_loop) != self._last_outer_loop_size:
-            self._last_outer_loop_size = len(self.outer_loop)
-
-            iterator = self.outer_loop_iterator()
-            self._shape_aabb = iterator.next().bounds()
-
-            for primitive in iterator:
-                bounding_box = primitive.bounds()
-                if bounding_box.left < self._shape_aabb.left:
-                    self._shape_aabb.left = bounding_box.left
-                if bounding_box.bottom < self._shape_aabb.bottom:
-                    self._shape_aabb.bottom = bounding_box.bottom
-                if bounding_box.right > self._shape_aabb.right:
-                    self._shape_aabb.right = bounding_box.right
-                if bounding_box.top > self._shape_aabb.top:
-                    self._shape_aabb.top = bounding_box.top
-
-        return self._shape_aabb
-
-    def contains(self, shape):
-        """Checks whether a form is contained within this form.
-
-        Parameters:
-            shape a Shape object.
-        Return:
-            True if the form is contained, or False otherwise.
-        """
-
-        return Shape.polygon_contained(shape.outer_loop, self.outer_loop)
+        return self.outer_loop.bounds()
 
     def outer_loop_iterator(self):
         for primitive in self.outer_loop:
