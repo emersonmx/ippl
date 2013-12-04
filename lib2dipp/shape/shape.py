@@ -17,10 +17,11 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from lib2dipp.shape.arc import Arc
 from lib2dipp.shape.base import Object
+from lib2dipp.shape.line import Line
 from lib2dipp.shape.point import Point
 from lib2dipp.shape.rectangle import Rectangle
-from lib2dipp.shape.line import Line
 
 
 class Shape(Object):
@@ -173,6 +174,35 @@ class Shape(Object):
             print primitive
 
         return False
+
+    def lowest_point(self):
+        local_origin = self.bounds().left_bottom
+        point = None
+
+        iterator = self.outer_loop_iterator()
+        primitive = iterator.next()
+        if isinstance(primitive, Line):
+            point = primitive.begin
+        elif isinstance(primitive, Arc):
+            primitive.calculate_ends()
+            point = primitive.line.begin
+
+        for primitive in iterator:
+            line = primitive
+            if isinstance(primitive, Arc):
+                primitive.calculate_ends()
+                line = primitive.line
+
+            if (line.begin.distance(local_origin) <
+                    point.distance(local_origin)):
+                point = line.begin
+
+            if isinstance(primitive, Arc):
+                if (line.end.distance(local_origin) <
+                        point.distance(local_origin)):
+                    point = line.end
+
+        return point
 
     def outer_loop_iterator(self):
         for primitive in self.outer_loop:

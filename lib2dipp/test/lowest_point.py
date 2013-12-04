@@ -17,33 +17,24 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from random import randint as rand
-
-from PIL import Image
-from PIL import ImageDraw
-
-from lib2dipp.shape import Point
+from lib2dipp.render import *
+from lib2dipp.shape import *
 
 if __name__ == "__main__":
-    mode = "RGB"
-    size = (100, 100)
-    bg_color = (255, 255, 255)
+    s = Shape()
+    s.outer_loop.append(Line(Point(0, 100), Point(0, 0)))
+    s.outer_loop.append(Line(Point(0, 0), Point(100, 0)))
+    s.outer_loop.append(Line(Point(100, 0), Point(100, 100)))
+    s.outer_loop.append(Line(Point(100, 100), Point(0, 100)))
 
-    img = Image.new(mode, size, bg_color)
-    drawer = ImageDraw.ImageDraw(img)
+    aabb = s.bounds()
+    size = (int(aabb.right - aabb.left) + 1, int(aabb.top - aabb.bottom) + 1)
+    r = Render()
+    r.draw_bounds = True
+    r.image_size = size
+    r.shape(s)
+    lp = s.lowest_point()
+    r._image_drawer.point((lp.x, lp.y), (255, 0, 0))
+    r.save("lowest_point.png")
 
-    points = []
-    for i in range(500):
-        points.append(Point(rand(0, size[0]), rand(0, size[1])))
-
-    lp = points[0]
-    bottom_left = Point()
-    for point in points:
-        if point.distance(bottom_left) < lp.distance(bottom_left):
-            lp = point
-        drawer.point((point.x, point.y), (0, 0, 0))
-
-    drawer.point((lp.x, lp.y), (255, 0, 0))
-
-    flipped_image = img.transpose(Image.FLIP_TOP_BOTTOM)
-    flipped_image.save("lowest_point.png")
+    print lp
