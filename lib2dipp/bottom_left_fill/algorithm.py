@@ -94,7 +94,12 @@ class BottomLeftFill(object):
     def contained_shape_point(self, shape, static_shape):
         point = None
 
-
+        if Shape.polygon_contained(shape.outer_loop, static_shape.outer_loop):
+            pass
+        else:
+            for loop in static_shape.inner_loops:
+                if Shape.polygon_contained(shape.outer_loop, loop):
+                    pass
 
         return point
 
