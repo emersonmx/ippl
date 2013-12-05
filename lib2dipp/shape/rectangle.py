@@ -150,10 +150,12 @@ class Rectangle(Object):
                 (self.bottom <= point.y <= self.top))
 
     def intersect_rectangle(self, rectangle):
-        return (self.intersect_point(rectangle.left_bottom) or
-                self.intersect_point(rectangle.right_top) or
-                self.intersect_point(rectangle.left_top) or
-                self.intersect_point(rectangle.right_bottom))
+        first = self.left > rectangle.right
+        second = self.right < rectangle.left
+        third = self.top < rectangle.bottom
+        fourth = self.bottom > rectangle.top
+
+        return not first and not second and not third and not fourth
 
     def __eq__(self, rectangle):
         return (approx_equal(self.left, rectangle.left) and

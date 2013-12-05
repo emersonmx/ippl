@@ -44,8 +44,6 @@ class Shape(Object):
         self.outer_loop = values[0]
         self.inner_loops = values[1]
 
-        self.bounds()
-
     def _parse_args(self, *args, **kwargs):
         values = [Loop(), Loop()]
         if args:

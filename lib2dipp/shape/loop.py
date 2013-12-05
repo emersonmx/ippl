@@ -28,29 +28,29 @@ class Loop(list):
     def __init__(self, *args):
         list.__init__(self, *args)
 
-        self._last_loop_size = 0
-        self._aabb = Rectangle()
         self.bounds()
 
     def bounds(self):
-        if len(self) != self._last_loop_size:
-            self._last_loop_size = len(self)
+        self._last_loop_size = len(self)
 
-            iterator = iter(self)
-            self._aabb = iterator.next().bounds()
+        iterator = iter(self)
+        aabb = None
+        try:
+            aabb = iterator.next().bounds()
+        except: pass
 
-            for primitive in iterator:
-                bounding_box = primitive.bounds()
-                if bounding_box.left < self._aabb.left:
-                    self._aabb.left = bounding_box.left
-                if bounding_box.bottom < self._aabb.bottom:
-                    self._aabb.bottom = bounding_box.bottom
-                if bounding_box.right > self._aabb.right:
-                    self._aabb.right = bounding_box.right
-                if bounding_box.top > self._aabb.top:
-                    self._aabb.top = bounding_box.top
+        for primitive in iterator:
+            bounding_box = primitive.bounds()
+            if bounding_box.left < aabb.left:
+                aabb.left = bounding_box.left
+            if bounding_box.bottom < aabb.bottom:
+                aabb.bottom = bounding_box.bottom
+            if bounding_box.right > aabb.right:
+                aabb.right = bounding_box.right
+            if bounding_box.top > aabb.top:
+                aabb.top = bounding_box.top
 
-        return self._aabb
+        return aabb
 
     def contained(self, loop):
         """Checks whether this loop is inside of loop.
