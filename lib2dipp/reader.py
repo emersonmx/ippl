@@ -25,7 +25,7 @@ from lib2dipp.render import *
 from lib2dipp.shape import *
 
 
-class StateMachine(object):
+class BLFReader(object):
     STATES = {
         "profile": 1,
         "shape": 2,
@@ -57,15 +57,14 @@ class StateMachine(object):
     }
 
     def __init__(self):
-        super(StateMachine, self).__init__()
+        super(BLFReader, self).__init__()
 
         self.current_state = self.STATES["profile"]
-        self.file = ""
         self.sheetshape_size = [0.0, 0.0]
         self.sheetshape_rotation = 0.0
 
-    def run(self):
-        f = open(self.file, "r")
+    def run(self, filename):
+        f = open(filename, "r")
 
         self.begin()
         self.current_state = self.STATES["profile"]
@@ -290,9 +289,8 @@ class StateMachine(object):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        machine = StateMachine()
-        machine.file = sys.argv[1]
-        machine.run()
+        reader = BLFReader()
+        reader.run(sys.argv[1])
     else:
         print "Usage: {} <blf_data>".format(sys.argv[0])
 
