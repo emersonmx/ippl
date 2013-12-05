@@ -42,7 +42,7 @@ class BottomLeftFill(object):
             orientations = self.shapes[i]
             for j in xrange(len(orientations)):
                 shape = orientations[j]
-                shape.position(25, 10)
+                shape.position(0, 0)
 
                 while True:
                     result = self.overlap(shape)
@@ -141,7 +141,12 @@ class BottomLeftFill(object):
         return result_point
 
     def resolve_overlapping(self, primitive):
-        pass
+        if isinstance(primitive, Line):
+            print "Line"
+        elif isinstance(primitive, Arc):
+            print "Arc"
+        elif isinstance(primitive, Point):
+            print "Point"
 
     def check_best_orientation(self, shape):
         pass
