@@ -95,17 +95,46 @@ class BottomLeftFill(object):
         if shape.outer_loop.contained(static_shape.outer_loop):
             for loop in static_shape.inner_loops:
                 if shape.outer_loop.contained(loop):
-                    return self.next_point_in_loop(shape.outer_loop, loop)
+                    return None
 
-            return self.next_point_in_loop(shape.outer_loop,
-                static_shape.outer_loop)
+            return self.next_point_in_loop(shape, static_shape)
 
         return None
 
-    def next_point_in_loop(self, loop, static_loop):
-        point = None
+    def next_point_in_shape(self, shape, static_shape):
+        result_point = None
+        lowest_point = shape.outer_loop.lowest_point()
+        vertical_line = Line(lowest_point,
+            Point(lowest_point.x, lowest_point.y + 1))
 
-        return point
+        for primitive in static_shape.primitive_iterator():
+            if isinstance(primitive, Line):
+                line = primitive
+                result = vertical_line.intersect_line(line, True)
+                if isinstance(result, Point):
+                    if result_point:
+                        if (result.y > lowest_point.y and
+                                result.y < result_point.y):
+                            result_point = result
+                    else:
+                        result_point = result
+                elif isinstance(result, Line):
+                    left_bottom = result.bounds().left_bottom
+
+                    if (left_bottom.y > lowest_point.y and
+                            left_bottom.y < result_point.y):
+                        result_point = left_bottom
+            elif isinstance(primitive, Arc):
+                arc = primitive
+                for point in vertical_line.intersect_arc(arc, True):
+                    if result_point:
+                        if (point.y > lowest_point.y and
+                                point.y < result_point.y):
+                            result_point = point
+                    else:
+                        result_point = point
+
+        return result_point
 
     def resolve_overlapping(self, primitive):
         pass
