@@ -164,7 +164,9 @@ class BottomLeftFill(object):
                 shape.move(y=y_move)
 
     def resolve_line_line(self, line, static_line):
-        return -1
+        y_translation = 0
+
+        return y_translation
 
     def resolve_line_arc(self, line, static_arc):
         return -1
@@ -174,6 +176,20 @@ class BottomLeftFill(object):
 
     def resolve_arc_arc(self, arc, static_arc):
         return -1
+
+    def point_in_range(self, point, primitive):
+        line = None
+        if isinstance(primitive, Line):
+            line = primitive
+        elif isinstance(primitive, Arc):
+            primitive.calculate_ends()
+            line = primitive.line
+
+        aabb = line.bounds()
+        if aabb.left <= point.x <= aabb.right:
+            return True
+
+        return False
 
     def check_best_orientation(self, shape):
         pass
