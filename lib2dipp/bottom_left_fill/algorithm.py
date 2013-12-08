@@ -49,7 +49,7 @@ class BottomLeftFill(object):
                     if not result:
                         break
 
-                    self.resolve_overlapping(result)
+                    self.resolve_overlapping(shape, result)
                     if self.sheetshape.out(shape):
                         shape.move(x=self.resolution.x)
                         shape.position(y=0)
@@ -79,7 +79,7 @@ class BottomLeftFill(object):
         for primitive in shape.primitive_iterator():
             for static_primitive in static_shape.primitive_iterator():
                 if self.intersect_primitives(primitive, static_primitive):
-                    return static_primitive
+                    return (primitive, static_primitive)
 
         return None
 
@@ -138,15 +138,42 @@ class BottomLeftFill(object):
                         if point.y < result_point.y:
                             result_point = point
 
-        return result_point
+        return result_point.y - lowest_point.y
 
-    def resolve_overlapping(self, primitive):
-        if isinstance(primitive, Line):
-            print "Line"
-        elif isinstance(primitive, Arc):
-            print "Arc"
-        elif isinstance(primitive, Point):
-            print "Point"
+    def resolve_overlapping(self, shape, data):
+        if isinstance(data, float):
+            data += self.resolution.y
+            shape.move(y=data)
+        elif isinstance(data, tuple):
+            primitive, static_primitive = data
+            y_move = -1
+
+            if isinstance(primitive, Line):
+                if isinstance(static_primitive, Line):
+                    y_move = self.resolve_line_line(primitive, static_primitive)
+                elif isinstance(static_primitive, Arc):
+                    y_move = self.resolve_line_arc(primitive, static_primitive)
+            elif isinstance(primitive, Arc):
+                if isinstance(static_primitive, Line):
+                    y_move = self.resolve_arc_line(primitive, static_primitive)
+                elif isinstance(static_primitive, Arc):
+                    y_move = self.resolve_arc_arc(primitive, static_primitive)
+
+            if y_move >= 0:
+                y_move += self.resolution.y
+                shape.move(y=y_move)
+
+    def resolve_line_line(self, line, static_line):
+        return -1
+
+    def resolve_line_arc(self, line, static_arc):
+        return -1
+
+    def resolve_arc_line(self, arc, static_line):
+        return -1
+
+    def resolve_arc_arc(self, arc, static_arc):
+        return -1
 
     def check_best_orientation(self, shape):
         pass
