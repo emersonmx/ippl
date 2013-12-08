@@ -164,9 +164,31 @@ class BottomLeftFill(object):
                 shape.move(y=y_move)
 
     def resolve_line_line(self, line, static_line):
-        y_translation = 0
+        same_primitive_count = 0
+        pirs = []
+        first, second = line, static_line
+        vertical_line = Line(Point(0, 0), Point(0, 1))
 
-        return y_translation
+        while len(pirs) < 2:
+            same_primitive_count = 0
+            if self.point_in_range(first.begin, second):
+                pirs.append(first)
+                same_primitive_count += 1
+            if self.point_in_range(first.end, second):
+                pirs.append(first)
+                same_primitive_count += 1
+
+            first, second = second, first
+
+        pir_a, pir_b = pirs
+        intersection_point_a, intersection_point_b = None, None
+        dist_a, dist_b = 0, 0
+        if same_primitive_count != 2:
+            pass
+        else:
+            pass
+
+        return max(dist_a, dist_b)
 
     def resolve_line_arc(self, line, static_arc):
         return -1
@@ -178,18 +200,17 @@ class BottomLeftFill(object):
         return -1
 
     def point_in_range(self, point, primitive):
-        line = None
-        if isinstance(primitive, Line):
-            line = primitive
-        elif isinstance(primitive, Arc):
-            primitive.calculate_ends()
-            line = primitive.line
-
-        aabb = line.bounds()
+        aabb = primitive.bounds()
         if aabb.left <= point.x <= aabb.right:
             return True
 
         return False
+
+    def calculate_distance_pir_1(self, intersection_point, pir):
+        return intersection_point.y - pir.y
+
+    def calculate_distance_pir_2(self, intersection_point, pir):
+        return pir.y - intersection_point.y
 
     def check_best_orientation(self, shape):
         pass
