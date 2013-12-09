@@ -103,18 +103,22 @@ class BottomLeftFill(object):
 
     @staticmethod
     def resolve_line_line(line, static_line):
-        same_primitive_count = 0
         pirs = []
         first, second = line, static_line
+        same_primitive_pirs = True
 
-        while len(pirs) < 2:
-            same_primitive_count = 0
+        while True:
+            same_primitive_pirs = True
             if BottomLeftFill.point_in_range(first.begin, second):
                 pirs.append(first.begin)
-                same_primitive_count += 1
+                same_primitive_pirs = not same_primitive_pirs
+            if len(pirs) >= 2:
+                break
             if BottomLeftFill.point_in_range(first.end, second):
                 pirs.append(first.end)
-                same_primitive_count += 1
+                same_primitive_pirs = not same_primitive_pirs
+            if len(pirs) >= 2:
+                break
 
             first, second = second, first
 
@@ -137,11 +141,18 @@ class BottomLeftFill(object):
             intersection_points.append(result)
 
         distances = []
+        count = 0
+        calculate_pir = BottomLeftFill.calculate_distance_pir_1
         for i in xrange(len(intersection_points)):
             pir = pirs[i]
             intersection = intersection_points[i]
-            distance = BottomLeftFill.calculate_distance_pir_1(intersection,
-                pir)
+
+            if count > 0:
+                if not same_primitive_pirs:
+                    calculate_pir = BottomLeftFill.calculate_distance_pir_2
+
+            distance = calculate_pir(intersection, pir)
+            count += 1
             distances.append(distance)
 
         return max(distances)
