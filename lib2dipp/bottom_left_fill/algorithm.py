@@ -248,32 +248,3 @@ class BottomLeftFill(object):
 
     def check_best_orientation(self, shape):
         pass
-
-if __name__ == "__main__":
-    s = Shape()
-    s.outer_loop.append(Line(Point(0, 0), Point(200, 0)))
-    s.outer_loop.append(Line(Point(200, 0), Point(200, 500)))
-    s.outer_loop.append(Line(Point(200, 500), Point(0, 500)))
-    s.outer_loop.append(Line(Point(0, 500), Point(0, 400)))
-    s.outer_loop.append(Line(Point(0, 400), Point(100, 400)))
-    s.outer_loop.append(Line(Point(100, 400), Point(100, 300)))
-    s.outer_loop.append(Line(Point(100, 300), Point(0, 300)))
-    s.outer_loop.append(Line(Point(0, 300), Point(0, 200)))
-    s.outer_loop.append(
-        Arc(Point(0, 150), 50, 3.0 * util.pi / 2.0, util.pi / 2.0))
-    s.outer_loop.append(Line(Point(0, 100), Point(0, 90)))
-    s.outer_loop.append(Line(Point(0, 90), Point(25, 90)))
-    s.outer_loop.append(Line(Point(25, 90), Point(25, 70)))
-    s.outer_loop.append(Line(Point(25, 70), Point(0, 70)))
-    s.outer_loop.append(Line(Point(0, 70), Point(0, 0)))
-
-    ts = Shape()
-    ts.outer_loop.append(Line(Point(0, 0), Point(100, 0)))
-    ts.outer_loop.append(Line(Point(100, 0), Point(50, 50)))
-    ts.outer_loop.append(Line(Point(50, 50), Point(0, 0)))
-
-    blf = BottomLeftFill()
-    blf.shapes.append([s])
-    blf.shapes.append([ts])
-
-    blf.run()
