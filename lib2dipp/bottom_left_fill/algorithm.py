@@ -118,9 +118,6 @@ class BottomLeftFill(object):
 
             first, second = second, first
 
-        pir_a, pir_b = pirs
-        intersection_point_a, intersection_point_b = None, None
-        dist_a, dist_b = 0, 0
         vertical_line = Line(Point(0, 0), Point(0, 1))
         intersection_points = []
 
@@ -133,9 +130,21 @@ class BottomLeftFill(object):
 
             vertical_line.position(x=pir.x)
             result = vertical_line.intersect_line(test_line, True)
+            if isinstance(result, Line):
+                aabb = test_line.bounds()
+                result = aabb.right_top
+
             intersection_points.append(result)
 
-        return max(dist_a, dist_b)
+        distances = []
+        for i in xrange(len(intersection_points)):
+            pir = pirs[i]
+            intersection = intersection_points[i]
+            distance = BottomLeftFill.calculate_distance_pir_1(intersection,
+                pir)
+            distances.append(distance)
+
+        return max(distances)
 
     @staticmethod
     def resolve_line_arc(line, static_arc):
