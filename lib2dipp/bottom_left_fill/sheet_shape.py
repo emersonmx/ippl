@@ -30,6 +30,9 @@ class SheetShape(object):
     def out(self, shape):
         pass
 
+    def bounds(self):
+        pass
+
 
 class RectangularSheetShape(SheetShape):
 
@@ -46,3 +49,21 @@ class RectangularSheetShape(SheetShape):
         third = aabb.top <= self.rectangle.top
 
         return not (first and second and third)
+
+    def bounds(self):
+        iterator = iter(self.shapes)
+        aabb = iterator.next().bounds()
+
+        for shape in iterator:
+            shape_aabb = shape.bounds()
+
+            if shape_aabb.left < aabb.left:
+                aabb.left = shape_aabb.left
+            if shape_aabb.bounds < aabb.bottom:
+                aabb.bottom = shape_aabb.bottom
+            if shape_aabb.right > aabb.right:
+                aabb.right = shape_aabb.right
+            if shape_aabb.top > aabb.top:
+                aabb.top = shape_aabb.top
+
+        return aabb
