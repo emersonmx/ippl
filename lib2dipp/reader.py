@@ -18,6 +18,7 @@
 #
 
 import ast
+import copy
 import re
 import sys
 
@@ -74,8 +75,7 @@ class BLFReader(object):
 
     @staticmethod
     def shape(groups):
-        quantity = 0
-        return { "quantity": quantity }
+        return ast.literal_eval(groups["quantity"])
 
     @staticmethod
     def loop(groups):
@@ -127,10 +127,12 @@ class BLFReader(object):
     def end():
         pass
 
-    def run(self, filename):
+    def load(self, filename, render=False):
         blf_data = {}
 
         f = open(filename, "r")
+        lines = f.readlines()
+        f.close()
 
         BLFReader.begin()
         self.current_state = self.STATES["profile"]
@@ -138,11 +140,11 @@ class BLFReader(object):
         line_number = 0
         arc_data = None
         sh = None
+        shape_quantity = 0
         inner_loop = []
-
         shapes = []
         loop_type = ""
-        lines = f.readlines()
+
         while self.current_state != self.STATES["end"]:
             line = lines[line_number].strip()
 
@@ -166,7 +168,7 @@ class BLFReader(object):
                 match = self.EXPRESSIONS["shape"].search(line)
                 if match:
                     sh = Shape()
-                    BLFReader.shape(match.groupdict())
+                    shape_quantity = BLFReader.shape(match.groupdict())
                     line_number += 1
                 elif re.search(r"^Loop \d+", line):
                     self.current_state = self.STATES["loop"]
@@ -206,7 +208,9 @@ class BLFReader(object):
                         sh.inner_loops.append(inner_loop)
                     inner_loop = []
 
-                    shapes.append(sh)
+                    for i in xrange(shape_quantity):
+                        shape_copy = copy.deepcopy(sh)
+                        shapes.append(shape_copy)
                     sh = Shape()
                     self.current_state = self.STATES["shape"]
                 elif re.search(r"^Profiles\d+:", line):
@@ -214,7 +218,9 @@ class BLFReader(object):
                         sh.inner_loops.append(inner_loop)
                     inner_loop = []
 
-                    shapes.append(sh)
+                    for i in xrange(shape_quantity):
+                        shape_copy = copy.deepcopy(sh)
+                        shapes.append(shape_copy)
                     sh = Shape()
                     self.current_state = self.STATES["profile"]
                 else:
@@ -256,7 +262,9 @@ class BLFReader(object):
                         sh.inner_loops.append(inner_loop)
                     inner_loop = []
 
-                    shapes.append(sh)
+                    for i in xrange(shape_quantity):
+                        shape_copy = copy.deepcopy(sh)
+                        shapes.append(shape_copy)
                     sh = Shape()
                     self.current_state = self.STATES["shape"]
                 elif re.search(r"^Profiles\d+:", line):
@@ -264,7 +272,9 @@ class BLFReader(object):
                         sh.inner_loops.append(inner_loop)
                     inner_loop = []
 
-                    shapes.append(sh)
+                    for i in xrange(shape_quantity):
+                        shape_copy = copy.deepcopy(sh)
+                        shapes.append(shape_copy)
                     sh = Shape()
                     self.current_state = self.STATES["profile"]
                 else:
@@ -274,32 +284,39 @@ class BLFReader(object):
                     sh.inner_loops.append(inner_loop)
                 inner_loop = []
 
-                shapes.append(sh)
-
+                for i in xrange(shape_quantity):
+                    shape_copy = copy.deepcopy(sh)
+                    shapes.append(shape_copy)
                 break
 
         BLFReader.end()
 
-        for i in xrange(len(shapes)):
-            shape = shapes[i]
-            shape.position(0, 0)
+        blf_data["shapes"] = shapes
 
-            aabb = shape.bounds()
-            size = (int(aabb.right - aabb.left) + 1,
-                    int(aabb.top - aabb.bottom) + 1)
-            r = Render()
-            r.image_size = size
-            r.shape(shape)
-            r.save("reader{}.png".format(i))
+        if render:
+            for i in xrange(len(shapes)):
+                shape = shapes[i]
+                shape.position(0, 0)
 
-        f.close()
+                aabb = shape.bounds()
+                size = (int(aabb.right - aabb.left) + 1,
+                        int(aabb.top - aabb.bottom) + 1)
+                r = Render()
+                r.image_size = size
+                r.shape(shape)
+                r.save("reader{}.png".format(i))
 
         return blf_data
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         reader = BLFReader()
-        reader.run(sys.argv[1])
+        filename = sys.argv[1]
+        render = False
+        if len(sys.argv) > 2:
+            render = (sys.argv[2] == "yes")
+
+        reader.load(filename, render)
     else:
-        print "Usage: {} <blf_data>".format(sys.argv[0])
+        print "Usage: {} <blf_data> [render=(yes/no)]".format(sys.argv[0])
 
