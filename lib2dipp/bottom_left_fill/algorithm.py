@@ -178,6 +178,11 @@ class BottomLeftFill(object):
         return False
 
     @staticmethod
+    def calculate_pirs_and_intersections(line, static_line):
+        # MDD: Implementar esse método
+        pass
+
+    @staticmethod
     def calculate_distance_pir_1(intersection_point, pir):
         return intersection_point.y - pir.y
 
@@ -208,7 +213,8 @@ class BottomLeftFill(object):
                         shape.move(x=self.resolution.x)
                         shape.position(y=0)
 
-                if self.check_best_orientation(shape):
+                best_shape_orientation = orientations[best_orientation]
+                if self.check_best_orientation(shape, best_shape_orientation):
                     best_orientation = j
 
             self.sheetshape.shapes.append(orientations[best_orientation])
@@ -257,5 +263,8 @@ class BottomLeftFill(object):
                 y_move += self.resolution.y
                 shape.move(y=y_move)
 
-    def check_best_orientation(self, shape):
-        pass
+    def check_best_orientation(self, shape, best_shape_orientation):
+        shape_bounds = shape.bounds()
+        best_shape_orientation_bounds = best_shape_orientation.bounds()
+
+        return shape_bounds.right < best_shape_orientation_bounds.right
