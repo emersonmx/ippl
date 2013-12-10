@@ -43,7 +43,6 @@ if __name__ == "__main__":
     print "Primitives:", primitives
     print "Intersect primitives? {}".format(
         BottomLeftFill.intersect_primitives(primitives[0], primitives[1]))
-    print "Next contained point:", BottomLeftFill.contained_shape_point(s3, s2)
     print "Y translate:", BottomLeftFill.resolve_line_line(primitives[0],
         primitives[1])
 
@@ -52,3 +51,4 @@ if __name__ == "__main__":
     print "Primitives:", primitives
     print "Y translate:", BottomLeftFill.resolve_line_line(primitives[0],
         primitives[1])
+    print "Next contained point:", BottomLeftFill.contained_shape_point(s3, s2)

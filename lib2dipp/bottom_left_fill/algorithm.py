@@ -103,56 +103,26 @@ class BottomLeftFill(object):
 
     @staticmethod
     def resolve_line_line(line, static_line):
-        pirs = []
-        first, second = line, static_line
-        same_primitive_pirs = True
+        data = BottomLeftFill.calculate_pirs_and_intersections(line,
+            static_line)
+        pirs = data["pirs"]
+        intersection_points = data["intersection_points"]
 
-        while True:
-            same_primitive_pirs = True
-            if BottomLeftFill.point_in_range(first.begin, second):
-                pirs.append(first.begin)
-                same_primitive_pirs = not same_primitive_pirs
-            if len(pirs) >= 2:
-                break
-            if BottomLeftFill.point_in_range(first.end, second):
-                pirs.append(first.end)
-                same_primitive_pirs = not same_primitive_pirs
-            if len(pirs) >= 2:
-                break
-
-            first, second = second, first
-
-        vertical_line = Line(Point(0, 0), Point(0, 1))
-        intersection_points = []
-
-        for pir in pirs:
-            test_line = None
-            if pir == line.begin or pir == line.end:
-                test_line = static_line
-            else:
-                test_line = line
-
-            vertical_line.position(x=pir.x)
-            result = vertical_line.intersect_line(test_line, True)
-            if isinstance(result, Line):
-                aabb = test_line.bounds()
-                result = aabb.right_top
-
-            intersection_points.append(result)
+        same_primitive_pirs = not (
+            (pirs[0] == line.begin or pirs[0] == line.end) !=
+            (pirs[1] == line.begin or pirs[1] == line.end))
 
         distances = []
-        count = 0
         calculate_pir = BottomLeftFill.calculate_distance_pir_1
         for i in xrange(len(intersection_points)):
             pir = pirs[i]
             intersection = intersection_points[i]
 
-            if count > 0:
+            if i > 0:
                 if not same_primitive_pirs:
                     calculate_pir = BottomLeftFill.calculate_distance_pir_2
 
             distance = calculate_pir(intersection, pir)
-            count += 1
             distances.append(distance)
 
         return max(distances)
@@ -179,8 +149,40 @@ class BottomLeftFill(object):
 
     @staticmethod
     def calculate_pirs_and_intersections(line, static_line):
-        # MDD: Implementar esse método
-        pass
+        pirs = []
+        first, second = line, static_line
+
+        while True:
+            if BottomLeftFill.point_in_range(first.begin, second):
+                pirs.append(first.begin)
+            if len(pirs) >= 2:
+                break
+            if BottomLeftFill.point_in_range(first.end, second):
+                pirs.append(first.end)
+            if len(pirs) >= 2:
+                break
+
+            first, second = second, first
+
+        vertical_line = Line(Point(0, 0), Point(0, 1))
+        intersection_points = []
+
+        for pir in pirs:
+            test_line = None
+            if pir == line.begin or pir == line.end:
+                test_line = static_line
+            else:
+                test_line = line
+
+            vertical_line.position(x=pir.x)
+            result = vertical_line.intersect_line(test_line, True)
+            if isinstance(result, Line):
+                aabb = test_line.bounds()
+                result = aabb.right_top
+
+            intersection_points.append(result)
+
+        return { "pirs": pirs, "intersection_points": intersection_points }
 
     @staticmethod
     def calculate_distance_pir_1(intersection_point, pir):
