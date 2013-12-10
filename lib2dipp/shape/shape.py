@@ -23,6 +23,7 @@ from lib2dipp.shape.rectangle import Rectangle
 from lib2dipp.shape.loop import Loop
 from lib2dipp.shape.arc import Arc
 from lib2dipp.shape.line import Line
+from lib2dipp import util
 
 
 class Shape(Object):
@@ -76,6 +77,28 @@ class Shape(Object):
 
     def bounds(self):
         return self.outer_loop.bounds()
+
+    def rotate(self, angle):
+        def to_point(data):
+            return Point(data[0], data[1])
+
+        for primitive in self.primitive_iterator():
+            if isinstance(primitive, Line):
+                line = primitive
+                line.begin = to_point(
+                    util.calculate_point_rotation(line.begin, angle))
+                line.end = to_point(
+                    util.calculate_point_rotation(line.end, angle))
+            elif isinstance(primitive, Arc):
+                arc = primitive
+                arc.calculate_ends()
+                arc.line.begin = to_point(
+                    util.calculate_point_rotation(arc.line.begin, angle))
+                arc.line.end = to_point(
+                    util.calculate_point_rotation(arc.line.end, angle))
+                arc.centre_point = to_point(
+                    util.calculate_point_rotation(arc.centre_point, angle))
+                arc.calculate_angles()
 
     def outer_loop_iterator(self):
         for primitive in self.outer_loop:

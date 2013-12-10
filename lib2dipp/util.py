@@ -17,6 +17,8 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import math
+
 pi = 3.141593
 
 def approx_equal(a, b, epsilon=1e-16):
@@ -61,3 +63,9 @@ def angle_in_range(angle, start, end):
 
     return start <= angle <= end
 
+def calculate_point_rotation(point, angle):
+    def rotate_vetor(x, y, angle):
+        return (x * math.cos(angle) - y * math.sin(angle),
+                x * math.sin(angle) + y * math.cos(angle))
+
+    return rotate_vetor(point.x, point.y, angle)
