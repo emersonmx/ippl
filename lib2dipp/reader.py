@@ -60,13 +60,79 @@ class BLFReader(object):
         super(BLFReader, self).__init__()
 
         self.current_state = self.STATES["profile"]
-        self.sheetshape_size = [0.0, 0.0]
-        self.sheetshape_rotation = 0.0
+
+    @staticmethod
+    def begin():
+        pass
+
+    @staticmethod
+    def profile(groups):
+        size = ast.literal_eval(groups["size"])
+        rotation = ast.literal_eval(groups["rotations"])
+
+        return { "size": size, "rotation": rotation }
+
+    @staticmethod
+    def shape(groups):
+        quantity = 0
+        return { "quantity": quantity }
+
+    @staticmethod
+    def loop(groups):
+        pass
+
+    @staticmethod
+    def line(groups):
+        line_shape = Line()
+
+        begin = ast.literal_eval(groups["begin"])
+        end = ast.literal_eval(groups["end"])
+
+        line_shape.begin = Point(begin[0], begin[1])
+        line_shape.end = Point(end[0], end[1])
+
+        return line_shape
+
+    @staticmethod
+    def arc(groups):
+        arc_shape = Arc()
+
+        begin = ast.literal_eval(groups["begin"])
+        end = ast.literal_eval(groups["end"])
+        centre_point = ast.literal_eval(groups["centre_point"])
+        radius = ast.literal_eval(groups["radius"])
+        start_angle = ast.literal_eval(groups["start_angle"])
+        offset_angle = ast.literal_eval(groups["offset_angle"])
+
+        if offset_angle < 0:
+            begin, end = end, begin
+        else:
+            start_angle, offset_angle = offset_angle, start_angle
+
+        start_angle = util.wrap_2pi(start_angle)
+        offset_angle = util.wrap_2pi(offset_angle)
+
+        arc_shape.line.begin = Point(begin[0], begin[1])
+        arc_shape.line.end = Point(end[0], end[1])
+        arc_shape.centre_point = Point(centre_point[0], centre_point[1])
+        arc_shape.radius = radius
+        arc_shape.start_angle = start_angle
+        arc_shape.offset_angle = offset_angle
+
+        arc_shape.calculate_angles()
+
+        return arc_shape
+
+    @staticmethod
+    def end():
+        pass
 
     def run(self, filename):
+        blf_data = {}
+
         f = open(filename, "r")
 
-        self.begin()
+        BLFReader.begin()
         self.current_state = self.STATES["profile"]
 
         line_number = 0
@@ -90,7 +156,7 @@ class BLFReader(object):
             if self.current_state == self.STATES["profile"]:
                 match = self.EXPRESSIONS["profile"].search(line)
                 if match:
-                    self.profile(match.groupdict())
+                    blf_data["profile"] = BLFReader.profile(match.groupdict())
                     line_number += 1
                 elif re.search(r"Shape \d+", line):
                     self.current_state = self.STATES["shape"]
@@ -100,7 +166,7 @@ class BLFReader(object):
                 match = self.EXPRESSIONS["shape"].search(line)
                 if match:
                     sh = Shape()
-                    self.shape(match.groupdict())
+                    BLFReader.shape(match.groupdict())
                     line_number += 1
                 elif re.search(r"^Loop \d+", line):
                     self.current_state = self.STATES["loop"]
@@ -111,7 +177,7 @@ class BLFReader(object):
                 if match:
                     loop_data = match.groupdict()
                     loop_type = loop_data["type"]
-                    self.loop(loop_data)
+                    BLFReader.loop(loop_data)
                     line_number += 1
                 elif re.search(r"^Line:", line):
                     self.current_state = self.STATES["line"]
@@ -123,9 +189,9 @@ class BLFReader(object):
                 match = self.EXPRESSIONS["line"].search(line)
                 if match:
                     if loop_type == "external":
-                        sh.outer_loop.append(self.line(match.groupdict()))
+                        sh.outer_loop.append(BLFReader.line(match.groupdict()))
                     elif loop_type == "internal":
-                        inner_loop.append(self.line(match.groupdict()))
+                        inner_loop.append(BLFReader.line(match.groupdict()))
                     line_number += 1
                 elif re.search(r"^Arc:", line):
                     self.current_state = self.STATES["arc_info"]
@@ -166,9 +232,9 @@ class BLFReader(object):
                 elif match_angles:
                     arc_data = dict(arc_data + match_angles.groupdict().items())
                     if loop_type == "external":
-                        sh.outer_loop.append(self.arc(arc_data))
+                        sh.outer_loop.append(BLFReader.arc(arc_data))
                     elif loop_type == "internal":
-                        inner_loop.append(self.arc(arc_data))
+                        inner_loop.append(BLFReader.arc(arc_data))
                     arc_data = None
                     line_number += 1
                     self.current_state = self.STATES["arc"]
@@ -212,7 +278,7 @@ class BLFReader(object):
 
                 break
 
-        self.end()
+        BLFReader.end()
 
         for i in xrange(len(shapes)):
             shape = shapes[i]
@@ -228,64 +294,7 @@ class BLFReader(object):
 
         f.close()
 
-    def begin(self):
-        pass
-
-    def profile(self, groups):
-        size = ast.literal_eval(groups["size"])
-        rotation = ast.literal_eval(groups["rotations"])
-
-        self.sheetshape_size = size
-        self.sheetshape_rotation = rotation
-
-    def shape(self, groups):
-        pass
-
-    def loop(self, groups):
-        pass
-
-    def line(self, groups):
-        line_shape = Line()
-
-        begin = ast.literal_eval(groups["begin"])
-        end = ast.literal_eval(groups["end"])
-
-        line_shape.begin = Point(begin[0], begin[1])
-        line_shape.end = Point(end[0], end[1])
-
-        return line_shape
-
-    def arc(self, groups):
-        arc_shape = Arc()
-
-        begin = ast.literal_eval(groups["begin"])
-        end = ast.literal_eval(groups["end"])
-        centre_point = ast.literal_eval(groups["centre_point"])
-        radius = ast.literal_eval(groups["radius"])
-        start_angle = ast.literal_eval(groups["start_angle"])
-        offset_angle = ast.literal_eval(groups["offset_angle"])
-
-        if offset_angle < 0:
-            begin, end = end, begin
-        else:
-            start_angle, offset_angle = offset_angle, start_angle
-
-        start_angle = util.wrap_2pi(start_angle)
-        offset_angle = util.wrap_2pi(offset_angle)
-
-        arc_shape.line.begin = Point(begin[0], begin[1])
-        arc_shape.line.end = Point(end[0], end[1])
-        arc_shape.centre_point = Point(centre_point[0], centre_point[1])
-        arc_shape.radius = radius
-        arc_shape.start_angle = start_angle
-        arc_shape.offset_angle = offset_angle
-
-        arc_shape.calculate_angles()
-
-        return arc_shape
-
-    def end(self):
-        pass
+        return blf_data
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:

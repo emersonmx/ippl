@@ -51,7 +51,7 @@ if __name__ == "__main__":
     print "Line-Arc: {}".format(l.intersect_arc(a))
     print "Arcs: {}".format(a.intersect_arc(b))
     print "Arcs: {}".format(a.intersect_arc(a))
-    p = Point(0, 1)
+    p = Point(0, 0)
     pl = Line(Point(1, 1), Point(5, 5))
     print "Perpendicular: {}".format(pl.calculate_perpendicular_line(p))
 
