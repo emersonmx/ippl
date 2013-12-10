@@ -127,9 +127,30 @@ class BLFReader(object):
     def end():
         pass
 
-    def load(self, filename, render=False):
-        blf_data = {}
+    @staticmethod
+    def create_rotated_shapes(shape, incremental_angle):
+        shapes = []
+        shape_copy = copy.deepcopy(shape)
+        shape_copy.position(0, 0)
+        shapes.append(shape_copy)
 
+        if util.approx_equal(incremental_angle, 0.0):
+            return shapes
+
+        incremental_angle = float(incremental_angle)
+        if incremental_angle > 180:
+            incremental_angle = 180.0
+
+        iterations = int(360.0 / incremental_angle)
+        for i in xrange(1, iterations):
+            shape_copy = copy.deepcopy(shape)
+            shape_copy.rotate(math.radians(i * incremental_angle))
+            shape_copy.position(0, 0)
+            shapes.append(shape_copy)
+
+        return shapes
+
+    def load(self, filename, render=False):
         f = open(filename, "r")
         lines = f.readlines()
         f.close()
@@ -137,6 +158,7 @@ class BLFReader(object):
         BLFReader.begin()
         self.current_state = self.STATES["profile"]
 
+        blf_data = {}
         line_number = 0
         arc_data = None
         sh = None
@@ -209,8 +231,10 @@ class BLFReader(object):
                     inner_loop = []
 
                     for i in xrange(shape_quantity):
-                        shape_copy = copy.deepcopy(sh)
-                        shapes.append(shape_copy)
+                        shape_orientations = (
+                            BLFReader.create_rotated_shapes(sh,
+                                blf_data["profile"]["rotation"]))
+                        shapes.append(shape_orientations)
                     sh = Shape()
                     self.current_state = self.STATES["shape"]
                 elif re.search(r"^Profiles\d+:", line):
@@ -219,8 +243,10 @@ class BLFReader(object):
                     inner_loop = []
 
                     for i in xrange(shape_quantity):
-                        shape_copy = copy.deepcopy(sh)
-                        shapes.append(shape_copy)
+                        shape_orientations = (
+                            BLFReader.create_rotated_shapes(sh,
+                                blf_data["profile"]["rotation"]))
+                        shapes.append(shape_orientations)
                     sh = Shape()
                     self.current_state = self.STATES["profile"]
                 else:
@@ -263,8 +289,10 @@ class BLFReader(object):
                     inner_loop = []
 
                     for i in xrange(shape_quantity):
-                        shape_copy = copy.deepcopy(sh)
-                        shapes.append(shape_copy)
+                        shape_orientations = (
+                            BLFReader.create_rotated_shapes(sh,
+                                blf_data["profile"]["rotation"]))
+                        shapes.append(shape_orientations)
                     sh = Shape()
                     self.current_state = self.STATES["shape"]
                 elif re.search(r"^Profiles\d+:", line):
@@ -273,8 +301,10 @@ class BLFReader(object):
                     inner_loop = []
 
                     for i in xrange(shape_quantity):
-                        shape_copy = copy.deepcopy(sh)
-                        shapes.append(shape_copy)
+                        shape_orientations = (
+                            BLFReader.create_rotated_shapes(sh,
+                                blf_data["profile"]["rotation"]))
+                        shapes.append(shape_orientations)
                     sh = Shape()
                     self.current_state = self.STATES["profile"]
                 else:
@@ -285,8 +315,10 @@ class BLFReader(object):
                 inner_loop = []
 
                 for i in xrange(shape_quantity):
-                    shape_copy = copy.deepcopy(sh)
-                    shapes.append(shape_copy)
+                    shape_orientations = (
+                        BLFReader.create_rotated_shapes(sh,
+                            blf_data["profile"]["rotation"]))
+                    shapes.append(shape_orientations)
                 break
 
         BLFReader.end()
@@ -295,16 +327,18 @@ class BLFReader(object):
 
         if render:
             for i in xrange(len(shapes)):
-                shape = shapes[i]
-                shape.position(0, 0)
+                orientations = shapes[i]
+                for j in xrange(len(orientations)):
+                    shape = orientations[j]
+                    shape.position(0, 0)
 
-                aabb = shape.bounds()
-                size = (int(aabb.right - aabb.left) + 1,
-                        int(aabb.top - aabb.bottom) + 1)
-                r = Render()
-                r.image_size = size
-                r.shape(shape)
-                r.save("reader{}.png".format(i))
+                    aabb = shape.bounds()
+                    size = (int(aabb.right - aabb.left) + 1,
+                            int(aabb.top - aabb.bottom) + 1)
+                    r = Render()
+                    r.image_size = size
+                    r.shape(shape)
+                    r.save("reader{}_{}.png".format(i, j))
 
         return blf_data
 
