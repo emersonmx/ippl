@@ -17,6 +17,8 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from lib2dipp.shape.rectangle import Rectangle
+
 
 class SheetShape(object):
 
@@ -34,5 +36,13 @@ class RectangularSheetShape(SheetShape):
     def __init__(self):
         super(RectangularSheetShape, self).__init__()
 
+        self.rectangle = Rectangle()
+
     def out(self, shape):
-        pass
+        aabb = shape.bounds()
+
+        first = aabb.left >= self.rectangle.left
+        second = aabb.bottom >= self.rectangle.bottom
+        third = aabb.top <= self.rectangle.top
+
+        return not (first and second and third)
