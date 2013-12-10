@@ -108,18 +108,16 @@ class BottomLeftFill(object):
         pirs = data["pirs"]
         intersection_points = data["intersection_points"]
 
-        same_primitive_pirs = not (
-            (pirs[0] == line.begin or pirs[0] == line.end) !=
-            (pirs[1] == line.begin or pirs[1] == line.end))
+        pirs_in_same_line = BottomLeftFill.pirs_in_same_line(pirs[0], pirs[1],
+            line)
 
         distances = []
         calculate_pir = BottomLeftFill.calculate_distance_pir_1
         for i in xrange(len(intersection_points)):
             pir = pirs[i]
             intersection = intersection_points[i]
-
             if i > 0:
-                if not same_primitive_pirs:
+                if not pirs_in_same_line:
                     calculate_pir = BottomLeftFill.calculate_distance_pir_2
 
             distance = calculate_pir(intersection, pir)
@@ -129,7 +127,33 @@ class BottomLeftFill(object):
 
     @staticmethod
     def resolve_line_arc(line, static_arc):
-        return -1
+        # Tem alguns problemas ainda...
+        static_arc.calculate_ends()
+        data = BottomLeftFill.calculate_pirs_and_intersections(line,
+            static_arc.line)
+        pirs = data["pirs"]
+        intersection_points = data["intersection_points"]
+
+        pirs_in_same_line = BottomLeftFill.pirs_in_same_line(pirs[0], pirs[1],
+            line)
+
+        distances = []
+        calculate_pir = None
+        if pirs_in_same_line:
+            calculate_pir = BottomLeftFill.calculate_distance_pir_2
+        else:
+            calculate_pir = BottomLeftFill.calculate_distance_pir_1
+
+        for i in xrange(len(intersection_points)):
+            pir = pirs[i]
+            intersection = intersection_points[i]
+            if i > 0:
+                calculate_pir = BottomLeftFill.calculate_distance_pir_2
+
+            distance = calculate_pir(intersection, pir)
+            distances.append(distance)
+
+        return max(distances)
 
     @staticmethod
     def resolve_arc_line(arc, static_line):
@@ -148,9 +172,9 @@ class BottomLeftFill(object):
         return False
 
     @staticmethod
-    def calculate_pirs_and_intersections(line, static_line):
+    def calculate_pirs_and_intersections(primitive, static_primitive):
         pirs = []
-        first, second = line, static_line
+        first, second = primitive, static_primitive
 
         while True:
             if BottomLeftFill.point_in_range(first.begin, second):
@@ -169,10 +193,10 @@ class BottomLeftFill(object):
 
         for pir in pirs:
             test_line = None
-            if pir == line.begin or pir == line.end:
-                test_line = static_line
+            if pir == primitive.begin or pir == primitive.end:
+                test_line = static_primitive
             else:
-                test_line = line
+                test_line = primitive
 
             vertical_line.position(x=pir.x)
             result = vertical_line.intersect_line(test_line, True)
@@ -183,6 +207,11 @@ class BottomLeftFill(object):
             intersection_points.append(result)
 
         return { "pirs": pirs, "intersection_points": intersection_points }
+
+    @staticmethod
+    def pirs_in_same_line(pir_a, pir_b, line):
+        return not ((pirs_a == line.begin or pirs_a == line.end) !=
+            (pirs_b == line.begin or pirs_b == line.end))
 
     @staticmethod
     def calculate_distance_pir_1(intersection_point, pir):
