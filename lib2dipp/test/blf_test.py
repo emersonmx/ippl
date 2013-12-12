@@ -39,16 +39,23 @@ if __name__ == "__main__":
     s3.outer_loop.append(Line(Point(5, 10), Point(0, 0)))
     s3.position(10, 10)
 
+    blf = BottomLeftFill()
+
+    print "Next contained point:", BottomLeftFill.contained_shape_point(s3, s2)
     primitives = BottomLeftFill.next_primitive(s1, s2)
     print "Primitives:", primitives
     print "Intersect primitives? {}".format(
         BottomLeftFill.intersect_primitives(primitives[0], primitives[1]))
-    print "Y translate:", BottomLeftFill.resolve_line_line(primitives[0],
+    print "Y translate:", blf.resolve_line_line(primitives[0],
         primitives[1])
 
     s1.position(50, 50)
     primitives = BottomLeftFill.next_primitive(s1, s2)
     print "Primitives:", primitives
-    print "Y translate:", BottomLeftFill.resolve_line_line(primitives[0],
+    print "Y translate:", blf.resolve_line_line(primitives[0],
         primitives[1])
-    print "Next contained point:", BottomLeftFill.contained_shape_point(s3, s2)
+
+    p1 = Line(Point(0, 0), Point(5, 10))
+    p2 = Line(Point(0, 0), Point(10, 0))
+    print "Primitives:", p1, p2
+    print "Y translate:", blf.resolve_line_line(p1, p2)
