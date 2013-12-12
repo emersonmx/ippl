@@ -143,6 +143,10 @@ class BottomLeftFill(object):
         return intersection_points
 
     @staticmethod
+    def calculate_tangent_points(line, arc):
+        pass
+
+    @staticmethod
     def point_in_range(point, primitive):
         aabb = primitive.bounds()
         if aabb.left <= point.x <= aabb.right:
@@ -264,6 +268,7 @@ class BottomLeftFill(object):
             test_line.move(y=move)
         if not BottomLeftFill.intersect_primitives(test_line, static_arc):
             return y_move
+        tangent_points = []
 
         return y_move
 
