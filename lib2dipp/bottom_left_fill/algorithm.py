@@ -232,9 +232,8 @@ class BottomLeftFill(object):
                 elif isinstance(static_primitive, Arc):
                     y_move = self.resolve_arc_arc(primitive, static_primitive)
 
-            if y_move >= 0:
-                y_move += self.resolution.y
-                shape.move(y=y_move)
+            y_move += self.resolution.y
+            shape.move(y=y_move)
 
     def resolve_line_line(self, line, static_line):
         pirs = BottomLeftFill.calculate_pirs(line, static_line)
