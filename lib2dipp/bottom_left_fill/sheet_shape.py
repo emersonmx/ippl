@@ -20,12 +20,7 @@
 from lib2dipp.shape.rectangle import Rectangle
 
 
-class SheetShape(object):
-
-    def __init__(self):
-        super(SheetShape, self).__init__()
-
-        self.shapes = []
+class SheetShape(list):
 
     def out(self, shape):
         pass
@@ -36,8 +31,8 @@ class SheetShape(object):
 
 class RectangularSheetShape(SheetShape):
 
-    def __init__(self):
-        super(RectangularSheetShape, self).__init__()
+    def __init__(self, *args):
+        list.__init__(self, *args)
 
         self.rectangle = Rectangle()
 

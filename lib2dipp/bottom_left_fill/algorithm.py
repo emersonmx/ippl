@@ -175,7 +175,7 @@ class BottomLeftFill(object):
 
         shape = self.shapes[0][0]
         shape.position(0, 0)
-        self.sheetshape.shapes.append(shape)
+        self.sheetshape.append(shape)
 
         for i in xrange(1, len(self.shapes)):
             orientations = self.shapes[i]
@@ -197,12 +197,12 @@ class BottomLeftFill(object):
                 if self.check_best_orientation(shape, best_shape_orientation):
                     best_orientation = j
 
-            self.sheetshape.shapes.append(orientations[best_orientation])
+            self.sheetshape.append(orientations[best_orientation])
 
     def overlap(self, shape):
         aabb = shape.bounds()
 
-        for static_shape in self.sheetshape.shapes:
+        for static_shape in self.sheetshape:
             static_aabb = static_shape.bounds()
             if aabb.intersect_rectangle(static_aabb):
                 result = BottomLeftFill.next_primitive(shape, static_shape)
