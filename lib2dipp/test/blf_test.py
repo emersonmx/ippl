@@ -17,6 +17,8 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import copy
+
 from lib2dipp.bottom_left_fill import *
 
 if __name__ == "__main__":
@@ -27,11 +29,8 @@ if __name__ == "__main__":
     s1.outer_loop.append(Line(Point(100, 100), Point(0, 100)))
     s1.position(y=50)
 
-    s2 = Shape()
-    s2.outer_loop.append(Line(Point(0, 100), Point(0, 0)))
-    s2.outer_loop.append(Line(Point(0, 0), Point(100, 0)))
-    s2.outer_loop.append(Line(Point(100, 0), Point(100, 100)))
-    s2.outer_loop.append(Line(Point(100, 100), Point(0, 100)))
+    s2 = copy.deepcopy(s1)
+    s2.position(0, 0)
 
     s3 = Shape()
     s3.outer_loop.append(Line(Point(0, 0), Point(10, 0)))
@@ -55,7 +54,7 @@ if __name__ == "__main__":
     print "Y translate:", blf.resolve_line_line(primitives[0],
         primitives[1])
 
-    p1 = Line(Point(0, 0), Point(5, 10))
-    p2 = Line(Point(0, 0), Point(10, 0))
-    print "Primitives:", p1, p2
-    print "Y translate:", blf.resolve_line_line(p1, p2)
+    l1 = Line(Point(0, 0), Point(5, 10))
+    l2 = Line(Point(0, 0), Point(10, 0))
+    print "Primitives:", l1, l2
+    print "Y translate:", blf.resolve_line_line(l1, l2)

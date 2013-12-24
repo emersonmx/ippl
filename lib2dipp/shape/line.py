@@ -27,6 +27,14 @@ from lib2dipp.shape.rectangle import Rectangle
 
 class Line(Primitive):
 
+    @staticmethod
+    def horizontal_line():
+        return Line(Point(0, 0), Point(0, 1))
+
+    @staticmethod
+    def vertical_line():
+        return Line(Point(0, 0), Point(0, 1))
+
     def __init__(self, *args, **kwargs):
         """Creates a Line object.
 
