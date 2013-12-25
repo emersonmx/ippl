@@ -123,15 +123,23 @@ class BottomLeftFill(object):
         return list(pirs)
 
     @staticmethod
-    def calculate_intersection_point(line, pir):
+    def calculate_intersection_point(primitive, pir):
         vertical_line = Line.vertical_line()
         vertical_line.position(x=pir.x)
-        result = vertical_line.intersect_line(line, True)
-        if isinstance(result, Line):
-            aabb = line.bounds()
-            result = aabb.right_top
+        intersection_points = []
+        if isinstance(primitive, Line):
+            line = primitive
+            result = vertical_line.intersect_line(line, True)
+            if result:
+                if isinstance(result, Line):
+                    aabb = line.bounds()
+                    result = aabb.right_top
+                intersection_points = [result]
+        elif isinstance(primitive, Arc):
+            arc = primitive
+            intersection_points = vertical_line.intersect_arc(arc, True)
 
-        return result
+        return intersection_points
 
     @staticmethod
     def calculate_tangent_points(line, arc):
@@ -238,7 +246,7 @@ class BottomLeftFill(object):
 
             result = BottomLeftFill.calculate_intersection_point(test_line, pir)
             if result:
-                intersection_points.append(result)
+                intersection_points += result
 
         distances = []
         calculate_pir = None
@@ -265,13 +273,15 @@ class BottomLeftFill(object):
             if not BottomLeftFill.intersect_primitives(test_line, static_arc):
                 return y_move
 
+
+
         tangent_points = BottomLeftFill.calculate_tangent_points(line,
             static_arc)
         intersection_points = []
         for tangent in tangent_points:
             result = BottomLeftFill.calculate_intersection_point(line, tangent)
             if result:
-                intersection_points.append(result)
+                intersection_points += result
 
         distances = []
         for i in xrange(len(intersection_points)):
@@ -281,15 +291,15 @@ class BottomLeftFill(object):
                 tangent)
             distances.append(distance)
 
-        y_move = max(distances)
-        if y_move >= 0:
-            test_line = copy.deepcopy(line)
-            move = y_move + self.resolution.y
-            test_line.move(y=move)
-            if not BottomLeftFill.intersect_primitives(test_line, static_arc):
-                return y_move
-
-        # Special cases
+        if distances:
+            y_move = max(distances)
+            if y_move >= 0:
+                test_line = copy.deepcopy(line)
+                move = y_move + self.resolution.y
+                test_line.move(y=move)
+                if not BottomLeftFill.intersect_primitives(test_line,
+                        static_arc):
+                    return y_move
 
         return y_move
 
