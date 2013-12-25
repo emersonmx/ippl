@@ -141,6 +141,9 @@ class Point(Object):
         return ((util.approx_equal(self.x, point.x) and
             util.approx_equal(self.y, point.y)))
 
+    def __hash__(self):
+        return hash(self.x) ^ hash(self.y)
+
     def __str__(self):
         return "{} ({}, {})".format(type(self).__name__, self.x, self.y)
 

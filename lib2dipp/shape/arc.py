@@ -155,10 +155,8 @@ class Arc(Primitive):
 
         return Rectangle(minimum_x, minimum_y, maximum_x, maximum_y)
 
-    def intersect_line(self, line,
-                       ignore_line_interval=False, ignore_arc_interval=False):
-        return line.intersect_arc(self, ignore_line_interval,
-                                  ignore_arc_interval)
+    def intersect_line(self, line, ignore_alpha=False, ignore_beta=False):
+        return line.intersect_arc(self, ignore_alpha, ignore_beta)
 
     def intersect_arc(self, arc):
         """Calculate the points between two arcs.

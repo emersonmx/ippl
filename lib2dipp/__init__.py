@@ -19,8 +19,8 @@
 
 import lib2dipp.shape
 import lib2dipp.bottom_left_fill
-import lib2dipp.file_io
 import lib2dipp.genetic_algorithm
+import lib2dipp.reader
 import lib2dipp.render
 import lib2dipp.util
 

@@ -154,14 +154,13 @@ class Line(Primitive):
 
         return None
 
-    def intersect_arc(self, arc,
-                      ignore_line_interval=False, ignore_arc_interval=False):
+    def intersect_arc(self, arc, ignore_alpha=False, ignore_beta=False):
         """Calculate the points between a line and a arc.
 
         Parameters:
             arc a Arc object.
-            ignore_line_interval a bool value.
-            ignore_arc_interval a bool value.
+            ignore_alpha a bool value.
+            ignore_beta a bool value.
         Return:
             A list of 0-2 points if the same are within the angle range of the
             arc.
@@ -172,13 +171,12 @@ class Line(Primitive):
         if points:
             aabb = self.bounds()
             for point in points:
-                if (ignore_line_interval or aabb.intersect_point(point)):
+                if (ignore_alpha or aabb.intersect_point(point)):
                     angle = wrap_2pi(math.atan2(point.y - arc.centre_point.y,
                                                 point.x - arc.centre_point.x))
                     start = arc.start_angle
                     end = arc.offset_angle
-                    if (ignore_arc_interval or
-                            angle_in_range(angle, start, end)):
+                    if (ignore_beta or angle_in_range(angle, start, end)):
                         result.append(point)
 
         return result
@@ -368,6 +366,14 @@ class Line(Primitive):
             return False
 
         return True
+
+    def point_in_ends(self, point):
+        return ((point == self.begin) or (point == self.end))
+
+    def __eq__(self, line):
+        if isinstance(line, Line):
+            return ((self.begin == line.begin) and (self.end == line.end))
+        return False
 
     def __str__(self):
         return "{} (begin={}, end={})".format(
