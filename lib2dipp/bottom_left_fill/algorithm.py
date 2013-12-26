@@ -123,23 +123,22 @@ class BottomLeftFill(object):
         return list(pirs)
 
     @staticmethod
-    def calculate_intersection_point(primitive, pir):
+    def calculate_intersection_point(line, pir):
         vertical_line = Line.vertical_line()
         vertical_line.position(x=pir.x)
-        intersection_points = []
-        if isinstance(primitive, Line):
-            line = primitive
-            result = vertical_line.intersect_line(line, True)
-            if result:
-                if isinstance(result, Line):
-                    aabb = line.bounds()
-                    result = aabb.right_top
-                intersection_points = [result]
-        elif isinstance(primitive, Arc):
-            arc = primitive
-            intersection_points = vertical_line.intersect_arc(arc, True)
+        result = vertical_line.intersect_line(line, True)
+        if result:
+            if isinstance(result, Line):
+                aabb = line.bounds()
+                result = aabb.right_top
 
-        return intersection_points
+        return result
+
+    @staticmethod
+    def calculate_intersection_points(arc, pir):
+        vertical_line = Line.vertical_line()
+        vertical_line.position(x=pir.x)
+        return vertical_line.intersect_arc(arc, True)
 
     @staticmethod
     def calculate_tangent_points(line, arc):
@@ -246,7 +245,7 @@ class BottomLeftFill(object):
 
             result = BottomLeftFill.calculate_intersection_point(test_line, pir)
             if result:
-                intersection_points += result
+                intersection_points.append(result)
 
         distances = []
         calculate_pir = None
@@ -281,7 +280,7 @@ class BottomLeftFill(object):
         for tangent in tangent_points:
             result = BottomLeftFill.calculate_intersection_point(line, tangent)
             if result:
-                intersection_points += result
+                intersection_points.append(result)
 
         distances = []
         for i in xrange(len(intersection_points)):
