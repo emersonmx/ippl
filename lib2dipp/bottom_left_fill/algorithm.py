@@ -267,7 +267,7 @@ class BottomLeftFill(object):
         y_move = self.resolve_line_line(line, static_arc.line)
         if y_move >= 0:
             test_line = copy.deepcopy(line)
-            if self.overlap_is_resolved(test_line, static_arc, y_move):
+            if self.overlap_was_resolved(test_line, static_arc, y_move):
                 return y_move
         else:
             min_end = line.begin
@@ -295,7 +295,7 @@ class BottomLeftFill(object):
             y_move = max(distances)
             if y_move >= 0:
                 test_line = copy.deepcopy(line)
-                if self.overlap_is_resolved(test_line, static_arc, y_move):
+                if self.overlap_was_resolved(test_line, static_arc, y_move):
                     return y_move
 
         return y_move
@@ -312,7 +312,7 @@ class BottomLeftFill(object):
 
         return shape_bounds.right < best_shape_orientation_bounds.right
 
-    def overlap_is_resolved(self, primitive, static_primitive, y_move):
+    def overlap_was_resolved(self, primitive, static_primitive, y_move):
         move = y_move + self.resolution.y
         primitive.move(y=move)
         return not BottomLeftFill.intersect_primitives(primitive,
