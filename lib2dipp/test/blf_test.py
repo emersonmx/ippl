@@ -54,14 +54,14 @@ if __name__ == "__main__":
     print "Y translate:", blf.resolve_line_line(primitives[0],
         primitives[1])
 
-    a = Line(Point(0, 0), Point(5, 10))
+    a = Line(Point(0, 5), Point(5, 10))
     b = Line(Point(0, 0), Point(10, 0))
     print "Primitives:", a, b
     print "a - b, Y translate:", blf.resolve_line_line(a, b)
     print "b - a, Y translate:", blf.resolve_line_line(b, a)
 
-    a = Line(Point(0, 0), Point(10, 10))
-    b = Arc(Point(5, 5), 5, 0, 0)
+    a = Line(Point(-3, 6), Point(1, 7))
+    b = Arc(Point(6, 6), 6, 0, 0)
     print "Primitives:", a, b
     y_move = blf.resolve_line_arc(a, b)
     print "a - b, Y translate:", y_move

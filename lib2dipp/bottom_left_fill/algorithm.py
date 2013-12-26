@@ -123,9 +123,9 @@ class BottomLeftFill(object):
         return list(pirs)
 
     @staticmethod
-    def calculate_intersection_point(line, pir):
+    def calculate_intersection_point(line, point):
         vertical_line = Line.vertical_line()
-        vertical_line.position(x=pir.x)
+        vertical_line.position(x=point.x)
         result = vertical_line.intersect_line(line, True)
         if result:
             if isinstance(result, Line):
@@ -135,15 +135,18 @@ class BottomLeftFill(object):
         return result
 
     @staticmethod
-    def calculate_intersection_points(arc, pir):
+    def calculate_intersection_points(arc, point):
         vertical_line = Line.vertical_line()
-        vertical_line.position(x=pir.x)
+        vertical_line.position(x=point.x)
         return vertical_line.intersect_arc(arc, True)
 
     @staticmethod
-    def calculate_tangent_points(line, arc):
-        perpendicular_line = line.calculate_perpendicular_line(arc.centre_point)
-        return perpendicular_line.intersect_arc(arc, True)
+    def calculate_distance_pir_1(intersection_point, pir):
+        return intersection_point.y - pir.y
+
+    @staticmethod
+    def calculate_distance_pir_2(intersection_point, pir):
+        return pir.y - intersection_point.y
 
     @staticmethod
     def point_in_range(point, primitive):
@@ -154,12 +157,13 @@ class BottomLeftFill(object):
         return False
 
     @staticmethod
-    def calculate_distance_pir_1(intersection_point, pir):
-        return intersection_point.y - pir.y
+    def point_min_max_y(point1, point2):
+        min_point = point1
+        max_point = point2
+        if max_point.y < min_point.y:
+            return (max_point, min_point)
 
-    @staticmethod
-    def calculate_distance_pir_2(intersection_point, pir):
-        return pir.y - intersection_point.y
+        return (min_point, max_point)
 
     def run(self):
         best_orientation = 0
@@ -270,13 +274,20 @@ class BottomLeftFill(object):
             if self.overlap_was_resolved(test_line, static_arc, y_move):
                 return y_move
         else:
-            min_end = line.begin
-            max_end = line.end
-            if max_end.y < min_end.y:
-                min_end, max_end = max_end, min_end
+            min_end, max_end = BottomLeftFill.point_min_max_y(line.begin,
+                line.end)
+            y_move = self.resolve_line_arc_especial_cases(line, static_arc,
+                min_end)
+            if y_move >= 0:
+                return y_move
+            y_move = self.resolve_line_arc_especial_cases(line, static_arc,
+                max_end)
+            if y_move >= 0:
+                return y_move
 
-        tangent_points = BottomLeftFill.calculate_tangent_points(line,
-            static_arc)
+        perpendicular_line = line.calculate_perpendicular_line(
+            static_arc.centre_point)
+        tangent_points = perpendicular_line.intersect_arc(static_arc, True)
         intersection_points = []
         for tangent in tangent_points:
             result = BottomLeftFill.calculate_intersection_point(line, tangent)
@@ -300,6 +311,21 @@ class BottomLeftFill(object):
 
         return y_move
 
+    def resolve_line_arc_especial_cases(self, line, static_arc, point):
+        intersection_points = BottomLeftFill.calculate_intersection_points(
+            static_arc, point)
+        if intersection_points:
+            first, second = intersection_points
+            intersection_points = BottomLeftFill.point_min_max_y(first, second)
+            for intersection in intersection_points:
+                if intersection.y >= point.y:
+                    test_line = copy.deepcopy(line)
+                    y_move = intersection.y - point.y
+                    if self.overlap_was_resolved(test_line, static_arc, y_move):
+                        return y_move
+
+        return -1
+
     def resolve_arc_line(self, arc, static_line):
         return -1
 
@@ -317,4 +343,3 @@ class BottomLeftFill(object):
         primitive.move(y=move)
         return not BottomLeftFill.intersect_primitives(primitive,
             static_primitive)
-
