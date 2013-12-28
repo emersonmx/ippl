@@ -217,7 +217,7 @@ class BottomLeftFill(object):
             shape.move(y=data)
         elif isinstance(data, tuple):
             primitive, static_primitive = data
-            y_move = -1
+            y_move = -1 # Dont move
 
             if isinstance(primitive, Line):
                 if isinstance(static_primitive, Line):
@@ -268,21 +268,19 @@ class BottomLeftFill(object):
 
     def resolve_line_arc(self, line, static_arc):
         static_arc.calculate_ends()
+
+        min_end, max_end = BottomLeftFill.point_min_max_y(line.begin, line.end)
+        y_move = self.resolve_line_arc_especial_cases(line, static_arc, min_end)
+        if y_move >= 0:
+            return y_move
+        y_move = self.resolve_line_arc_especial_cases(line, static_arc, max_end)
+        if y_move >= 0:
+            return y_move
+
         y_move = self.resolve_line_line(line, static_arc.line)
         if y_move >= 0:
             test_line = copy.deepcopy(line)
             if self.overlap_was_resolved(test_line, static_arc, y_move):
-                return y_move
-        else:
-            min_end, max_end = BottomLeftFill.point_min_max_y(line.begin,
-                line.end)
-            y_move = self.resolve_line_arc_especial_cases(line, static_arc,
-                min_end)
-            if y_move >= 0:
-                return y_move
-            y_move = self.resolve_line_arc_especial_cases(line, static_arc,
-                max_end)
-            if y_move >= 0:
                 return y_move
 
         perpendicular_line = line.calculate_perpendicular_line(
@@ -309,13 +307,20 @@ class BottomLeftFill(object):
                 if self.overlap_was_resolved(test_line, static_arc, y_move):
                     return y_move
 
-        return y_move
+        print ("Line-Arc warning: The method to solve the overlap was not "
+               "implemented, returning 0")
+        return 0
 
     def resolve_line_arc_especial_cases(self, line, static_arc, point):
         intersection_points = BottomLeftFill.calculate_intersection_points(
             static_arc, point)
         if intersection_points:
-            first, second = intersection_points
+            first, second = None, None
+            if len(intersection_points) == 2:
+                first, second = intersection_points
+            else:
+                intersection_point = intersection_points[0]
+                first = second = intersection_point
             intersection_points = BottomLeftFill.point_min_max_y(first, second)
             for intersection in intersection_points:
                 if intersection.y >= point.y:
