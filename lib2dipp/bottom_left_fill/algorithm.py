@@ -332,6 +332,69 @@ class BottomLeftFill(object):
         return -1
 
     def resolve_arc_line(self, arc, static_line):
+        arc.calculate_ends()
+
+        min_end, max_end = BottomLeftFill.point_min_max_y(static_line.begin,
+            static_line.end)
+        y_move = self.resolve_arc_line_especial_cases(arc, static_line, min_end)
+        if y_move >= 0:
+            return y_move
+        y_move = self.resolve_arc_line_especial_cases(arc, static_line, max_end)
+        if y_move >= 0:
+            return y_move
+
+        y_move = self.resolve_line_line(arc.line, static_line)
+        if y_move >= 0:
+            test_arc = copy.deepcopy(arc)
+            if self.overlap_was_resolved(test_arc, static_line, y_move):
+                return y_move
+
+        perpendicular_line = static_line.calculate_perpendicular_line(
+            arc.centre_point)
+        tangent_points = perpendicular_line.intersect_arc(arc, True)
+        intersection_points = []
+        for tangent in tangent_points:
+            result = BottomLeftFill.calculate_intersection_point(static_line,
+                tangent)
+            if result:
+                intersection_points.append(result)
+
+        distances = []
+        for i in xrange(len(intersection_points)):
+            tangent = tangent_points[i]
+            intersection = intersection_points[i]
+            distance = BottomLeftFill.calculate_distance_pir_1(intersection,
+                tangent)
+            distances.append(distance)
+
+        if distances:
+            y_move = max(distances)
+            if y_move >= 0:
+                test_arc = copy.deepcopy(arc)
+                if self.overlap_was_resolved(test_arc, static_line, y_move):
+                    return y_move
+
+        print ("Arc-Line warning: The method to solve the overlap was not "
+               "implemented, returning 0")
+        return 0
+
+    def resolve_arc_line_especial_cases(self, arc, static_line, point):
+        intersection_points = BottomLeftFill.calculate_intersection_points(arc,
+            point)
+        if intersection_points:
+            first, second = None, None
+            if len(intersection_points) == 2:
+                first, second = intersection_points
+            else:
+                first = second = intersection_points[0]
+            intersection_points = BottomLeftFill.point_min_max_y(first, second)
+            for intersection in intersection_points:
+                if intersection.y <= point.y:
+                    test_arc = copy.deepcopy(arc)
+                    y_move = point.y - intersection.y
+                    if self.overlap_was_resolved(test_arc, static_line, y_move):
+                        return y_move
+
         return -1
 
     def resolve_arc_arc(self, arc, static_arc):
