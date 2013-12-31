@@ -269,13 +269,11 @@ class BottomLeftFill(object):
     def resolve_line_arc(self, line, static_arc):
         static_arc.calculate_ends()
 
-        min_end, max_end = BottomLeftFill.point_min_max_y(line.begin, line.end)
-        y_move = self.resolve_line_arc_especial_cases(line, static_arc, min_end)
-        if y_move >= 0:
-            return y_move
-        y_move = self.resolve_line_arc_especial_cases(line, static_arc, max_end)
-        if y_move >= 0:
-            return y_move
+        ends = BottomLeftFill.point_min_max_y(line.begin, line.end)
+        for end in ends:
+            y_move = self.resolve_line_arc_especial_cases(line, static_arc, end)
+            if y_move >= 0:
+                return y_move
 
         y_move = self.resolve_line_line(line, static_arc.line)
         if y_move >= 0:
@@ -334,14 +332,12 @@ class BottomLeftFill(object):
     def resolve_arc_line(self, arc, static_line):
         arc.calculate_ends()
 
-        min_end, max_end = BottomLeftFill.point_min_max_y(static_line.begin,
+        ends = BottomLeftFill.point_min_max_y(static_line.begin,
             static_line.end)
-        y_move = self.resolve_arc_line_especial_cases(arc, static_line, min_end)
-        if y_move >= 0:
-            return y_move
-        y_move = self.resolve_arc_line_especial_cases(arc, static_line, max_end)
-        if y_move >= 0:
-            return y_move
+        for end in ends:
+            y_move = self.resolve_arc_line_especial_cases(arc, static_line, end)
+            if y_move >= 0:
+                return y_move
 
         y_move = self.resolve_line_line(arc.line, static_line)
         if y_move >= 0:
