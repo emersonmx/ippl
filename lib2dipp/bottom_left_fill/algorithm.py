@@ -270,6 +270,10 @@ class BottomLeftFill(object):
         static_arc.calculate_ends()
 
         ends = BottomLeftFill.point_min_max_y(line.begin, line.end)
+        points = line.intersect_arc(static_arc)
+        if len(points) == 1:
+            points = points[0], points[0]
+        ends += BottomLeftFill.point_min_max_y(points[0], points[1])
         for end in ends:
             y_move = self.resolve_line_arc_especial_cases(line, static_arc, end)
             if y_move >= 0:
@@ -332,11 +336,12 @@ class BottomLeftFill(object):
     def resolve_arc_line(self, arc, static_line):
         arc.calculate_ends()
 
+        ends = BottomLeftFill.point_min_max_y(static_line.begin,
+            static_line.end)
         points = arc.intersect_line(static_line)
-        if len(points) != 2:
-            points = static_line.begin, static_line.end
-
-        ends = BottomLeftFill.point_min_max_y(points[0], points[1])
+        if len(points) == 1:
+            points = points[0], points[0]
+        ends += BottomLeftFill.point_min_max_y(points[0], points[1])
         for end in ends:
             y_move = self.resolve_arc_line_especial_cases(arc, static_line, end)
             if y_move >= 0:
