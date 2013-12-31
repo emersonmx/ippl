@@ -332,8 +332,13 @@ class BottomLeftFill(object):
     def resolve_arc_line(self, arc, static_line):
         arc.calculate_ends()
 
-        ends = BottomLeftFill.point_min_max_y(static_line.begin,
-            static_line.end)
+        intersection_points = arc.intersect_line(static_line)
+        if len(intersection_points) != 2:
+            intersection_points = BottomLeftFill.point_min_max_y(
+                static_line.begin, static_line.end)
+
+        ends = BottomLeftFill.point_min_max_y(intersection_points[0],
+            intersection_points[1])
         for end in ends:
             y_move = self.resolve_arc_line_especial_cases(arc, static_line, end)
             if y_move >= 0:
