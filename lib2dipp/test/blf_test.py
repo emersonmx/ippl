@@ -68,8 +68,8 @@ if __name__ == "__main__":
     y_move = blf.resolve_arc_line(b, a)
     print "b - a, Y translate:", y_move
 
-    a = Arc(Point(6, 0), 5, 5.0*util.pi/3.0, 4.0*util.pi/3.0)
-    b = Arc(Point(6, 6), 6, 3.0*util.pi/2.0, 3.0*util.pi/2.0)
+    a = Arc(Point(8, 0), 5, 0, 0)
+    b = Arc(Point(6, 6), 6, 0, 0)
     print "Arc-Arc"
     y_move = blf.resolve_arc_arc(a, b)
     print "a - b, Y translate:", y_move
