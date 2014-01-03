@@ -402,6 +402,50 @@ class BottomLeftFill(object):
         return -1
 
     def resolve_arc_arc(self, arc, static_arc):
+        arc.calculate_ends()
+        static_arc.calculate_ends()
+
+        result = self.resolve_arc_arc_pirs(arc, static_arc)
+        if result >= 0:
+            return result
+
+        return 0
+
+    def resolve_arc_arc_pirs(self, arc, static_arc):
+        result = []
+        primitives = [arc, static_arc]
+        functions = [
+            BottomLeftFill.calculate_distance_pir_1,
+            BottomLeftFill.calculate_distance_pir_2
+        ]
+
+        size = len(primitives)
+        for i in xrange(size):
+            first = primitives[i]
+            second = primitives [(i + 1) % size]
+            calculate_pir = functions[i]
+            pirs = [first.line.begin, first.line.end]
+
+            for pir in pirs:
+                intersection_points = (
+                    BottomLeftFill.calculate_intersection_points(second, pir))
+                if intersection_points:
+                    if len(intersection_points) == 1:
+                        intersection_points = [intersection_points[0],
+                            intersection_points[0]]
+                    intersection_points = BottomLeftFill.point_min_max_y(
+                        intersection_points[0], intersection_points[1])
+                    for intersection_point in intersection_points:
+                        y_move = calculate_pir(intersection_point, pir)
+                        if y_move >= 0:
+                            test_arc = copy.deepcopy(first)
+                            if self.overlap_was_resolved(test_arc, second,
+                                    y_move):
+                                result.append(y_move)
+
+        if result:
+            return min(result)
+
         return -1
 
     def check_best_orientation(self, shape, best_shape_orientation):
