@@ -80,15 +80,11 @@ class Shape(Object):
 
         self.aabb_dirty = True
 
-    def bounds(self):
-        if self.aabb_dirty:
-            return self.outer_loop.calculate_bounds()
-
-        return self.outer_loop.bounds()
-
     def rotate(self, angle):
         def to_point(data):
             return Point(data[0], data[1])
+
+        angle = util.round_number(angle)
 
         for primitive in self.primitive_iterator():
             if isinstance(primitive, Line):
@@ -107,6 +103,15 @@ class Shape(Object):
                 arc.centre_point = to_point(
                     util.calculate_point_rotation(arc.centre_point, angle))
                 arc.calculate_angles()
+
+        self.aabb_dirty = True
+
+    def bounds(self):
+        if self.aabb_dirty:
+            self.aabb_dirty = False
+            return self.outer_loop.calculate_bounds()
+
+        return self.outer_loop.bounds()
 
     def outer_loop_iterator(self):
         for primitive in self.outer_loop:

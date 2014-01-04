@@ -68,7 +68,7 @@ class BottomLeftFill(object):
     @staticmethod
     def next_point_in_shape(shape, static_shape):
         result_point = None
-        lowest_point = shape.outer_loop.lowest_point()
+        lowest_point = shape.outer_loop.lowest_point
         vertical_line = Line(lowest_point,
             Point(lowest_point.x, lowest_point.y + 1))
 
@@ -123,14 +123,16 @@ class BottomLeftFill(object):
         return list(pirs)
 
     @staticmethod
-    def calculate_intersection_point(line, point):
+    def calculate_intersection_point(line, point, line_top=True):
         vertical_line = Line.vertical_line()
         vertical_line.position(x=point.x)
         result = vertical_line.intersect_line(line, True)
-        if result:
-            if isinstance(result, Line):
-                aabb = line.bounds()
+        if isinstance(result, Line):
+            aabb = line.bounds()
+            if line_top:
                 result = aabb.right_top
+            else:
+                result = aabb.left_bottom
 
         return result
 
@@ -169,7 +171,7 @@ class BottomLeftFill(object):
     def pythagorean_theorem(b, c):
         c2b2 = (c * c) - (b * b)
         if c2b2 >= 0:
-            return math.sqrt(c2b2)
+            return util.round_number(math.sqrt(c2b2))
 
         return -1
 
@@ -303,19 +305,22 @@ class BottomLeftFill(object):
         perpendicular_line = line.calculate_perpendicular_line(
             static_arc.centre_point)
         tangent_points = perpendicular_line.intersect_arc(static_arc, True)
+        if len(tangent_points) == 1:
+            tangent_points = [tangent_points[0], tangent_points[0]]
         intersection_points = []
         for tangent in tangent_points:
-            result = BottomLeftFill.calculate_intersection_point(line, tangent)
-            if result:
-                intersection_points.append(result)
+            result = BottomLeftFill.calculate_intersection_point(line, tangent,
+                False)
+            intersection_points.append(result)
 
         distances = []
         for i in xrange(len(intersection_points)):
             tangent = tangent_points[i]
             intersection = intersection_points[i]
-            distance = BottomLeftFill.calculate_distance_pir_2(intersection,
-                tangent)
-            distances.append(distance)
+            if tangent and intersection:
+                distance = BottomLeftFill.calculate_distance_pir_2(intersection,
+                    tangent)
+                distances.append(distance)
 
         if distances:
             y_move = max(distances)
@@ -371,20 +376,22 @@ class BottomLeftFill(object):
         perpendicular_line = static_line.calculate_perpendicular_line(
             arc.centre_point)
         tangent_points = perpendicular_line.intersect_arc(arc, True)
+        if len(tangent_points) == 1:
+            tangent_points = [tangent_points[0], tangent_points[0]]
         intersection_points = []
         for tangent in tangent_points:
             result = BottomLeftFill.calculate_intersection_point(static_line,
                 tangent)
-            if result:
-                intersection_points.append(result)
+            intersection_points.append(result)
 
         distances = []
         for i in xrange(len(intersection_points)):
             tangent = tangent_points[i]
             intersection = intersection_points[i]
-            distance = BottomLeftFill.calculate_distance_pir_1(intersection,
-                tangent)
-            distances.append(distance)
+            if tangent and intersection:
+                distance = BottomLeftFill.calculate_distance_pir_1(intersection,
+                    tangent)
+                distances.append(distance)
 
         if distances:
             y_move = max(distances)
@@ -421,15 +428,23 @@ class BottomLeftFill(object):
         static_arc.calculate_ends()
 
         result = self.resolve_arc_arc_pirs(arc, static_arc)
+        pirs = result
         if result >= 0:
             return result
 
         result = self.resolve_arc_arc_pythagorean(arc, static_arc)
+        pit = result
         if result >= 0:
             return result
 
         print ("Arc-Arc warning: The method to solve the overlap was not "
                "implemented, returning 0")
+        print arc
+        print static_arc
+        import pdb
+        pdb.set_trace()
+        self.resolve_arc_arc_pirs(arc, static_arc)
+        self.resolve_arc_arc_pythagorean(arc, static_arc)
         return 0
 
     def resolve_arc_arc_pirs(self, arc, static_arc):
@@ -471,10 +486,12 @@ class BottomLeftFill(object):
 
     def resolve_arc_arc_pythagorean(self, arc, static_arc):
         result = []
-        dx = abs(arc.centre_point.x - static_arc.centre_point.x)
-        dy = abs(arc.centre_point.y - static_arc.centre_point.y)
+        dx = util.round_number(abs(arc.centre_point.x -
+            static_arc.centre_point.x))
+        dy = util.round_number(abs(arc.centre_point.y -
+            static_arc.centre_point.y))
 
-        h_ = arc.radius + static_arc.radius
+        h_ = util.round_number(arc.radius + static_arc.radius)
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
         if dy_ >= 0:
             y_move = dy_ - dy
@@ -483,7 +500,7 @@ class BottomLeftFill(object):
                 if self.overlap_was_resolved(test_arc, static_arc, y_move):
                     result.append(y_move)
 
-        h_ = static_arc.radius - arc.radius
+        h_ = util.round_number(static_arc.radius - arc.radius)
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
         if dy_ >= 0:
             y_move = dy - dy_
@@ -492,7 +509,7 @@ class BottomLeftFill(object):
                 if self.overlap_was_resolved(test_arc, static_arc, y_move):
                     result.append(y_move)
 
-        h_ = (2 * static_arc.radius) + arc.radius
+        h_ = util.round_number((2 * static_arc.radius) + arc.radius)
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
         if dy_ >= 0:
             y_move = dy_

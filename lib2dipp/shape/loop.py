@@ -18,6 +18,7 @@
 #
 
 from lib2dipp.shape.base import Primitive
+from lib2dipp.shape.point import Point
 from lib2dipp.shape.rectangle import Rectangle
 from lib2dipp.shape.line import Line
 from lib2dipp.shape.arc import Arc
@@ -29,8 +30,42 @@ class Loop(list):
         list.__init__(self, *args)
 
         self.aabb = Rectangle()
+        self._lowest_point = Point()
+        self._lowest_point_calculated = False
 
         self.bounds()
+
+    @property
+    def lowest_point(self):
+        if not self._lowest_point_calculated:
+            local_origin = self.bounds().left_bottom
+
+            iterator = iter(self)
+            primitive = iterator.next()
+            if isinstance(primitive, Line):
+                self._lowest_point = primitive.begin
+            elif isinstance(primitive, Arc):
+                self._lowest_point = primitive.line.begin
+
+            for primitive in iterator:
+                line = primitive
+                if isinstance(primitive, Arc):
+                    primitive.calculate_ends()
+                    line = primitive.line
+
+                if (line.begin.distance(local_origin) <
+                        self._lowest_point.distance(local_origin)):
+                    self._lowest_point = line.begin
+
+                if isinstance(primitive, Arc):
+                    if (line.end.distance(local_origin) <
+                            self._lowest_point.distance(local_origin)):
+                        self._lowest_point = line.end
+
+            self._lowest_point_calculated = True
+            return self._lowest_point
+
+        return self._lowest_point
 
     def bounds(self):
         return self.aabb
@@ -78,7 +113,7 @@ class Loop(list):
         try:
             self.aabb = iterator.next().bounds()
         except:
-            return self.aabb
+            return self.bounds()
 
         for primitive in iterator:
             aabb = primitive.bounds()
@@ -91,32 +126,5 @@ class Loop(list):
             if aabb.top > self.aabb.top:
                 self.aabb.top = aabb.top
 
-        return self.aabb
+        return self.bounds()
 
-    def lowest_point(self):
-        local_origin = self.bounds().left_bottom
-        point = None
-
-        iterator = iter(self)
-        primitive = iterator.next()
-        if isinstance(primitive, Line):
-            point = primitive.begin
-        elif isinstance(primitive, Arc):
-            point = primitive.line.begin
-
-        for primitive in iterator:
-            line = primitive
-            if isinstance(primitive, Arc):
-                primitive.calculate_ends()
-                line = primitive.line
-
-            if (line.begin.distance(local_origin) <
-                    point.distance(local_origin)):
-                point = line.begin
-
-            if isinstance(primitive, Arc):
-                if (line.end.distance(local_origin) <
-                        point.distance(local_origin)):
-                    point = line.end
-
-        return point

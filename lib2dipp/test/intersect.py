@@ -56,6 +56,13 @@ if __name__ == "__main__":
     l.move(x=230)
     shape.outer_loop.append(l)
 
+    l = Line(Point(0, 0), Point(0, 75))
+    l.move(x=335)
+    shape.outer_loop.append(l)
+    l = Line(Point(0, 25), Point(0, 100))
+    l.move(x=335)
+    shape.outer_loop.append(l)
+
     l = Line(Point(0, 0), Point(50, 0))
     l.move(x=340)
     shape.outer_loop.append(l)
@@ -247,6 +254,7 @@ if __name__ == "__main__":
         r = Render()
         r.draw_intersect = True
         r.image_size = size
+        r.initiliaze()
         r.shape(s)
 
         for a in s.outer_loop:

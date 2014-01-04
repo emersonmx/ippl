@@ -38,8 +38,8 @@ class Point(Object):
         super(Point, self).__init__()
 
         x, y = self._parse_args(*args, **kwargs)
-        self._x = x
-        self._y = y
+        self._x = util.round_number(x)
+        self._y = util.round_number(y)
 
     def _parse_args(self, *args, **kwargs):
         values = [0.0, 0.0]
@@ -58,7 +58,7 @@ class Point(Object):
 
     @x.setter
     def x(self, value):
-        self._x = float(value)
+        self._x = util.round_number(float(value))
 
     @property
     def y(self):
@@ -66,7 +66,7 @@ class Point(Object):
 
     @y.setter
     def y(self, value):
-        self._y = float(value)
+        self._y = util.round_number(float(value))
 
     def position(self, *args, **kwargs):
         x, y = self._parse_args(*args, **kwargs)

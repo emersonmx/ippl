@@ -62,7 +62,8 @@ class Arc(Primitive):
                     values[i] = float(args[i])
         elif kwargs:
             values[0] = kwargs.get("centre_point", values[0])
-            values[1] = float(kwargs.get("radius", values[1]))
+            values[1] = util.round_number(float(kwargs.get("radius",
+                values[1])))
             values[2] = util.wrap_2pi(
                 float(kwargs.get("start_angle", values[2])))
             values[3] = util.wrap_2pi(
@@ -76,7 +77,7 @@ class Arc(Primitive):
 
     @radius.setter
     def radius(self, value):
-        self._radius = float(value)
+        self._radius = util.round_number(float(value))
 
     @property
     def start_angle(self):
