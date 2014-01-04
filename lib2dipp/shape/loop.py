@@ -28,29 +28,26 @@ class Loop(list):
     def __init__(self, *args):
         list.__init__(self, *args)
 
-        self.bounds()
+        self.aabb = Rectangle()
+
+    def append(self, o):
+        aabb = o.bounds()
+        if len(self) == 0:
+            self.aabb = aabb
+
+        list.append(self, o)
+
+        if aabb.left < self.aabb.left:
+            self.aabb.left = aabb.left
+        if aabb.right > self.aabb.right:
+            self.aabb.right = aabb.right
+        if aabb.bottom < self.aabb.bottom:
+            self.aabb.bottom = aabb.bottom
+        if aabb.top > self.aabb.top:
+            self.aabb.top = aabb.top
 
     def bounds(self):
-        self._last_loop_size = len(self)
-
-        iterator = iter(self)
-        aabb = None
-        try:
-            aabb = iterator.next().bounds()
-        except: pass
-
-        for primitive in iterator:
-            bounding_box = primitive.bounds()
-            if bounding_box.left < aabb.left:
-                aabb.left = bounding_box.left
-            if bounding_box.bottom < aabb.bottom:
-                aabb.bottom = bounding_box.bottom
-            if bounding_box.right > aabb.right:
-                aabb.right = bounding_box.right
-            if bounding_box.top > aabb.top:
-                aabb.top = bounding_box.top
-
-        return aabb
+        return self.aabb
 
     def contained(self, loop):
         """Checks whether this loop is inside of loop.
@@ -89,6 +86,24 @@ class Loop(list):
         """
 
         return loop.contained(self)
+
+    def calculate_bounds(self):
+        iterator = iter(self)
+        primitive = iterator.next()
+        self.aabb = primitive.bounds()
+
+        for primitive in iterator:
+            aabb = primitive.bounds()
+            if aabb.left < self.aabb.left:
+                self.aabb.left = aabb.left
+            if aabb.right > self.aabb.right:
+                self.aabb.right = aabb.right
+            if aabb.bottom < self.aabb.bottom:
+                self.aabb.bottom = aabb.bottom
+            if aabb.top > self.aabb.top:
+                self.aabb.top = aabb.top
+
+        return self.bounds()
 
     def lowest_point(self):
         local_origin = self.bounds().left_bottom

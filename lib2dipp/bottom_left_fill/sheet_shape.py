@@ -34,7 +34,23 @@ class RectangularSheetShape(SheetShape):
     def __init__(self, *args):
         list.__init__(self, *args)
 
-        self.rectangle = Rectangle()
+        self.aabb = Rectangle()
+
+    def append(self, o):
+        list.append(self, o)
+        aabb = o.bounds()
+
+        if len(self) == 0:
+            self.aabb = aabb
+
+        if aabb.left < self.aabb.left:
+            self.aabb.left = aabb.left
+        if aabb.right > self.aabb.right:
+            self.aabb.right = aabb.right
+        if aabb.bottom < self.aabb.bottom:
+            self.aabb.bottom = aabb.bottom
+        if aabb.top > self.aabb.top:
+            self.aabb.top = aabb.top
 
     def out(self, shape):
         aabb = shape.bounds()
@@ -46,19 +62,22 @@ class RectangularSheetShape(SheetShape):
         return not (first and second and third)
 
     def bounds(self):
-        iterator = iter(self.shapes)
-        aabb = iterator.next().bounds()
+        return self.aabb
 
-        for shape in iterator:
-            shape_aabb = shape.bounds()
+    def calculate_bounds(self):
+        iterator = iter(self)
+        primitive = iterator.next()
+        self.aabb = primitive.bounds()
 
-            if shape_aabb.left < aabb.left:
-                aabb.left = shape_aabb.left
-            if shape_aabb.bounds < aabb.bottom:
-                aabb.bottom = shape_aabb.bottom
-            if shape_aabb.right > aabb.right:
-                aabb.right = shape_aabb.right
-            if shape_aabb.top > aabb.top:
-                aabb.top = shape_aabb.top
+        for primitive in iterator:
+            aabb = primitive.bounds()
+            if aabb.left < self.aabb.left:
+                self.aabb.left = aabb.left
+            if aabb.right > self.aabb.right:
+                self.aabb.right = aabb.right
+            if aabb.bottom < self.aabb.bottom:
+                self.aabb.bottom = aabb.bottom
+            if aabb.top > self.aabb.top:
+                self.aabb.top = aabb.top
 
-        return aabb
+        return self.bounds()
