@@ -45,6 +45,8 @@ class Shape(Object):
         self.outer_loop = values[0]
         self.inner_loops = values[1]
 
+        self.aabb_dirty = True
+
     def _parse_args(self, *args, **kwargs):
         values = [Loop(), Loop()]
         if args:
@@ -61,6 +63,7 @@ class Shape(Object):
         aabb = self.bounds()
         x, y = (point.x - aabb.left, point.y - aabb.bottom)
         self.move(x, y)
+        self.aabb_dirty = True
 
     def move(self, *args, **kwargs):
         values = [0.0, 0.0]
@@ -75,7 +78,12 @@ class Shape(Object):
         for primitive in self.primitive_iterator():
             primitive.move(x, y)
 
+        self.aabb_dirty = True
+
     def bounds(self):
+        if self.aabb_dirty:
+            return self.outer_loop.calculate_bounds()
+
         return self.outer_loop.bounds()
 
     def rotate(self, angle):
