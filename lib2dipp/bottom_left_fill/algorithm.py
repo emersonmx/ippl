@@ -171,7 +171,7 @@ class BottomLeftFill(object):
     def pythagorean_theorem(b, c):
         c2b2 = (c * c) - (b * b)
         if c2b2 >= 0:
-            return util.round_number(math.sqrt(c2b2))
+            return math.sqrt(c2b2)
 
         return -1
 
@@ -486,12 +486,10 @@ class BottomLeftFill(object):
 
     def resolve_arc_arc_pythagorean(self, arc, static_arc):
         result = []
-        dx = util.round_number(abs(arc.centre_point.x -
-            static_arc.centre_point.x))
-        dy = util.round_number(abs(arc.centre_point.y -
-            static_arc.centre_point.y))
+        dx = abs(arc.centre_point.x - static_arc.centre_point.x)
+        dy = abs(arc.centre_point.y - static_arc.centre_point.y)
 
-        h_ = util.round_number(arc.radius + static_arc.radius)
+        h_ = arc.radius + static_arc.radius
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
         if dy_ >= 0:
             y_move = dy_ - dy
@@ -500,7 +498,7 @@ class BottomLeftFill(object):
                 if self.overlap_was_resolved(test_arc, static_arc, y_move):
                     result.append(y_move)
 
-        h_ = util.round_number(static_arc.radius - arc.radius)
+        h_ = static_arc.radius - arc.radius
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
         if dy_ >= 0:
             y_move = dy - dy_
@@ -509,7 +507,7 @@ class BottomLeftFill(object):
                 if self.overlap_was_resolved(test_arc, static_arc, y_move):
                     result.append(y_move)
 
-        h_ = util.round_number((2 * static_arc.radius) + arc.radius)
+        h_ = (2 * static_arc.radius) + arc.radius
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
         if dy_ >= 0:
             y_move = dy_

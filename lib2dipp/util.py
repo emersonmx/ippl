@@ -36,20 +36,16 @@ def approx_equal(a, b, epsilon=1e-16):
         otherwise.
     """
 
-    a = round_number(a)
-    b = round_number(b)
     return abs(a - b) <= epsilon
 
 def wrap_2pi(angle):
     """Limits the angle to the range [0, 2pi)."""
 
-    angle = round_number(angle)
     return angle % (pi * 2)
 
 def wrap_360(angle):
     """Limits the angle to the range [0, 360)."""
 
-    angle = round_number(angle)
     return angle % 360
 
 def angle_in_range(angle, start, end):
@@ -63,9 +59,6 @@ def angle_in_range(angle, start, end):
         True if the angle is within the range, or False otherwise.
     """
 
-    angle = round_number(angle)
-    start = round_number(start)
-    end = round_number(end)
     if wrap_2pi(start) >= wrap_2pi(end):
         if (start <= angle <= (pi * 2)) or (0.0 <= angle <= end):
             return True
@@ -79,5 +72,4 @@ def calculate_point_rotation(point, angle):
         return (x * math.cos(angle) - y * math.sin(angle),
                 x * math.sin(angle) + y * math.cos(angle))
 
-    angle = round_number(angle)
     return rotate_vetor(point.x, point.y, angle)

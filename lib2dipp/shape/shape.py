@@ -84,8 +84,6 @@ class Shape(Object):
         def to_point(data):
             return Point(data[0], data[1])
 
-        angle = util.round_number(angle)
-
         for primitive in self.primitive_iterator():
             if isinstance(primitive, Line):
                 line = primitive
