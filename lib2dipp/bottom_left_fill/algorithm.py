@@ -31,7 +31,7 @@ class BottomLeftFill(object):
 
         self.shapes = []
         self.sheetshape = RectangularSheetShape()
-        self.resolution = Point(1, 1)
+        self.resolution = Point(10, 1)
 
     @staticmethod
     def next_primitive(shape, static_shape):
@@ -186,6 +186,9 @@ class BottomLeftFill(object):
                 shape = orientations[j]
                 shape.position(0, 0)
 
+                if self.sheetshape.out(shape):
+                    continue
+
                 while True:
                     result = self.overlap(shape)
                     if not result:
@@ -193,8 +196,8 @@ class BottomLeftFill(object):
 
                     self.resolve_overlapping(shape, result)
                     if self.sheetshape.out(shape):
-                        shape.move(x=self.resolution.x)
-                        shape.position(y=0)
+                        aabb = shape.bounds()
+                        shape.move(x=self.resolution.x, y=-aabb.bottom)
 
                 best_shape_orientation = orientations[best_orientation]
                 if self.check_best_orientation(shape, best_shape_orientation):
@@ -272,7 +275,11 @@ class BottomLeftFill(object):
             distance = calculate_pir(intersection, pir)
             distances.append(distance)
 
-        return max(distances)
+        result = max(distances)
+        if result >= 0:
+            return result
+
+        return 0
 
     def resolve_line_arc(self, line, static_arc):
         static_arc.calculate_ends()
@@ -421,6 +428,8 @@ class BottomLeftFill(object):
         if result >= 0:
             return result
 
+        print ("Arc-Arc warning: The method to solve the overlap was not "
+               "implemented, returning 0")
         return 0
 
     def resolve_arc_arc_pirs(self, arc, static_arc):

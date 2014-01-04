@@ -128,13 +128,12 @@ class Render(object):
             elif isinstance(result, Arc):
                 self._arc(result, self.intersect_color, 3)
 
-    def shape(self, shape):
-        bounding_box = shape.bounds()
-
+    def initiliaze(self):
         self._image = Image.new(self.image_mode, self.image_size,
                                 self.image_background_color)
         self._image_drawer = ImageDraw.ImageDraw(self._image)
 
+    def shape(self, shape):
         for primitive in shape.outer_loop:
             if isinstance(primitive, Line):
                 self._line(primitive, self.shape_external_color)
@@ -149,6 +148,10 @@ class Render(object):
                     self._line(primitive, self.shape_internal_color)
                 elif isinstance(primitive, Arc):
                     self._arc(primitive, self.shape_internal_color)
+
+    def shapes(self, shapes):
+        for shape in shapes:
+            self.shape(shape)
 
     def save(self, file_name):
         flipped_image = self._image.transpose(Image.FLIP_TOP_BOTTOM)

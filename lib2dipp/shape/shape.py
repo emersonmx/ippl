@@ -100,8 +100,6 @@ class Shape(Object):
                     util.calculate_point_rotation(arc.centre_point, angle))
                 arc.calculate_angles()
 
-        self.outer_loop.calculate_bounds()
-
     def outer_loop_iterator(self):
         for primitive in self.outer_loop:
             yield primitive
