@@ -439,12 +439,6 @@ class BottomLeftFill(object):
 
         print ("Arc-Arc warning: The method to solve the overlap was not "
                "implemented, returning 0")
-        print arc
-        print static_arc
-        import pdb
-        pdb.set_trace()
-        self.resolve_arc_arc_pirs(arc, static_arc)
-        self.resolve_arc_arc_pythagorean(arc, static_arc)
         return 0
 
     def resolve_arc_arc_pirs(self, arc, static_arc):
