@@ -1,6 +1,6 @@
-Profiles1: (4000,2000), Shapes: 8, Rotations: 90 incremental
+Profiles1: (4000,1000), Shapes: 8, Rotations: 90 incremental
 
-    Shape 2 (Loops: 1, Quantity: 4)
+    Shape 1 (Loops: 1, Quantity: 6)
         Loop 1 (external): 6 Primitives
             Line: (128.702362, 153.247681),(128.702362, 423.247681)
             Line: (128.702362, 423.247681),(202.820251, 423.247681)
@@ -11,7 +11,7 @@ Profiles1: (4000,2000), Shapes: 8, Rotations: 90 incremental
             Line: (528.702393, 423.247681),(528.702393, 153.247681)
             Line: (528.702393, 153.247681),(128.702362, 153.247681)
 
-    Shape 3 (Loops: 1, Quantity: 4)
+    Shape 2 (Loops: 1, Quantity: 10)
         Loop 1 (external): 8 Primitives
             Line: (158.517273, 238.100677),(158.517273, 338.100677)
             Line: (158.517273, 338.100677),(278.517273, 338.100677)

@@ -74,8 +74,14 @@ def calculate_point_rotation(point, angle):
 
     return rotate_vetor(point.x, point.y, angle)
 
-def min_max(a, b):
-    if b < a:
-        return b, a
+def min_max(iterable):
+    iterator = iter(iterable)
+    min_value = max_value = iterator.next()
 
-    return a, b
+    for value in iterator:
+        if value < min_value:
+            min_value = value
+        if value > max_value:
+            max_value = value
+
+    return min_value, max_value

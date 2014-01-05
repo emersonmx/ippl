@@ -63,7 +63,6 @@ class Loop(list):
                         self._lowest_point = line.end
 
             self._lowest_point_calculated = True
-            return self._lowest_point
 
         return self._lowest_point
 
