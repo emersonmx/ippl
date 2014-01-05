@@ -25,7 +25,7 @@ from lib2dipp.reader import *
 if __name__ == "__main__":
     print "Loading data..."
     reader = BLFReader()
-    blf_data = reader.load("data/blf/profile1_test")
+    blf_data = reader.load("data/blf/profile1")
 
     print "Initializing BLF..."
     blf = BottomLeftFill()

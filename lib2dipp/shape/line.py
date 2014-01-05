@@ -370,6 +370,10 @@ class Line(Primitive):
     def point_in_ends(self, point):
         return ((point == self.begin) or (point == self.end))
 
+    def round(self):
+        self.begin.round()
+        self.end.round()
+
     def __eq__(self, line):
         if isinstance(line, Line):
             return ((self.begin == line.begin) and (self.end == line.end))

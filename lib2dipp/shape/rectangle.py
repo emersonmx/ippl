@@ -157,6 +157,10 @@ class Rectangle(Object):
 
         return not first and not second and not third and not fourth
 
+    def round(self):
+        self.left_bottom.round()
+        self.right_top.round()
+
     def __eq__(self, rectangle):
         return (approx_equal(self.left, rectangle.left) and
                 approx_equal(self.bottom, rectangle.bottom) and
@@ -164,8 +168,8 @@ class Rectangle(Object):
                 approx_equal(self.top, rectangle.top))
 
     def __str__(self):
-        return "{} ({}, {}, {}, {})".format(type(self).__name__,
-            self.left, self.bottom, self.right, self.top)
+        return "{} ({:.20f}, {:.20f}, {:.20f}, {:.20f})".format(
+            type(self).__name__, self.left, self.bottom, self.right, self.top)
 
     def __repr__(self):
         return "<{}>".format(self)

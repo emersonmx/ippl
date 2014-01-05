@@ -322,9 +322,9 @@ class BottomLeftFill(object):
             intersection_points = BottomLeftFill.point_min_max_y(
                 intersection_points)
             for intersection in intersection_points:
-                if intersection.y >= end.y:
+                y_move = intersection.y - end.y
+                if y_move >= 0:
                     test_line = copy.deepcopy(line)
-                    y_move = intersection.y - end.y
                     if self.overlap_was_resolved(test_line, static_arc, y_move):
                         return y_move
 
@@ -397,9 +397,11 @@ class BottomLeftFill(object):
             intersection_points = BottomLeftFill.point_min_max_y(
                 intersection_points)
             for intersection in intersection_points:
-                if intersection.y <= end.y:
+                y_move = end.y - intersection.y
+                if approx_equal(y_move, 0.0):
+                    y_move = 1
+                if y_move > 0:
                     test_arc = copy.deepcopy(arc)
-                    y_move = end.y - intersection.y
                     if self.overlap_was_resolved(test_arc, static_line, y_move):
                         return y_move
 
