@@ -277,7 +277,11 @@ class BottomLeftFill(object):
             distance = calculate_pir(intersection, pir)
             distances.append(distance)
 
-        return max(distances)
+        result = max(distances)
+        if result >= 0:
+            return result
+
+        return 0
 
     def resolve_line_arc(self, line, static_arc):
         static_arc.calculate_ends()
@@ -475,17 +479,15 @@ class BottomLeftFill(object):
         result = []
         dx = abs(arc.centre_point.x - static_arc.centre_point.x)
         dy = abs(arc.centre_point.y - static_arc.centre_point.y)
-        r_a = arc.radius + MARGIN
-        r_b = static_arc.radius + MARGIN
+        r_a = arc.radius
+        r_b = static_arc.radius
 
         h_ = r_a + r_b
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
         if dy_ >= 0:
             y_move = dy_ - dy
             if y_move >= 0:
-                test_arc = copy.deepcopy(arc)
-                if self.overlap_was_resolved(test_arc, static_arc, y_move):
-                    result.append(y_move)
+                result.append(y_move)
 
         h_ = r_b - r_a
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
@@ -493,8 +495,7 @@ class BottomLeftFill(object):
             y_move = dy - dy_
             if y_move >= 0:
                 test_arc = copy.deepcopy(arc)
-                if self.overlap_was_resolved(test_arc, static_arc, y_move):
-                    result.append(y_move)
+                result.append(y_move)
 
         h_ = (2 * r_b) + r_a
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
@@ -502,11 +503,21 @@ class BottomLeftFill(object):
             y_move = dy_
             if y_move >= 0:
                 test_arc = copy.deepcopy(arc)
-                if self.overlap_was_resolved(test_arc, static_arc, y_move):
-                    result.append(y_move)
+                result.append(y_move)
 
+        max_y_move = -1
         if result:
-            return min(result)
+            max_y_move = result[0]
+        for y_move in result:
+            if y_move > max_y_move:
+                max_y_move = y_move
+
+            test_arc = copy.deepcopy(arc)
+            if self.overlap_was_resolved(test_arc, static_arc, y_move):
+                return y_move
+
+        if max_y_move >= 0:
+            return max_y_move
 
         return -1
 
