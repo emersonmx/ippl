@@ -73,3 +73,9 @@ def calculate_point_rotation(point, angle):
                 x * math.sin(angle) + y * math.cos(angle))
 
     return rotate_vetor(point.x, point.y, angle)
+
+def min_max(a, b):
+    if b < a:
+        return b, a
+
+    return a, b
