@@ -31,7 +31,7 @@ class BottomLeftFill(object):
 
         self.shapes = []
         self.sheetshape = RectangularSheetShape()
-        self.resolution = Point(1, 1)
+        self.resolution = Point(5, 1)
 
     @staticmethod
     def next_primitive(shape, static_shape):
@@ -160,20 +160,19 @@ class BottomLeftFill(object):
 
     @staticmethod
     def point_min_max_y(iterable):
-        iterator = iter(iterable)
-        min_point = max_point = None
-        try:
-            min_point = max_point = iterator.next()
-        except:
+        a, b = None, None
+        if iterable:
+            if len(iterable) == 1:
+                a, b = iterable[0], iterable[0]
+            else:
+                a, b = iterable[0], iterable[1]
+        else:
             return iterable
 
-        for point in iterator:
-            if point.y < min_point.y:
-                min_point = point
-            if point.y > max_point.y:
-                max_point = point
+        if b.y > a.y:
+            return a, b
 
-        return min_point, max_point
+        return b, a
 
     @staticmethod
     def pythagorean_theorem(b, c):
