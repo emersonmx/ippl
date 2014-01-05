@@ -51,33 +51,6 @@ ext_modules = [
     Extension("lib2dipp/shape/shape", [
         "lib2dipp/shape/shape.py"
     ]),
-    Extension("lib2dipp/test/blf_test", [
-        "lib2dipp/test/blf_test.py"
-    ]),
-    Extension("lib2dipp/test/contained_shape", [
-        "lib2dipp/test/contained_shape.py"
-    ]),
-    Extension("lib2dipp/test/intersect", [
-        "lib2dipp/test/intersect.py"
-    ]),
-    Extension("lib2dipp/test/loop_test", [
-        "lib2dipp/test/loop_test.py"
-    ]),
-    Extension("lib2dipp/test/lowest_point", [
-        "lib2dipp/test/lowest_point.py"
-    ]),
-    Extension("lib2dipp/test/render", [
-        "lib2dipp/test/render.py"
-    ]),
-    Extension("lib2dipp/test/shape_rotation", [
-        "lib2dipp/test/shape_rotation.py"
-    ]),
-    Extension("lib2dipp/test/shape_test", [
-        "lib2dipp/test/shape_test.py"
-    ]),
-    Extension("lib2dipp/test/test_iterator", [
-        "lib2dipp/test/test_iterator.py"
-    ]),
     Extension("lib2dipp/util", [
         "lib2dipp/util.py"
     ])

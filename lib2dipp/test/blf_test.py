@@ -17,28 +17,35 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import copy
+import time
 
 from lib2dipp.bottom_left_fill import *
 from lib2dipp.reader import *
 
 if __name__ == "__main__":
     print "Loading data..."
+    t = time.time()
     reader = BLFReader()
-    blf_data = reader.load("data/blf/profile1")
+    blf_data = reader.load("data/blf/profile8")
+    print "Loading time: {:.20f}".format(time.time() - t)
 
     print "Initializing BLF..."
+    t = time.time()
     blf = BottomLeftFill()
     size = blf_data["profile"]["size"]
     sheetshape_rectangle = Rectangle(0, 0, size[0] + 1, size[1] + 1)
     blf.sheetshape.rectangle = sheetshape_rectangle
     blf.shapes = blf_data["shapes"]
+    print "Initializing BLF time: {:.20f}".format(time.time() - t)
     print len(blf.shapes)
 
     print "Running..."
+    t = time.time()
     blf.run()
+    print "Running BLF time: {:.20f}".format(time.time() - t)
 
     print "Rendering..."
+    t = time.time()
     rectangle = blf.sheetshape.rectangle
     size = rectangle.size()
     render = Render()
@@ -46,5 +53,6 @@ if __name__ == "__main__":
     render.initiliaze()
     render.shapes(blf.sheetshape)
     render.save("blf_test.png")
+    print "Rendering Image time: {:.20f}".format(time.time() - t)
     print "Saved."
 

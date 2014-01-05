@@ -90,7 +90,7 @@ class BLFReader(object):
         line_shape.begin = Point(begin[0], begin[1])
         line_shape.end = Point(end[0], end[1])
 
-        return line_shape
+        return line_shape.rounded()
 
     @staticmethod
     def arc(groups):
@@ -120,7 +120,7 @@ class BLFReader(object):
 
         arc_shape.calculate_angles()
 
-        return arc_shape
+        return arc_shape.rounded()
 
     @staticmethod
     def end():
