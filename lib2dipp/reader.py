@@ -336,6 +336,7 @@ class BLFReader(object):
                             int(aabb.top - aabb.bottom) + 1)
                     r = Render()
                     r.image_size = size
+                    r.initialize()
                     r.shape(shape)
                     r.save("reader{}_{}.png".format(i, j))
 
