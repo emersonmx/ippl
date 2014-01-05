@@ -257,12 +257,13 @@ class Arc(Primitive):
 
         return [Point(x3, y3), Point(x4, y4)]
 
-    def round(self):
-        self.centre_point.round()
-        self.radius = util.round_number(self.radius)
-        self.start_angle = util.round_number(self.start_angle)
-        self.offset_angle = util.round_number(self.offset_angle)
-        self.line.round()
+    def rounded(self):
+        self.centre_point.rounded()
+        radius = util.round_number(self.radius)
+        start_angle = util.round_number(self.start_angle)
+        offset_angle = util.round_number(self.offset_angle)
+        return Arc(self.centre_point.rounded(), radius, start_angle,
+            offset_angle)
 
     def __str__(self):
         return ("{} (\n"

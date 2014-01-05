@@ -134,9 +134,8 @@ class Point(Object):
 
         return util.approx_equal(abs(cross_product), 0.0)
 
-    def round(self):
-        self.x = util.round_number(self.x)
-        self.y = util.round_number(self.y)
+    def rounded(self):
+        return Point(util.round_number(self.x), util.round_number(self.y))
 
     def __getitem__(self, index):
         return (self.x, self.y)[index]

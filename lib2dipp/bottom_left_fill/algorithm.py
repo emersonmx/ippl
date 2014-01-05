@@ -37,6 +37,8 @@ class BottomLeftFill(object):
     def next_primitive(shape, static_shape):
         for primitive in shape.primitive_iterator():
             for static_primitive in static_shape.primitive_iterator():
+                primitive = primitive.rounded()
+                static_primitive = static_primitive.rounded()
                 if BottomLeftFill.intersect_primitives(primitive,
                         static_primitive):
                     return (primitive, static_primitive)
@@ -111,12 +113,8 @@ class BottomLeftFill(object):
         for i in xrange(pirs_count):
             if BottomLeftFill.point_in_range(first.begin, second):
                 pirs.add(first.begin)
-            if len(pirs) >= pirs_count:
-                break
             if BottomLeftFill.point_in_range(first.end, second):
                 pirs.add(first.end)
-            if len(pirs) >= pirs_count:
-                break
 
             first, second = second, first
 
@@ -153,6 +151,9 @@ class BottomLeftFill(object):
     @staticmethod
     def point_in_range(point, primitive):
         aabb = primitive.bounds()
+        if (approx_equal(point.x, aabb.left) or
+                approx_equal(point.x, aabb.right)):
+            return True
         if aabb.left <= point.x <= aabb.right:
             return True
 
@@ -286,10 +287,12 @@ class BottomLeftFill(object):
                 calculate_pir = BottomLeftFill.calculate_distance_pir_2
 
             distance = calculate_pir(intersection, pir)
-            distances.append(distance)
+            distances.append(math.ceil(distance))
 
         result = max(distances)
-        if result >= 0:
+        if approx_equal(result, 0.0):
+            result = 1
+        if result > 0:
             return result
 
         return 0

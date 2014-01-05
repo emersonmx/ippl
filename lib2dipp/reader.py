@@ -23,7 +23,6 @@ import re
 import sys
 
 from lib2dipp.render import *
-from lib2dipp.shape import *
 
 
 class BLFReader(object):
@@ -91,8 +90,6 @@ class BLFReader(object):
         line_shape.begin = Point(begin[0], begin[1])
         line_shape.end = Point(end[0], end[1])
 
-        line_shape.round()
-
         return line_shape
 
     @staticmethod
@@ -122,7 +119,6 @@ class BLFReader(object):
         arc_shape.offset_angle = offset_angle
 
         arc_shape.calculate_angles()
-        arc_shape.round()
 
         return arc_shape
 

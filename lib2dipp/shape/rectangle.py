@@ -17,6 +17,7 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from lib2dipp import util
 from lib2dipp.shape.base import Object
 from lib2dipp.shape.point import Point
 
@@ -157,15 +158,18 @@ class Rectangle(Object):
 
         return not first and not second and not third and not fourth
 
-    def round(self):
-        self.left_bottom.round()
-        self.right_top.round()
+    def rounded(self):
+        left_bottom = self.left_bottom.rounded()
+        right_top = self.right_top.rounded()
+        x1, y1 = left_bottom.x, left_bottom.y
+        x2, y2 = right_top.x, right_top.y
+        return Rectangle(x1, y1, x2, y2)
 
     def __eq__(self, rectangle):
-        return (approx_equal(self.left, rectangle.left) and
-                approx_equal(self.bottom, rectangle.bottom) and
-                approx_equal(self.right, rectangle.right) and
-                approx_equal(self.top, rectangle.top))
+        return (util.approx_equal(self.left, rectangle.left) and
+                util.approx_equal(self.bottom, rectangle.bottom) and
+                util.approx_equal(self.right, rectangle.right) and
+                util.approx_equal(self.top, rectangle.top))
 
     def __str__(self):
         return "{} ({:.20f}, {:.20f}, {:.20f}, {:.20f})".format(
