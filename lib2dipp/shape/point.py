@@ -85,10 +85,8 @@ class Point(object):
         for primitive in loop:
             if isinstance(primitive, Line):
                 line = primitive
-                first = util.approx_equal(line.y1, self.y)
-                second = util.approx_equal(line.y2, self.y)
-                if ((line.y2 < self.y and (line.y1 > self.y or first)) or
-                        (line.y1 < self.y and (line.y2 > self.y or second))):
+                if ((line.y2 < self.y and line.y1 >= self.y) or
+                        (line.y1 < self.y and line.y2 >= self.y)):
                     x_value = (line.x2 + (self.y - line.y2) /
                         (line.y1 - line.y2) * (line.x1 - line.x2))
                     if x_value < self.x:

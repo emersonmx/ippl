@@ -88,9 +88,7 @@ class Loop(list):
             elif isinstance(primitive, Arc):
                 arc = primitive
                 arc.calculate_ends()
-                if not arc.line.begin.intersect_loop(loop):
-                    return False
-                if not arc.line.end.intersect_loop(loop):
+                if not arc.centre_point.intersect_loop(loop):
                     return False
 
         return True
