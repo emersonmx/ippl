@@ -125,7 +125,7 @@ class BottomLeftFill(object):
     @staticmethod
     def calculate_intersection_point(line, point, line_top=True):
         vertical_line = Line.vertical_line()
-        vertical_line.position(x=point.x)
+        vertical_line.position(x=round_number(point.x))
         result = vertical_line.intersect_line(line, True)
         if isinstance(result, Line):
             aabb = line.bounds()
@@ -264,7 +264,7 @@ class BottomLeftFill(object):
             if result:
                 intersection_points.append(result)
 
-        distances = []
+        distances = [1]
         calculate_pir = None
         for i in xrange(len(intersection_points)):
             pir = pirs[i]
@@ -277,11 +277,7 @@ class BottomLeftFill(object):
             distance = calculate_pir(intersection, pir)
             distances.append(distance)
 
-        result = max(distances)
-        if result >= 0:
-            return result
-
-        return 0
+        return max(distances)
 
     def resolve_line_arc(self, line, static_arc):
         static_arc.calculate_ends()
@@ -313,21 +309,19 @@ class BottomLeftFill(object):
                 False)
             intersection_points.append(result)
 
-        distances = []
+        distances = [1]
         for i in xrange(len(intersection_points)):
             tangent = tangent_points[i]
             intersection = intersection_points[i]
-            if tangent and intersection:
+            if (tangent != None) and (intersection != None):
                 distance = BottomLeftFill.calculate_distance_pir_2(intersection,
                     tangent)
                 distances.append(distance)
 
-        if distances:
-            y_move = max(distances)
-            if y_move >= 0:
-                test_line = copy.deepcopy(line)
-                if self.overlap_was_resolved(test_line, static_arc, y_move):
-                    return y_move
+        y_move = max(distances)
+        test_line = copy.deepcopy(line)
+        if self.overlap_was_resolved(test_line, static_arc, y_move):
+            return y_move
 
         print ("Line-Arc warning: The method to solve the overlap was not "
                "implemented, returning 0")
@@ -384,21 +378,19 @@ class BottomLeftFill(object):
                 tangent)
             intersection_points.append(result)
 
-        distances = []
+        distances = [1]
         for i in xrange(len(intersection_points)):
             tangent = tangent_points[i]
             intersection = intersection_points[i]
-            if tangent and intersection:
+            if (tangent != None) and (intersection != None):
                 distance = BottomLeftFill.calculate_distance_pir_1(intersection,
                     tangent)
                 distances.append(distance)
 
-        if distances:
-            y_move = max(distances)
-            if y_move >= 0:
-                test_arc = copy.deepcopy(arc)
-                if self.overlap_was_resolved(test_arc, static_line, y_move):
-                    return y_move
+        y_move = max(distances)
+        test_arc = copy.deepcopy(arc)
+        if self.overlap_was_resolved(test_arc, static_line, y_move):
+            return y_move
 
         print ("Arc-Line warning: The method to solve the overlap was not "
                "implemented, returning 0")
@@ -480,10 +472,13 @@ class BottomLeftFill(object):
 
     def resolve_arc_arc_pythagorean(self, arc, static_arc):
         result = []
+        margin = 1
         dx = abs(arc.centre_point.x - static_arc.centre_point.x)
         dy = abs(arc.centre_point.y - static_arc.centre_point.y)
+        r_a = arc.radius
+        r_b = static_arc.radius
 
-        h_ = arc.radius + static_arc.radius
+        h_ = r_a + r_b
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
         if dy_ >= 0:
             y_move = dy_ - dy
@@ -492,7 +487,7 @@ class BottomLeftFill(object):
                 if self.overlap_was_resolved(test_arc, static_arc, y_move):
                     result.append(y_move)
 
-        h_ = static_arc.radius - arc.radius
+        h_ = r_b - r_a
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
         if dy_ >= 0:
             y_move = dy - dy_
@@ -501,7 +496,7 @@ class BottomLeftFill(object):
                 if self.overlap_was_resolved(test_arc, static_arc, y_move):
                     result.append(y_move)
 
-        h_ = (2 * static_arc.radius) + arc.radius
+        h_ = (2 * r_b) + r_a
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
         if dy_ >= 0:
             y_move = dy_

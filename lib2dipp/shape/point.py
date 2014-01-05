@@ -145,7 +145,7 @@ class Point(Object):
         return hash(self.x) ^ hash(self.y)
 
     def __str__(self):
-        return "{} ({}, {})".format(type(self).__name__, self.x, self.y)
+        return "{} ({:.20f}, {:.20f})".format(type(self).__name__, self.x, self.y)
 
     def __repr__(self):
         return "<{}>".format(self)

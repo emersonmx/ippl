@@ -25,7 +25,7 @@ pi = round(math.pi, round_ndigits)
 def round_number(number):
     return round(number, round_ndigits)
 
-def approx_equal(a, b, epsilon=1e-16):
+def approx_equal(a, b, epsilon=1e-06):
     """Checks if a number is approx equal to each other.
 
     Parameters:
