@@ -471,12 +471,12 @@ class BottomLeftFill(object):
         return -1
 
     def resolve_arc_arc_pythagorean(self, arc, static_arc):
+        MARGIN = 1
         result = []
-        margin = 1
         dx = abs(arc.centre_point.x - static_arc.centre_point.x)
         dy = abs(arc.centre_point.y - static_arc.centre_point.y)
-        r_a = arc.radius
-        r_b = static_arc.radius
+        r_a = arc.radius + MARGIN
+        r_b = static_arc.radius + MARGIN
 
         h_ = r_a + r_b
         dy_ = BottomLeftFill.pythagorean_theorem(dx, h_)
