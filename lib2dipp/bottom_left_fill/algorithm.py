@@ -325,8 +325,7 @@ class BottomLeftFill(object):
             for intersection in intersection_points:
                 y_move = intersection.y - end.y
                 if y_move >= 0:
-                    test_line = copy.deepcopy(line)
-                    if self.overlap_was_resolved(test_line, static_arc, y_move):
+                    if self.overlap_was_resolved(line, static_arc, y_move):
                         return y_move
 
         return -1
@@ -334,8 +333,7 @@ class BottomLeftFill(object):
     def resolve_line_arc_pirs(self, line, static_arc):
         y_move = self.resolve_line_line(line, static_arc.line)
         if y_move >= 0:
-            test_line = copy.deepcopy(line)
-            if self.overlap_was_resolved(test_line, static_arc, y_move):
+            if self.overlap_was_resolved(line, static_arc, y_move):
                 return y_move
 
         return -1
@@ -402,8 +400,7 @@ class BottomLeftFill(object):
                 if approx_equal(y_move, 0.0):
                     y_move = 1
                 if y_move > 0:
-                    test_arc = copy.deepcopy(arc)
-                    if self.overlap_was_resolved(test_arc, static_line, y_move):
+                    if self.overlap_was_resolved(arc, static_line, y_move):
                         return y_move
 
         return -1
@@ -411,8 +408,7 @@ class BottomLeftFill(object):
     def resolve_arc_line_pirs(self, arc, static_line):
         y_move = self.resolve_line_line(arc.line, static_line)
         if y_move >= 0:
-            test_arc = copy.deepcopy(arc)
-            if self.overlap_was_resolved(test_arc, static_line, y_move):
+            if self.overlap_was_resolved(arc, static_line, y_move):
                 return y_move
 
         return -1
@@ -487,8 +483,7 @@ class BottomLeftFill(object):
                 for intersection_point in intersection_points:
                     y_move = calculate_pir(intersection_point, pir)
                     if y_move >= 0:
-                        test_arc = copy.deepcopy(arc)
-                        if self.overlap_was_resolved(test_arc, static_arc,
+                        if self.overlap_was_resolved(arc, static_arc,
                                 y_move):
                             result.append(y_move)
 
@@ -533,8 +528,7 @@ class BottomLeftFill(object):
             if y_move > max_y_move:
                 max_y_move = y_move
 
-            test_arc = copy.deepcopy(arc)
-            if self.overlap_was_resolved(test_arc, static_arc, y_move):
+            if self.overlap_was_resolved(arc, static_arc, y_move):
                 return y_move
 
         if max_y_move >= 0:
@@ -552,5 +546,7 @@ class BottomLeftFill(object):
     def overlap_was_resolved(self, primitive, static_primitive, y_move):
         move = math.ceil(y_move) + self.resolution.y
         primitive.move(0, move)
-        return not BottomLeftFill.intersect_primitives(primitive,
+        result = not BottomLeftFill.intersect_primitives(primitive,
             static_primitive)
+        primitive.move(0, -move)
+        return result
