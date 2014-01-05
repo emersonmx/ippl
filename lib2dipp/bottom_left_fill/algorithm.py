@@ -264,7 +264,7 @@ class BottomLeftFill(object):
             if result:
                 intersection_points.append(result)
 
-        distances = [1]
+        distances = []
         calculate_pir = None
         for i in xrange(len(intersection_points)):
             pir = pirs[i]
