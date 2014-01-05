@@ -31,7 +31,7 @@ class BottomLeftFill(object):
 
         self.shapes = []
         self.sheetshape = RectangularSheetShape()
-        self.resolution = Point(5, 1)
+        self.resolution = Point(10, 1)
 
     @staticmethod
     def next_primitive(shape, static_shape):
@@ -196,6 +196,7 @@ class BottomLeftFill(object):
                 shape.position(0, 0)
 
                 if self.sheetshape.out(shape):
+                    print "skipped."
                     continue
 
                 print "Shape {}, Rotation {}\r".format(i, j)
@@ -214,6 +215,7 @@ class BottomLeftFill(object):
                 if self.check_best_orientation(shape, best_shape_orientation):
                     best_orientation = j
 
+            print "Put {}/{} on sheetshape.".format(i, best_orientation)
             self.sheetshape.append(orientations[best_orientation])
 
     def overlap(self, shape):
