@@ -517,7 +517,6 @@ class BottomLeftFill(object):
         if dy_ >= 0:
             y_move = dy - dy_
             if y_move >= 0:
-                test_arc = copy.deepcopy(arc)
                 result.append(y_move)
 
         h_ = (2 * r_b) + r_a
@@ -525,7 +524,6 @@ class BottomLeftFill(object):
         if dy_ >= 0:
             y_move = dy_
             if y_move >= 0:
-                test_arc = copy.deepcopy(arc)
                 result.append(y_move)
 
         max_y_move = -1
