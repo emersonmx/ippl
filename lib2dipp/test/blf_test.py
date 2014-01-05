@@ -26,7 +26,7 @@ if __name__ == "__main__":
     print "Loading data..."
     t = time.time()
     reader = BLFReader()
-    blf_data = reader.load("data/blf/profile8")
+    blf_data = reader.load("data/blf/profile1_test")
     print "Loading time: {:.20f}".format(time.time() - t)
 
     print "Initializing BLF..."
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     size = rectangle.size()
     render = Render()
     render.image_size = (int(size[0]), int(size[1]))
-    render.initiliaze()
+    render.initialize()
     render.shapes(blf.sheetshape)
     render.save("blf_test.png")
     print "Rendering Image time: {:.20f}".format(time.time() - t)

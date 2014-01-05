@@ -128,7 +128,7 @@ class Render(object):
             elif isinstance(result, Arc):
                 self._arc(result, self.intersect_color, 3)
 
-    def initiliaze(self):
+    def initialize(self):
         self._image = Image.new(self.image_mode, self.image_size,
                                 self.image_background_color)
         self._image_drawer = ImageDraw.ImageDraw(self._image)
@@ -159,8 +159,7 @@ class Render(object):
 
 if __name__ == "__main__":
     s = Shape()
-    a = Arc(centre_point=Point(50.0, 50.0),
-            radius=50.0, start_angle=0.0, offset_angle=util.pi)
+    a = Arc(Point(50.0, 50.0), 50.0, 0.0, util.pi)
     s.outer_loop.append(a)
     s.outer_loop.append(Line(Point(0.0, 50.0), Point(0.0, 0.0)))
     s.outer_loop.append(Line(Point(0.0, 0.0), Point(100.0, 0.0)))

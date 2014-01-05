@@ -26,8 +26,7 @@ if __name__ == "__main__":
     print Line()
     print Line(Point(0, 0), Point(1, 1))
     print Arc()
-    print Arc(centre_point=Point(10, 10), radius=5.0,
-              start_angle=0, offset_angle=util.pi)
+    print Arc(Point(10, 10), 5.0, 0, util.pi)
 
     s = Shape()
     s.outer_loop.append(Line(Point(0, 0), Point(1, 0)))
@@ -41,10 +40,8 @@ if __name__ == "__main__":
     l2 = Line(Point(3, 0), Point(10, 0))
     print "Line-Line: {}".format(l1.intersect_line(l2))
     l = Line(Point(0, 2), Point(4, 2))
-    a = Arc(centre_point=Point(2, 2), radius=2,
-            start_angle=0, offset_angle=0)
-    b = Arc(centre_point=Point(5, 2), radius=2,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(2, 2), 2, 0, 0)
+    b = Arc(Point(5, 2), 2, 0, 0)
     a.calculate_ends()
     b.calculate_ends()
 

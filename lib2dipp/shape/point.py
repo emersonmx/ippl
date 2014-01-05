@@ -19,38 +19,22 @@
 
 import math
 from lib2dipp import util
-from lib2dipp.shape.base import Object
 
 
-class Point(Object):
+class Point(object):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, x=0, y=0):
         """Creates a Point object.
 
         Parameters:
-            args[0] a real number for x.
-            args[1] a real number for y.
-            OR
-            kwargs["x"] a real number for x.
-            kwargs["y"] a real number for y.
+            x a real number.
+            y a real number.
         """
 
         super(Point, self).__init__()
 
-        x, y = self._parse_args(*args, **kwargs)
-        self._x = x
-        self._y = y
-
-    def _parse_args(self, *args, **kwargs):
-        values = [0.0, 0.0]
-        if args:
-            for i in range(len(args)):
-                values[i] = float(args[i])
-        elif kwargs:
-            values[0] = float(kwargs.get("x", values[0]))
-            values[1] = float(kwargs.get("y", values[1]))
-
-        return values
+        self._x = float(x)
+        self._y = float(y)
 
     @property
     def x(self):
@@ -68,13 +52,11 @@ class Point(Object):
     def y(self, value):
         self._y = float(value)
 
-    def position(self, *args, **kwargs):
-        x, y = self._parse_args(*args, **kwargs)
+    def position(self, x, y):
         self.x = x
         self.y = y
 
-    def move(self, *args, **kwargs):
-        x, y = self._parse_args(*args, **kwargs)
+    def move(self, x, y):
         self.x += x
         self.y += y
 
@@ -103,8 +85,10 @@ class Point(Object):
         for primitive in loop:
             if isinstance(primitive, Line):
                 line = primitive
-                if ((line.y2 < self.y and line.y1 >= self.y) or
-                        line.y1 < self.y and line.y2 >= self.y):
+                first = util.approx_equal(line.y1, self.y)
+                second = util.approx_equal(line.y2, self.y)
+                if ((line.y2 < self.y and (line.y1 > self.y or first)) or
+                        (line.y1 < self.y and (line.y2 > self.y or second))):
                     x_value = (line.x2 + (self.y - line.y2) /
                         (line.y1 - line.y2) * (line.x1 - line.x2))
                     if x_value < self.x:
@@ -112,6 +96,7 @@ class Point(Object):
             elif isinstance(primitive, Arc):
                 arc = primitive
                 horizontal_line = Line(self, Point(self.x - 1, self.y))
+                #horizontal_line.position(0, self.y)
                 points = (
                     horizontal_line.calculate_intersection_circle_points(arc))
 

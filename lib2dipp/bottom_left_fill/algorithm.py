@@ -37,8 +37,6 @@ class BottomLeftFill(object):
     def next_primitive(shape, static_shape):
         for primitive in shape.primitive_iterator():
             for static_primitive in static_shape.primitive_iterator():
-                primitive = primitive.rounded()
-                static_primitive = static_primitive.rounded()
                 if BottomLeftFill.intersect_primitives(primitive,
                         static_primitive):
                     return (primitive, static_primitive)
@@ -123,7 +121,7 @@ class BottomLeftFill(object):
     @staticmethod
     def calculate_intersection_point(line, point, line_top=True):
         vertical_line = Line.vertical_line()
-        vertical_line.position(x=round_number(point.x))
+        vertical_line.position(round_number(point.x), 0)
         result = vertical_line.intersect_line(line, True)
         if isinstance(result, Line):
             aabb = line.bounds()
@@ -137,7 +135,7 @@ class BottomLeftFill(object):
     @staticmethod
     def calculate_intersection_points(arc, point):
         vertical_line = Line.vertical_line()
-        vertical_line.position(x=point.x)
+        vertical_line.position(point.x, 0)
         return vertical_line.intersect_arc(arc, True)
 
     @staticmethod
@@ -239,7 +237,7 @@ class BottomLeftFill(object):
     def resolve_overlapping(self, shape, data):
         if isinstance(data, float):
             data += self.resolution.y
-            shape.move(y=data)
+            shape.move(0, data)
         elif isinstance(data, tuple):
             primitive, static_primitive = data
             y_move = -1 # Dont move
@@ -257,7 +255,7 @@ class BottomLeftFill(object):
 
             if y_move >= 0:
                 y_move += self.resolution.y
-                shape.move(y=y_move)
+                shape.move(0, y_move)
 
     def resolve_line_line(self, line, static_line):
         pirs = BottomLeftFill.calculate_pirs(line, static_line)
@@ -554,6 +552,6 @@ class BottomLeftFill(object):
 
     def overlap_was_resolved(self, primitive, static_primitive, y_move):
         move = math.ceil(y_move) + self.resolution.y
-        primitive.move(y=move)
+        primitive.move(0, move)
         return not BottomLeftFill.intersect_primitives(primitive,
             static_primitive)

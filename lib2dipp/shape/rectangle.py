@@ -18,45 +18,25 @@
 #
 
 from lib2dipp import util
-from lib2dipp.shape.base import Object
 from lib2dipp.shape.point import Point
 
 
-class Rectangle(Object):
+class Rectangle(object):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, left=0, bottom=0, right=0, top=0):
         """Creates a Rectangle object.
 
         Parameters:
-            args[0] a real number for left.
-            args[1] a real number for bottom.
-            args[2] a real number for right.
-            args[3] a real number for top.
-            OR
-            kwargs["left"] a real number for left.
-            kwargs["bottom"] a real number for bottom.
-            kwargs["right"] a real number for right.
-            kwargs["top"] a real number for top.
+            left a real number.
+            bottom a real number.
+            right a real number.
+            top a real number.
         """
 
         super(Rectangle, self).__init__()
 
-        x1, y1, x2, y2 = self._parse_args(*args, **kwargs)
-        self._left_bottom = Point(x1, y1)
-        self._right_top = Point(x2, y2)
-
-    def _parse_args(self, *args, **kwargs):
-        values = [0.0, 0.0, 0.0, 0.0]
-        if args:
-            for i in range(len(args)):
-                values[i] = args[i]
-        elif kwargs:
-            values[0] = kwargs.get("left", values[0])
-            values[1] = kwargs.get("bottom", values[1])
-            values[2] = kwargs.get("right", values[2])
-            values[3] = kwargs.get("top", values[3])
-
-        return values
+        self._left_bottom = Point(left, bottom)
+        self._right_top = Point(right, top)
 
     @property
     def left(self):

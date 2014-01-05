@@ -37,9 +37,9 @@ if __name__ == "__main__":
     print l
     print "l bounds:", l.bounds()
     print "l_in bounds:", l_in.bounds()
-    print l.lowest_point()
-    print "l lowest_point:", l.lowest_point()
-    print "l_in lowest_point:", l_in.lowest_point()
+    print l.lowest_point
+    print "l lowest_point:", l.lowest_point
+    print "l_in lowest_point:", l_in.lowest_point
     print "Point {} is contained? {}".format(pt_in, pt_in.intersect_loop(l))
     print "Point {} is contained? {}".format(pt_out, pt_out.intersect_loop(l))
     print "l constains l_in? {}".format(l.contains(l_in))

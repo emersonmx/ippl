@@ -21,8 +21,11 @@ import math
 
 from lib2dipp import util
 from lib2dipp.shape import *
+from lib2dipp.render import *
 
 if __name__ == "__main__":
+    shapes = []
+    s = Shape()
     loop_1 = Loop()
     loop_1.append(Line(Point(0, 0), Point(10, 0)))
     loop_1.append(Arc(Point(20, 0), 10, 0, util.pi))
@@ -30,23 +33,49 @@ if __name__ == "__main__":
     loop_1.append(Line(Point(50, 0), Point(50, 30)))
     loop_1.append(Line(Point(50, 30), Point(0, 30)))
     loop_1.append(Line(Point(0, 30), Point(0, 0)))
+    s.outer_loop = loop_1
+    shapes.append(s)
 
+    spt = Shape()
     pt = Point(40, 10)
-
-    print "The point is inside the polygon? {}".format(
-        pt.intersect_loop(loop_1))
+    spt.outer_loop.append(Line(pt, pt))
+    shapes.append(spt)
 
     s1 = Shape()
     s1.outer_loop.append(Line(Point(0, 0), Point(10, 0)))
     s1.outer_loop.append(Line(Point(10, 0), Point(5, 10)))
     s1.outer_loop.append(Line(Point(5, 10), Point(0, 0)))
-    s1.position(50, 40)
+    s1.position(50, 100)
+    shapes.append(s1)
     s2 = Shape()
     s2.outer_loop.append(Line(Point(40, 0), Point(80, 0)))
     s2.outer_loop.append(Arc(Point(80, 40), 40, 3*util.pi/2, util.pi/2))
     s2.outer_loop.append(Line(Point(80, 80), Point(40, 80)))
     s2.outer_loop.append(Arc(Point(40, 40), 40, util.pi/2, 3*util.pi/2))
+    s2.position(0, 60)
+    shapes.append(s2)
 
-    print "s1 is within of s2? {}".format(
+    r = Render()
+    aabb = s1.bounds()
+
+    for s in shapes:
+        s_aabb = s.bounds()
+        if s_aabb.left < aabb.left:
+            aabb.left = s_aabb.left
+        if s_aabb.bottom < aabb.bottom:
+            aabb.bottom = s_aabb.bottom
+        if s_aabb.right > aabb.right:
+            aabb.right = s_aabb.right
+        if s_aabb.top > aabb.top:
+            aabb.top = s_aabb.top
+
+    r.image_size = (int(aabb.right) + 1, int(aabb.top) + 1)
+    r.initialize()
+    r.shapes(shapes)
+    r.save("contained_shape.png")
+
+    print "The point is inside the polygon? {}".format(
+        pt.intersect_loop(loop_1))
+    print "triangle is within of capsule? {}".format(
         s1.outer_loop.contained(s2.outer_loop))
-    print "s2 contains s1? {}".format(s2.outer_loop.contains(s1.outer_loop))
+    print "capsule contains triangle? {}".format(s2.outer_loop.contains(s1.outer_loop))

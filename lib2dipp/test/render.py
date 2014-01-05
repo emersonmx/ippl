@@ -27,75 +27,77 @@ if __name__ == "__main__":
     # I - 180 arcs
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(0), offset_angle=math.radians(180))
-    a.move(x=50, y=60)
+    a.move(50, 60)
     s.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(180), offset_angle=math.radians(360))
-    a.move(x=50, y=165)
+    a.move(50, 165)
     s.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(270), offset_angle=math.radians(90))
-    a.move(x=55, y=220)
+    a.move(55, 220)
     s.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(90), offset_angle=math.radians(270))
-    a.move(x=50, y=220)
+    a.move(50, 220)
     s.outer_loop.append(a)
 
     # II - 45 arcs
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(315), offset_angle=math.radians(45))
-    a.move(x=80, y=55)
+    a.move(80, 55)
     s.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(45), offset_angle=math.radians(135))
-    a.move(x=150, y=-35)
+    a.move(150, -35)
     s.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(135), offset_angle=math.radians(225))
-    a.move(x=185, y=55)
+    a.move(185, 55)
     s.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(225), offset_angle=math.radians(315))
-    a.move(x=150, y=145)
+    a.move(150, 145)
     s.outer_loop.append(a)
 
     # III - 90 arcs
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(0), offset_angle=math.radians(90))
-    a.move(x=165, y=180)
+    a.move(165, 180)
     s.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(90), offset_angle=math.radians(180))
-    a.move(x=160, y=180)
+    a.move(160, 180)
     s.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(180), offset_angle=math.radians(270))
-    a.move(x=160, y=175)
+    a.move(160, 175)
     s.outer_loop.append(a)
     a = Arc(centre_point=Point(0, 0), radius=50,
             start_angle=math.radians(270), offset_angle=math.radians(0))
-    a.move(x=165, y=175)
+    a.move(165, 175)
     s.outer_loop.append(a)
 
     # IV - Lines
     l = Line(Point(0, 0), Point(50, 25))
     s.outer_loop.append(l)
     l = Line(Point(50, 25), Point(0, 0))
-    l.move(y=30)
+    l.move(0, 30)
     s.outer_loop.append(l)
     l = Line(Point(0, 25), Point(50, 0))
-    l.move(x=55)
+    l.move(55, 0)
     s.outer_loop.append(l)
     l = Line(Point(50, 0), Point(0, 25))
-    l.move(x=55, y=30)
+    l.move(55, 30)
     s.outer_loop.append(l)
 
     aabb = s.bounds()
-    size = (int(aabb.right - aabb.left) + 1, int(aabb.top - aabb.bottom) + 1)
+    size = aabb.size()
+    size = (int(size[0]) + 1, int(size[1]) + 1)
     r = Render()
     r.draw_bounds = True
     r.image_size = size
+    r.initialize()
     r.shape(s)
     r.save("render_test.png")
 

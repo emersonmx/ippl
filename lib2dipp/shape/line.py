@@ -20,49 +20,33 @@
 import math
 
 from lib2dipp.util import *
-from lib2dipp.shape.base import Primitive
 from lib2dipp.shape.point import Point
 from lib2dipp.shape.rectangle import Rectangle
 
 
-class Line(Primitive):
+class Line(object):
 
     @staticmethod
     def horizontal_line():
-        return Line(Point(0, 0), Point(0, 1))
+        return Line(Point(0, 0), Point(1, 0))
 
     @staticmethod
     def vertical_line():
         return Line(Point(0, 0), Point(0, 1))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, begin=Point(), end=Point()):
         """Creates a Line object.
 
         Parameters:
-            args[0] a Point object for begin.
-            args[1] a Point object for end.
-            OR
-            kwargs["begin"] a Point object for begin.
-            kwargs["end"] a Point object for end.
+            begin a Point object.
+            end a Point object.
         """
 
         super(Line, self).__init__()
 
 
-        values = self._parse_args(*args, **kwargs)
-        self.begin = values[0]
-        self.end = values[1]
-
-    def _parse_args(self, *args, **kwargs):
-        values = [Point(), Point()]
-        if args:
-            for i in range(len(args)):
-                values[i] = args[i]
-        elif kwargs:
-            values[0] = kwargs.get("begin", values[0])
-            values[1] = kwargs.get("end", values[1])
-
-        return values
+        self.begin = begin
+        self.end = end
 
     @property
     def x1(self):
@@ -96,23 +80,14 @@ class Line(Primitive):
     def y2(self, value):
         self.end.y = value
 
-    def position(self, *args, **kwargs):
-        point = Point(*args, **kwargs)
+    def position(self, x, y):
+        point = Point(x, y)
         aabb = self.bounds()
         x, y = (point.x - aabb.left, point.y - aabb.bottom)
 
         self.move(x, y)
 
-    def move(self, *args, **kwargs):
-        values = [0.0, 0.0]
-        if args:
-            for i in range(len(args)):
-                values[i] = args[i]
-        elif kwargs:
-            values[0] = kwargs.get("x", values[0])
-            values[1] = kwargs.get("y", values[1])
-
-        x, y = values
+    def move(self, x, y):
         self.begin.move(x, y)
         self.end.move(x, y)
 

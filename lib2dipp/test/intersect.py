@@ -25,70 +25,71 @@ from lib2dipp import util
 
 if __name__ == "__main__":
     shapes = []
-    shape = Shape()
 
     # Lines
+    shape = Shape()
+
     l = Line(Point(0, 0), Point(50, 0))
-    l.move(y=25)
+    l.move(0, 25)
     shape.outer_loop.append(l)
     l = Line(Point(0, 0), Point(0, 50))
-    l.move(x=25)
+    l.move(25, 0)
     shape.outer_loop.append(l)
 
     l = Line(Point(0, 0), Point(0, 50))
-    l.move(x=60)
+    l.move(60, 0)
     shape.outer_loop.append(l)
     l = Line(Point(0, 0), Point(50, 0))
-    l.move(x=60)
+    l.move(60, 0)
     shape.outer_loop.append(l)
 
     l = Line(Point(0, 0), Point(50, 0))
-    l.move(x=120)
+    l.move(120, 0)
     shape.outer_loop.append(l)
     l = Line(Point(50, 0), Point(100, 0))
-    l.move(x=120)
+    l.move(120, 0)
     shape.outer_loop.append(l)
 
     l = Line(Point(0, 0), Point(75, 0))
-    l.move(x=230)
+    l.move(230, 0)
     shape.outer_loop.append(l)
     l = Line(Point(25, 0), Point(100, 0))
-    l.move(x=230)
+    l.move(230, 0)
     shape.outer_loop.append(l)
 
     l = Line(Point(0, 0), Point(0, 75))
-    l.move(x=335)
+    l.move(335, 0)
     shape.outer_loop.append(l)
     l = Line(Point(0, 25), Point(0, 100))
-    l.move(x=335)
+    l.move(335, 0)
     shape.outer_loop.append(l)
 
     l = Line(Point(0, 0), Point(50, 0))
-    l.move(x=340)
+    l.move(340, 0)
     shape.outer_loop.append(l)
     l = Line(Point(0, 0), Point(0, 50))
     l.move(365, 25)
     shape.outer_loop.append(l)
 
     l = Line(Point(0, 0), Point(50, 0))
-    l.move(x=400)
+    l.move(400, 0)
     shape.outer_loop.append(l)
     l = Line(Point(0, 0), Point(50, 0))
-    l.move(x=460)
+    l.move(460, 0)
     shape.outer_loop.append(l)
 
     l = Line(Point(0, 0), Point(50, 0))
-    l.move(x=520)
+    l.move(520, 0)
     shape.outer_loop.append(l)
     l = Line(Point(0, 0), Point(50, 0))
     l.move(520, 25)
     shape.outer_loop.append(l)
 
     l = Line(Point(0, 0), Point(50, 50))
-    l.move(x=580)
+    l.move(580, 0)
     shape.outer_loop.append(l)
     l = Line(Point(0, 0), Point(50, 50))
-    l.move(x=610)
+    l.move(610, 0)
     shape.outer_loop.append(l)
     shapes.append(shape)
 
@@ -97,64 +98,56 @@ if __name__ == "__main__":
 
     l = Line(Point(0, 0), Point(100, 0))
     shape.outer_loop.append(l)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(50, 50)
     shape.outer_loop.append(a)
 
     l = Line(Point(0, 0), Point(100, 0))
     l.move(110, 10)
     shape.outer_loop.append(l)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(160, 50)
     shape.outer_loop.append(a)
 
     l = Line(Point(0, 0), Point(100, 0))
     l.move(220, 0)
     shape.outer_loop.append(l)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(270, 60)
     shape.outer_loop.append(a)
 
     l = Line(Point(0, 0), Point(0, 50))
     l.move(380, 25)
     shape.outer_loop.append(l)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(380, 50)
     shape.outer_loop.append(a)
 
     l = Line(Point(0, 0), Point(0, 150))
-    l.move(x=490)
+    l.move(490, 0)
     shape.outer_loop.append(l)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(490, 75)
     shape.outer_loop.append(a)
 
     l = Line(Point(0, 0), Point(100, 0))
-    l.move(x=550)
+    l.move(550, 0)
     shape.outer_loop.append(l)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=util.pi)
+    a = Arc(Point(0, 0), 50, 0, util.pi)
     a.move(600, 50)
     shape.outer_loop.append(a)
 
     l = Line(Point(0, 0), Point(100, 0))
     l.move(660, 10)
     shape.outer_loop.append(l)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=util.pi)
+    a = Arc(Point(0, 0), 50, 0, util.pi)
     a.move(710, 50)
     shape.outer_loop.append(a)
 
     l = Line(Point(0, 0), Point(0, 150))
     l.move(820, 0)
     shape.outer_loop.append(l)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0.0, offset_angle=util.pi)
+    a = Arc(Point(0, 0), 50, 0, util.pi)
     a.move(820, 50)
     shape.outer_loop.append(a)
 
@@ -163,84 +156,66 @@ if __name__ == "__main__":
     # Arc-Arc
     shape = Shape()
 
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(50, 50)
     shape.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(149.9999999999999, 50)
     shape.outer_loop.append(a)
 
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(260, 50)
     shape.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(340, 50)
     shape.outer_loop.append(a)
 
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(450, 50)
     shape.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(560, 50)
     shape.outer_loop.append(a)
 
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(670, 50)
     shape.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=25,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 25, 0, 0)
     a.move(670, 50)
     shape.outer_loop.append(a)
 
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(780, 50)
     shape.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
-    a.move(780, 50)
-    shape.outer_loop.append(a)
-
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
-    a.move(780, 50)
-    shape.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=0)
+    a = Arc(Point(0, 0), 50, 0, 0)
     a.move(780, 50)
     shape.outer_loop.append(a)
 
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=util.pi)
+    a = Arc(Point(0, 0), 50, 0, 0)
+    a.move(780, 50)
+    shape.outer_loop.append(a)
+    a = Arc(Point(0, 0), 50, 0, 0)
+    a.move(780, 50)
+    shape.outer_loop.append(a)
+
+    a = Arc(Point(0, 0), 50, 0, util.pi)
     a.move(890, 50)
     shape.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=util.pi)
+    a = Arc(Point(0, 0), 50, 0, util.pi)
     a.move(890, 149.9999999999999)
     shape.outer_loop.append(a)
 
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=util.pi)
+    a = Arc(Point(0, 0), 50, 0, util.pi)
     a.move(1000, 50)
     shape.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=util.pi)
+    a = Arc(Point(0, 0), 50, 0, util.pi)
     a.move(1000, 125)
     shape.outer_loop.append(a)
 
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=0, offset_angle=util.pi)
+    a = Arc(Point(0, 0), 50, 0, util.pi)
     a.move(1110, 50)
     shape.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=util.pi/2.0, offset_angle=3*util.pi/2.0)
+    a = Arc(Point(0, 0), 50, util.pi, 3*util.pi/2.0)
     a.move(1110, 50)
     shape.outer_loop.append(a)
 
@@ -249,12 +224,12 @@ if __name__ == "__main__":
     i = 0
     for s in shapes:
         aabb = s.bounds()
-        size = (int(aabb.right - aabb.left) + 1,
-                int(aabb.top - aabb.bottom) + 1)
+        size = aabb.size()
+        size = (int(size[0]) + 1, int(size[1]) + 1)
         r = Render()
         r.draw_intersect = True
         r.image_size = size
-        r.initiliaze()
+        r.initialize()
         r.shape(s)
 
         for a in s.outer_loop:

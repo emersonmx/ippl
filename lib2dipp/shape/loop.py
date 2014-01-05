@@ -17,7 +17,6 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from lib2dipp.shape.base import Primitive
 from lib2dipp.shape.point import Point
 from lib2dipp.shape.rectangle import Rectangle
 from lib2dipp.shape.line import Line
@@ -81,20 +80,20 @@ class Loop(list):
             True if this loop is within loop, or False otherwise.
         """
 
-        for primitive1 in self:
-            if isinstance(primitive1, Line):
-                line = primitive1
-                if line.begin.intersect_loop(loop):
-                    return True
-            elif isinstance(primitive1, Arc):
-                arc = primitive1
+        for primitive in self:
+            if isinstance(primitive, Line):
+                line = primitive
+                if not line.begin.intersect_loop(loop):
+                    return False
+            elif isinstance(primitive, Arc):
+                arc = primitive
                 arc.calculate_ends()
-                if arc.line.begin.intersect_loop(loop):
-                    return True
-                if arc.line.end.intersect_loop(loop):
-                    return True
+                if not arc.line.begin.intersect_loop(loop):
+                    return False
+                if not arc.line.end.intersect_loop(loop):
+                    return False
 
-        return False
+        return True
 
     def contains(self, loop):
         """Checks whether a loop within this loop.

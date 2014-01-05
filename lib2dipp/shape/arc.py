@@ -20,55 +20,31 @@
 import math
 
 from lib2dipp import util
-from lib2dipp.shape.base import Primitive
 from lib2dipp.shape.point import Point
 from lib2dipp.shape.rectangle import Rectangle
 from lib2dipp.shape.line import Line
 
 
-class Arc(Primitive):
+class Arc(object):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, centre_point=Point(), radius=1, start_angle=0,
+            offset_angle=0):
         """Creates a Arc object.
 
         Parameters:
-            args[0] a Point object for centre_point.
-            args[1] a real number for radius.
-            args[2] a real number for start_angle.
-            args[3] a real number for offset_angle.
-            OR
-            kwargs["centre_point"] a Point object for centre_point.
-            kwargs["radius"] a real number for radius.
-            kwargs["start_angle"] a real number for start_angle.
-            kwargs["offset_angle"] a real number for offset_angle.
+            centre_point a Point object.
+            radius a real number.
+            start_angle a real number.
+            offset_angle a real number.
         """
 
         super(Arc, self).__init__()
 
-        values = self._parse_args(*args, **kwargs)
-        self.centre_point = values[0]
-        self._radius = values[1]
-        self._start_angle = values[2]
-        self._offset_angle = values[3]
+        self.centre_point = centre_point
+        self._radius = float(radius)
+        self._start_angle = float(start_angle)
+        self._offset_angle = float(offset_angle)
         self._line = Line()
-
-    def _parse_args(self, *args, **kwargs):
-        values = [Point(), 1.0, 0.0, 0.0]
-        if args:
-            for i in range(len(args)):
-                if i == 0:
-                    values[i] = args[i]
-                else:
-                    values[i] = float(args[i])
-        elif kwargs:
-            values[0] = kwargs.get("centre_point", values[0])
-            values[1] = float(kwargs.get("radius", values[1]))
-            values[2] = util.wrap_2pi(
-                float(kwargs.get("start_angle", values[2])))
-            values[3] = util.wrap_2pi(
-                float(kwargs.get("offset_angle", values[3])))
-
-        return values
 
     @property
     def radius(self):
@@ -102,24 +78,15 @@ class Arc(Primitive):
     def line(self, value):
         self.line = value
 
-    def position(self, *args, **kwargs):
-        point = Point(*args, **kwargs)
+    def position(self, x, y):
+        point = Point(x, y)
         self.centre_point = point
 
-    def move(self, *args, **kwargs):
-        values = [0.0, 0.0]
-        if args:
-            for i in range(len(args)):
-                values[i] = args[i]
-        elif kwargs:
-            values[0] = kwargs.get("x", values[0])
-            values[1] = kwargs.get("y", values[1])
-
-        x, y = values
+    def move(self, x, y):
         self.centre_point.x += x
         self.centre_point.y += y
 
-        super(Arc, self).move(**kwargs)
+        self.line.move(x, y)
 
     def bounds(self):
         self.calculate_ends()
@@ -193,7 +160,7 @@ class Arc(Primitive):
                     result.append(point)
         elif (util.approx_equal(distance, 0.0) and
                 util.approx_equal(self.radius, arc.radius)):
-            result_arc = Arc(centre_point=self.centre_point, radius=self.radius)
+            result_arc = Arc(self.centre_point, self.radius)
 
             if util.angle_in_range(start1, start2, end2):
                 result_arc.start_angle = self.start_angle

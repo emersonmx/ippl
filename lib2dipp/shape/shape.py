@@ -17,7 +17,6 @@
 # along with lib2dipp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from lib2dipp.shape.base import Object
 from lib2dipp.shape.point import Point
 from lib2dipp.shape.rectangle import Rectangle
 from lib2dipp.shape.loop import Loop
@@ -26,55 +25,31 @@ from lib2dipp.shape.line import Line
 from lib2dipp import util
 
 
-class Shape(Object):
+class Shape(object):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         """Creates a Shape object.
 
         Parameters:
-            args[0] a list of Primitives for outer_loop.
-            args[1] a list of list of Primitives for inner_loops.
-            OR
-            kwargs["outer_loop"] a list of Primitives for outer_loop.
-            kwargs["inner_loops"]  a list of list of Primitives for inner_loops.
+            outer_loop a list of Primitives.
+            inner_loops a list of list of Primitives.
         """
 
         super(Shape, self).__init__()
 
-        values = self._parse_args(*args, **kwargs)
-        self.outer_loop = values[0]
-        self.inner_loops = values[1]
+        self.outer_loop = Loop()
+        self.inner_loops = []
 
         self.aabb_dirty = True
 
-    def _parse_args(self, *args, **kwargs):
-        values = [Loop(), Loop()]
-        if args:
-            for i in range(len(args)):
-                values[i] = args[i]
-        elif kwargs:
-            values[0] = kwargs.get("outer_loop", values[0])
-            values[1] = kwargs.get("inner_loops", values[1])
-
-        return values
-
-    def position(self, *args, **kwargs):
-        point = Point(*args, **kwargs)
+    def position(self, x, y):
+        point = Point(x, y)
         aabb = self.bounds()
         x, y = (point.x - aabb.left, point.y - aabb.bottom)
         self.move(x, y)
         self.aabb_dirty = True
 
-    def move(self, *args, **kwargs):
-        values = [0.0, 0.0]
-        if args:
-            for i in range(len(args)):
-                values[i] = args[i]
-        elif kwargs:
-            values[0] = kwargs.get("x", values[0])
-            values[1] = kwargs.get("y", values[1])
-
-        x, y = values
+    def move(self, x, y):
         for primitive in self.primitive_iterator():
             primitive.move(x, y)
 

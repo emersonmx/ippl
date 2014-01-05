@@ -43,5 +43,6 @@ if __name__ == "__main__":
     size = (int(aabb[0] + 1), int(aabb[1] + 1))
     r = Render()
     r.image_size = size
+    r.initialize()
     r.shape(s)
     r.save("shape_rotation.png")

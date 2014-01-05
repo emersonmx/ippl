@@ -28,12 +28,14 @@ if __name__ == "__main__":
     s.outer_loop.append(Line(Point(100, 100), Point(0, 100)))
 
     aabb = s.bounds()
-    size = (int(aabb.right - aabb.left) + 1, int(aabb.top - aabb.bottom) + 1)
+    size = aabb.size()
+    size = (int(size[0]) + 1, int(size[1]) + 1)
     r = Render()
     r.draw_bounds = True
     r.image_size = size
+    r.initialize()
     r.shape(s)
-    lp = s.outer_loop.lowest_point()
+    lp = s.outer_loop.lowest_point
     r._image_drawer.point((lp.x, lp.y), (255, 0, 0))
     r.save("lowest_point.png")
 
