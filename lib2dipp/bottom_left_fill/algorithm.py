@@ -545,10 +545,10 @@ class BottomLeftFill(object):
         return -1
 
     def check_best_orientation(self, shape, best_shape_orientation):
-        shape_bounds = shape.bounds()
-        best_shape_orientation_bounds = best_shape_orientation.bounds()
+        shape_size = shape.bounds().size()
+        best_shape_orientation_size = best_shape_orientation.bounds().size()
 
-        return shape_bounds.right < best_shape_orientation_bounds.right
+        return shape_size[0] < best_shape_orientation_size[0]
 
     def overlap_was_resolved(self, primitive, static_primitive, y_move):
         move = math.ceil(y_move) + self.resolution.y
