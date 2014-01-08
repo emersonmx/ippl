@@ -20,8 +20,7 @@ static int ExtractPrimitives(lipp_Tree* node, lipp_Loop* loop) {
     }
 
     int index = ExtractPrimitives(node->right, loop);
-    loop->primitives[index] = node->data.primitive;
-    printf("type %d\n", node->data.primitive.type);
+    loop->primitives[index] = node->left->data.primitive;
 
     return ++index;
 }
@@ -92,6 +91,7 @@ static void PrintLoop(lipp_Loop* loop) {
 
 %type <tree> arc
 %type <tree> arc_object
+%type <tree> arc_data
 %type <tree> arc_centre
 %type <tree> arc_centre_point
 %type <tree> arc_radius
@@ -99,7 +99,6 @@ static void PrintLoop(lipp_Loop* loop) {
 %type <tree> arc_start_angle
 %type <number> arc_start_angle_data
 %type <number> arc_offset_angle
-%type <tree> arc_data
 
 /*
 %type <profile> profile
@@ -128,6 +127,7 @@ data: loop
 
 /* loop */
 loop: loop_object primitives {
+            $1->right = $2;
             ExtractPrimitives($2, &($1->data.loop));
             PrintLoop(&($1->data.loop));
             $$ = $1;
@@ -178,7 +178,8 @@ primitive: line { $$ = $1; }
 
 /* line */
 line: line_object {
-            $$ = $1;
+            lipp_Tree* node = lipp_TreeCreate(kTreeTuple, $1, NULL);
+            $$ = node;
         }
     ;
 
@@ -186,7 +187,7 @@ line_object: LINE ':' line_data { $$ = $3; }
     ;
 
 line_data: tuple ',' tuple {
-            lipp_Tree* node = lipp_TreeCreate(kTreeLine, NULL, NULL);
+            lipp_Tree* node = lipp_TreeCreate(kTreeLine, $1, $3);
             lipp_Line line;
             Real x, y;
             ExtractTuple($1, &x, &y);
@@ -197,15 +198,16 @@ line_data: tuple ',' tuple {
             line.y2 = y;
             node->data.primitive.type = kPrimitiveLine;
             node->data.primitive.line = line;
-            lipp_TreeDestroy($1);
-            lipp_TreeDestroy($3);
 
             $$ = node;
         }
     ;
 
 /* arc */
-arc: arc_object { $$ = $1; }
+arc: arc_object {
+            lipp_Tree* node = lipp_TreeCreate(kTreeTuple, $1, NULL);
+            $$ = node;
+        }
     ;
 
 arc_object: ARC ':' arc_data { $$ = $3; }
@@ -213,15 +215,15 @@ arc_object: ARC ':' arc_data { $$ = $3; }
 
 arc_data: line_data ',' arc_centre {
             $3->data.primitive.arc.line = $1->data.primitive.line;
-            lipp_TreeDestroy($1);
+            $3->right = $1;
             $$ = $3;
         }
     ;
 
 arc_centre: arc_centre_point ',' arc_radius {
+            $3->left = $1;
             Real x, y;
             ExtractTuple($1, &x, &y);
-            lipp_TreeDestroy($1);
 
             $3->data.primitive.arc.x = x;
             $3->data.primitive.arc.y = y;
@@ -242,11 +244,10 @@ arc_radius_data: RADIUS ':' NUMBER { $$ = $3; }
     ;
 
 arc_start_angle: arc_start_angle_data ',' arc_offset_angle {
-            lipp_Tree* node = lipp_TreeCreate(kTreeTuple, NULL, NULL);
+            lipp_Tree* node = lipp_TreeCreate(kTreeArc, NULL, NULL);
             node->data.primitive.type = kPrimitiveArc;
             node->data.primitive.arc.start_angle = $1;
             node->data.primitive.arc.offset_angle = $3;
-
             $$ = node;
         }
     ;
