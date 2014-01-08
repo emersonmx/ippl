@@ -64,7 +64,6 @@ static void PrintLoop(lipp_Loop* loop) {
 %token PROFILE
 %token SHAPES ROTATIONS INCREMENTAL SHAPE LOOPS QUANTITY LOOP EXTERNAL
     INTERNAL PRIMITIVES LINE ARC CENTRE_POINT RADIUS START_ANGLE OFFSET_ANGLE
-/* %token EOL */
 
 %type <tree> loop
 %type <tree> loop_object
