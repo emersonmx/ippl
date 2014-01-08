@@ -10,4 +10,7 @@ tags
 *.c
 *.so
 *.o
+*.dat
+*test
+y.tab.h
 

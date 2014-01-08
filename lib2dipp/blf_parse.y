@@ -8,6 +8,51 @@
 #define ALLOC(T) malloc(sizeof(T))
 #define CALLOC(N, T) calloc(N, sizeof(T))
 #define CHECK_ERROR(V, MSG_ERROR) if (V == NULL) { yyerror(MSG_ERROR); }
+
+static void ExtractTuple(lipp_Tree* node, Real* x, Real* y) {
+    *x = node->left->data.number;
+    *y = node->right->data.number;
+}
+
+static int ExtractPrimitives(lipp_Tree* node, lipp_Loop* loop) {
+    if (node == NULL) {
+        return 0;
+    }
+
+    int index = ExtractPrimitives(node->right, loop);
+    loop->primitives[index] = node->data.primitive;
+    printf("type %d\n", node->data.primitive.type);
+
+    return ++index;
+}
+
+static void PrintPrimitive(lipp_Primitive primitive) {
+    if (primitive.type == kPrimitiveLine) {
+        lipp_Line line = primitive.line;
+        printf("Line: (%f, %f), (%f, %f)\n", line.x1, line.y1,
+            line.x2, line.y2);
+    } else if (primitive.type == kPrimitiveArc) {
+        lipp_Arc arc = primitive.arc;
+        printf("Arc: (%f, %f), (%f, %f),\n"
+            "\tCentre point: (%f, %f)\n"
+            "\tRad: %f\n"
+            "\tStart Angle: %f\n"
+            "\tOffset Angle: %f\n", arc.line.x1, arc.line.y1,
+            arc.line.x2, arc.line.y2, arc.x, arc.y, arc.radius,
+            arc.start_angle, arc.offset_angle);
+    }
+}
+
+static void PrintLoop(lipp_Loop* loop) {
+    int i;
+    printf("Loop %d (%s):\n"
+            "\t%d Primitives\n", loop->id,
+            (loop->type == kExternal ? "external" : "internal"),
+            loop->primitives_length);
+    for (i = 0; i < loop->primitives_length; i++) {
+        PrintPrimitive(loop->primitives[i]);
+    }
+}
 %}
 
 %union {
@@ -27,20 +72,36 @@
     INTERNAL PRIMITIVES LINE ARC CENTRE_POINT RADIUS START_ANGLE OFFSET_ANGLE
 /* %token EOL */
 
+%type <tree> loop
+%type <tree> loop_object
+%type <tree> loop_declaration
+%type <number> loop_id
+%type <number> loop_type
+%type <number> loop_type_values
+%type <number> loop_primitives
+
+%type <tree> primitives
+%type <tree> primitive
+
 %type <tree> tuple
-%type <line> line_object
+%type <tree> tuple_values
+
+%type <tree> line
+%type <tree> line_object
 %type <tree> line_data
-/*
-%type <arc> arc_object
+
+%type <tree> arc
+%type <tree> arc_object
 %type <tree> arc_centre
 %type <tree> arc_centre_point
 %type <tree> arc_radius
-%type <tree> arc_radius_data
+%type <number> arc_radius_data
 %type <tree> arc_start_angle
-%type <tree> arc_start_angle_data
-%type <tree> arc_offset_angle
+%type <number> arc_start_angle_data
+%type <number> arc_offset_angle
 %type <tree> arc_data
 
+/*
 %type <profile> profile
 %type <queue> profile_size_assign
 %type <integer_list> profile_size_value
@@ -61,231 +122,151 @@ input:
     | input data
     ;
 
-data: line
+data: loop
+    | data loop
     ;
 
-line: line_object {
-            printf("Line: (%f, %f), (%f, %f)\n", $1.x1, $1.y1, $1.x2, $1.y2);
-        }
-    ;
-
-line_object: LINE ':' line_data {
-            lipp_Tree* tree = lipp_TreeEval($3);
-            $$ = tree->data.line;
-        }
-    ;
-
-line_data: tuple ',' tuple {
-            $$ = lipp_TreeCreate(kLine, $1, $3);
-        }
-    ;
-
-/*
-arc: arc_object {
-            printf("Arc: (%f, %f), (%f, %f),\n"
-                "\tCentre point: (%f, %f)\n"
-                "\tRad: %f\n"
-                "\tStart Angle: %f\n"
-                "\tOffset Angle: %f\n", $1.line.x1, $1.line.y1,
-                $1.line.x2, $1.line.y2, $1.x, $1.y, $1.radius, $1.start_angle,
-                $1.offset_angle);
-        }
-    ;
-
-arc_object: ARC ':' arc_data {
-            lipp_Tree* tree = lipp_TreeEval($3);
-            $$ = tree->data.arc;
-        }
-    ;
-
-arc_data: line_data ',' arc_centre {
-            $$ = lipp_TreeCreate(kArc, $3, $1)
-        }
-    ;
-
-arc_centre: arc_centre_point ',' arc_radius {
-            $$ = lipp_TreeCreate(kTuple, $3, $1);
-        }
-    ;
-
-arc_centre_point: ARC ':' tuple { $$ = $3; }
-    ;
-
-arc_radius: arc_radius_data ',' arc_start_angle {
-            $$ = lipp_TreeCreate(kTuple, $3, $1);
-        }
-    ;
-
-arc_radius_data: RADIUS ':' NUMBER {
-            $$ = lipp_TreeCreateNumber($3);
-        }
-    ;
-
-arc_start_angle: arc_start_angle_data ',' arc_offset_angle {
-            $$ = lipp_TreeCreate(kTuple, $1, $3);
-        }
-    ;
-
-arc_start_angle_data: START_ANGLE ':' NUMBER {
-            $$ = lipp_TreeCreateNumber($3);
-        }
-    ;
-
-arc_offset_angle: OFFSET_ANGLE ':' NUMBER {
-            $$ = lipp_TreeCreateNumber($3);
-        }
-    ;
-*/
-
-tuple: '(' NUMBER ',' NUMBER ')' {
-            lipp_Tree* first = lipp_TreeCreateNumber($2);
-            lipp_Tree* second = lipp_TreeCreateNumber($4);
-            $$ = lipp_TreeCreate(kTuple, first, second);
-        }
-    ;
-
-/*
-data: profile {
-            printf("Profile %d\n"
-                "\tsize: (%d, %d)\n"
-                "\tshape %d\n"
-                "\trotations %d\n", $$->id, $$->size[0], $$->size[1],
-                $$->shapes_length, $$->rotations);
+/* loop */
+loop: loop_object primitives {
+            ExtractPrimitives($2, &($1->data.loop));
+            PrintLoop(&($1->data.loop));
             $$ = $1;
         }
     ;
 
-profile: profile_size_assign ',' profile_shapes {
-            lipp_Profile* p = ALLOC(lipp_Profile);
-            CHECK_ERROR(p, "out of space")
-
-            p->id = *((int*) $1->front->data);
-            free($1->front->data);
-            lipp_QueuePop($1);
-
-            int* ints = CALLOC(2, int);
-            CHECK_ERROR(ints, "out of space")
-
-            ints[0] = *((int*) $1->front->data);
-            free($1->front->data);
-            lipp_QueuePop($1);
-
-            ints[1] = *((int*) $1->front->data);
-            free($1->front->data);
-            lipp_QueuePop($1);
-            p->size = ints;
-            lipp_QueueDestroy($1);
-
-            p->rotations = $3[1];
-
-            lipp_Shape* shs = CALLOC($3[0], lipp_Shape);
-            CHECK_ERROR(shs, "out of space")
-
-            int i;
-            for (i = 0; i < $3[0]; i++) {
-                shs[i] = $3;
-            }
-
-            p->shapes = shs;
-            p->shapes_length = $3[0];
-
-            free($3);
-            $$ = p;
+loop_object: loop_declaration ':' loop_primitives {
+            lipp_Primitive* primitives = CALLOC($3, sizeof(lipp_Primitive));
+            CHECK_ERROR(primitives, "out of space");
+            $1->data.loop.primitives = primitives;
+            $1->data.loop.primitives_length = $3;
+            $$ = $1;
         }
     ;
 
-profile_size_assign: profile_id ':' profile_size_value {
-            lipp_Queue* q = lipp_QueueCreate();
-
-            int* i = ALLOC(int);
-            CHECK_ERROR(i, "out of space")
-            *i = $1;
-            lipp_QueuePush(q, i);
-
-            i = ALLOC(int);
-            CHECK_ERROR(i, "out of space")
-            *i = $3[0];
-            lipp_QueuePush(q, i);
-
-            i = ALLOC(int);
-            CHECK_ERROR(i, "out of space")
-            *i = $3[1];
-            lipp_QueuePush(q, i);
-
-            free($3);
-            $$ = q;
+loop_declaration: loop_id loop_type {
+            lipp_Tree* node = lipp_TreeCreate(kTreeLoop, NULL, NULL);
+            node->data.loop.id = $1;
+            node->data.loop.type = $2;
+            $$ = node;
         }
     ;
 
-profile_id: PROFILE NUMBER { $$ = $2; }
+loop_id: LOOP NUMBER { $$ = $2; }
     ;
 
-profile_size_value: '(' NUMBER ',' NUMBER ')' {
-            int* ints = CALLOC(2, int);
-            CHECK_ERROR(ints, "out of space")
-            ints[0] = $2;
-            ints[1] = $4;
-            $$ = ints;
+loop_type: '(' loop_type_values ')' { $$ = $2; }
+    ;
+
+loop_type_values: EXTERNAL { $$ = kExternal; }
+    | INTERNAL { $$ = kInternal; }
+    ;
+
+loop_primitives: NUMBER PRIMITIVES { $$ = $1; }
+    ;
+
+/* primitives */
+primitives: primitive { $$ = $1; }
+    | primitives primitive {
+            $2->right = $1;
+            $$ = $2;
         }
     ;
 
-profile_shapes: profile_shapes_assign ',' profile_rotations {
-            int* ints = CALLOC(2, int);
-            CHECK_ERROR(ints, "out of space")
-            ints[0] = $1;
-            ints[1] = $3;
-            $$ = ints;
+primitive: line { $$ = $1; }
+    | arc { $$ = $1; }
+    ;
+
+/* line */
+line: line_object {
+            $$ = $1;
         }
     ;
 
-profile_shapes_assign: SHAPES ':' NUMBER { $$ = $3; }
+line_object: LINE ':' line_data { $$ = $3; }
     ;
 
-profile_rotations: profile_rotations_assign shape {
-            lipp_Queue* q = lipp_QueueCreate();
-            int* i = ALLOC(int);
-            CHECK_ERROR(i, "out of shape")
-            *i = $1;
-            lipp_QueuePush(q, i);
-            $$ = q;
+line_data: tuple ',' tuple {
+            lipp_Tree* node = lipp_TreeCreate(kTreeLine, NULL, NULL);
+            lipp_Line line;
+            Real x, y;
+            ExtractTuple($1, &x, &y);
+            line.x1 = x;
+            line.y1 = y;
+            ExtractTuple($3, &x, &y);
+            line.x2 = x;
+            line.y2 = y;
+            node->data.primitive.type = kPrimitiveLine;
+            node->data.primitive.line = line;
+            lipp_TreeDestroy($1);
+            lipp_TreeDestroy($3);
+
+            $$ = node;
         }
     ;
 
-profile_rotations_assign: ROTATIONS ':' profile_rotations_value { $$ = $3; }
+/* arc */
+arc: arc_object { $$ = $1; }
     ;
 
-profile_rotations_value: NUMBER INCREMENTAL { $$ = $1; }
+arc_object: ARC ':' arc_data { $$ = $3; }
     ;
 
-shape: shape_id shape_options {
-            lipp_Shape* s = ALLOC(lipp_Shape);
-
-            s->id = $1;
-            s->loops_length = $2[0];
-            s->quantity = $2[1];
-            free($2);
-            $$ = s;
+arc_data: line_data ',' arc_centre {
+            $3->data.primitive.arc.line = $1->data.primitive.line;
+            lipp_TreeDestroy($1);
+            $$ = $3;
         }
     ;
 
-shape_id: SHAPE NUMBER { $$ = $2; }
-    ;
+arc_centre: arc_centre_point ',' arc_radius {
+            Real x, y;
+            ExtractTuple($1, &x, &y);
+            lipp_TreeDestroy($1);
 
-shape_options: '(' shape_loops ',' shape_quantity ')' {
-            int* ints = CALLOC(2, int);
-            CHECK_ERROR(ints, "out of space")
-            ints[0] = $2;
-            ints[1] = $4;
-            $$ = ints;
+            $3->data.primitive.arc.x = x;
+            $3->data.primitive.arc.y = y;
+            $$ = $3;
         }
     ;
 
-shape_loops: LOOPS ':' NUMBER { $$ = $3; }
+arc_centre_point: CENTRE_POINT ':' tuple { $$ = $3; }
     ;
 
-shape_quantity: QUANTITY ':' NUMBER { $$ = $3; }
+arc_radius: arc_radius_data ',' arc_start_angle {
+            $3->data.primitive.arc.radius = $1;
+            $$ = $3;
+        }
     ;
-*/
+
+arc_radius_data: RADIUS ':' NUMBER { $$ = $3; }
+    ;
+
+arc_start_angle: arc_start_angle_data ',' arc_offset_angle {
+            lipp_Tree* node = lipp_TreeCreate(kTreeTuple, NULL, NULL);
+            node->data.primitive.type = kPrimitiveArc;
+            node->data.primitive.arc.start_angle = $1;
+            node->data.primitive.arc.offset_angle = $3;
+
+            $$ = node;
+        }
+    ;
+
+arc_start_angle_data: START_ANGLE ':' NUMBER { $$ = $3; }
+    ;
+
+arc_offset_angle: OFFSET_ANGLE NUMBER { $$ = $2; }
+    ;
+
+/* util */
+tuple: '(' tuple_values ')' { $$ = $2; }
+    ;
+
+tuple_values: NUMBER ',' NUMBER {
+            lipp_Tree* first = lipp_TreeCreateNumber($1);
+            lipp_Tree* second = lipp_TreeCreateNumber($3);
+            $$ = lipp_TreeCreate(kTreeTuple, first, second);
+        }
+    ;
 %%
 
 int main() {

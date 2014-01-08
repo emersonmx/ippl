@@ -1,6 +1,7 @@
 LEX = flex
 YACC = bison -y
 YFLAGS = -d
+CFLAGS = -g
 LDFLAGS = -lfl
 objects = blf_scan.o blf_parse.o blf_parse_impl.o _queue.o _tree.o
 

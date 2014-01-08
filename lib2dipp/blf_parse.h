@@ -8,11 +8,16 @@ extern "C" {
 #endif
 
 extern int yylineno;
-typedef float Real;
+typedef double Real;
 
 void yyerror(const char* s, ...);
 
+typedef enum lipp_PrimitiveType {
+    kPrimitiveLine, kPrimitiveArc
+} lipp_PrimitiveType;
+
 typedef struct lipp_Line {
+    lipp_PrimitiveType type;
     Real x1;
     Real y1;
     Real x2;
@@ -20,6 +25,7 @@ typedef struct lipp_Line {
 } lipp_Line;
 
 typedef struct lipp_Arc {
+    lipp_PrimitiveType type;
     lipp_Line line;
     Real x;
     Real y;
@@ -29,7 +35,7 @@ typedef struct lipp_Arc {
 } lipp_Arc;
 
 typedef union lipp_Primitive {
-    int type;
+    lipp_PrimitiveType type;
     lipp_Line line;
     lipp_Arc arc;
 } lipp_Primitive;
@@ -39,26 +45,26 @@ typedef enum lipp_LoopType {
 } lipp_LoopType;
 
 typedef struct lipp_Loop {
-    size_t id;
+    int id;
     lipp_LoopType type;
     lipp_Primitive* primitives;
-    size_t primitives_length;
+    int primitives_length;
 } lipp_Loop;
 
 typedef struct lipp_Shape {
-    size_t id;
-    size_t quantity;
+    int id;
+    int quantity;
     lipp_Loop* loops;
-    size_t loops_length;
+    int loops_length;
 } lipp_Shape;
 
 typedef struct lipp_Profile {
-    size_t id;
-    size_t width;
-    size_t height;
-    size_t rotations;
+    int id;
+    int width;
+    int height;
+    int rotations;
     lipp_Shape* shapes;
-    size_t shapes_length;
+    int shapes_length;
 } lipp_Profile;
 
 #ifdef __cplusplus
