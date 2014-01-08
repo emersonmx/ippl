@@ -56,11 +56,6 @@ static void PrintLoop(lipp_Loop* loop) {
 
 %union {
     Real number;
-    lipp_Line line;
-    lipp_Arc arc;
-    lipp_Loop loop;
-    lipp_Shape shape;
-    lipp_Profile profile;
     lipp_Tree* tree;
 }
 
