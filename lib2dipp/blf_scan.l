@@ -35,6 +35,6 @@ Cen { return CENTRE_POINT; }
 Rad { return RADIUS; }
 StAng { return START_ANGLE; }
 Offset { return OFFSET_ANGLE; }
-[ \t\n] { /* ignore whitespace */ }
+[ \t\n] { /* ignore */ }
 . { printf("Mystery character %s\n", yytext); }
 %%
