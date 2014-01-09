@@ -3,7 +3,7 @@ YACC = bison -y
 YFLAGS = -d
 CFLAGS = -g
 LDFLAGS = -lfl
-objects = blf_scan.o blf_parse.o blf_parse_impl.o _tree.o
+objects = blf_scan.o blf_parse.o blf_parse_impl.o tree.o
 
 blf_reader: blf_reader.o $(objects)
 	$(CC) -o $@ $^ $(LDFLAGS)
