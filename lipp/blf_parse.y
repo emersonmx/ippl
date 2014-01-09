@@ -30,6 +30,14 @@ static int ExtractLoops(lipp_Tree* node, lipp_Shape* shape) {
     return ++index;
 }
 
+static int ExtractShapes(lipp_Tree* node, lipp_Profile* profile) {
+    if (node == NULL) { return 0; }
+
+    int index = ExtractShapes(node->left, profile);
+    profile->shapes[index] = node->data.shape;
+    return ++index;
+}
+
 static void PrintPrimitive(lipp_Primitive primitive) {
     if (primitive.type == kPrimitiveLine) {
         lipp_Line line = primitive.line;
@@ -66,6 +74,23 @@ static void PrintShape(lipp_Shape* shape) {
         PrintLoop(&(shape->loops[i]));
     }
 }
+
+static void PrintProfile(lipp_Profile* profile) {
+    int i;
+    printf("Profile %d: (%d, %d), Shapes: %d, Rotations: %d incremental\n",
+           profile->id, profile->width, profile->height, profile->shapes_length,
+           profile->rotations);
+    for (i = 0; i < profile->shapes_length; i++) {
+        PrintShape(profile->shapes);
+    }
+}
+
+static void PrintData(lipp_Tree* node) {
+    if (node == NULL) { return; }
+
+    PrintProfile(&(node->right->data.profile));
+    PrintData(node->left);
+}
 %}
 
 %union {
@@ -79,6 +104,17 @@ static void PrintShape(lipp_Shape* shape) {
 %token SHAPES ROTATIONS INCREMENTAL SHAPE LOOPS QUANTITY LOOP EXTERNAL
     INTERNAL PRIMITIVES LINE ARC CENTRE_POINT RADIUS START_ANGLE OFFSET_ANGLE
 
+%type <tree> profiles
+%type <tree> profile
+%type <tree> profile_object
+%type <tree> profile_declaration
+%type <number> profile_id
+%type <tree> profile_shapes
+%type <number> profile_shapes_value
+%type <number> profile_rotations
+%type <number> profile_rotations_value
+
+%type <tree> shapes
 %type <tree> shape
 %type <tree> shape_object
 %type <number> shape_id
@@ -135,18 +171,78 @@ static void PrintShape(lipp_Shape* shape) {
 */
 %%
 input:
-    | input data
+    | input profiles {
+            printf("Profiles:\n");
+            PrintData($2);
+        }
     ;
 
-data: shape
-    | data shape
+/* profile */
+profiles: profile { $$ = $1; }
+    | profiles profile {
+            $2->left = $1;
+            $$ = $2;
+        }
+    ;
+
+profile: profile_object shapes {
+            $1->right = $2;
+            ExtractShapes($2, &($1->data.profile));
+            $$ = lipp_TreeCreate(kTreeTuple, NULL, $1);
+        }
+    ;
+
+profile_object: profile_declaration ',' profile_shapes {
+            $3->left = $1;
+            $3->data.profile.id = $1->left->data.number;
+            Real width, height;
+            ExtractTuple($1->right, &width, &height);
+            $3->data.profile.width = width;
+            $3->data.profile.height = height;
+            $$ = $3;
+        }
+    ;
+
+profile_declaration: profile_id ':' tuple {
+            lipp_Tree* number = lipp_TreeCreateNumber($1);
+            $$ = lipp_TreeCreate(kTreeTuple, number, $3);
+        }
+    ;
+
+profile_id: PROFILE NUMBER { $$ = $2; }
+    ;
+
+profile_shapes: profile_shapes_value ',' profile_rotations {
+              lipp_Tree* node = lipp_TreeCreate(kTreeProfile, NULL, NULL);
+              lipp_Shape* shapes = CALLOC($1, sizeof(lipp_Shape));
+              CHECK_ERROR(shapes, "out of space")
+              node->data.profile.rotations = $3;
+              node->data.profile.shapes = shapes;
+              node->data.profile.shapes_length = $1;
+              $$ = node;
+        }
+    ;
+
+profile_shapes_value: SHAPES ':' NUMBER { $$ = $3; }
+    ;
+
+profile_rotations: ROTATIONS ':' profile_rotations_value { $$ = $3; }
+    ;
+
+profile_rotations_value: NUMBER INCREMENTAL { $$ = $1; }
     ;
 
 /* shape */
+shapes: shape { $$ = $1; }
+    | shapes shape {
+            $2->left = $1;
+            $$ = $2;
+        }
+    ;
+
 shape: shape_object loops {
             $1->right = $2;
             ExtractLoops($2, &($1->data.shape));
-            PrintShape(&($1->data.shape));
             $$ = $1;
         }
     ;
@@ -163,8 +259,7 @@ shape_id: SHAPE NUMBER { $$ = $2; }
 shape_options: '(' shape_options_attributes ')' { $$ = $2; }
     ;
 
-shape_options_attributes:
-    shape_loops ',' shape_quantity {
+shape_options_attributes: shape_loops ',' shape_quantity {
             lipp_Tree* node = lipp_TreeCreate(kTreeShape, NULL, NULL);
             lipp_Loop* loops = CALLOC($1, sizeof(lipp_Loop));
             CHECK_ERROR(loops, "out of space");
