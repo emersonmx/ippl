@@ -17,10 +17,21 @@
   along with lipp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "parse.tab.h"
+#include "scan.lex.h"
 #include "parse.h"
+#include "parse_util.h"
 
 int main() {
-    yyparse();
+    lipp_PureParse p = { NULL, NULL };
+    if(yylex_init_extra(&p, &p.scan_info)) {
+        perror("init alloc failed");
+        return 1;
+    }
+
+    yyparse(&p);
+
+    PrintProfile(&(p.tree->right->data.profile));
 
     return 0;
 }

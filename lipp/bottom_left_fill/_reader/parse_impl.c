@@ -18,14 +18,17 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 
 #include "parse.h"
 
-lipp_Tree* lipp_TreeCreate(int type, lipp_Tree* left, lipp_Tree* right) {
+lipp_Tree* lipp_TreeCreate(lipp_PureParse* pure_parse, int type,
+        lipp_Tree* left, lipp_Tree* right) {
+
     lipp_Tree* tree = malloc(sizeof(lipp_Tree));
     if (tree == NULL) {
-        yyerror("out of space");
+        yyerror(pure_parse, "out of space");
     }
 
     tree->type = type;
@@ -35,27 +38,28 @@ lipp_Tree* lipp_TreeCreate(int type, lipp_Tree* left, lipp_Tree* right) {
     return tree;
 }
 
-lipp_Tree* lipp_TreeCreateNumber(Real number) {
-    lipp_Tree* tree = lipp_TreeCreate(kTreeNumber, NULL, NULL);
+lipp_Tree* lipp_TreeCreateNumber(lipp_PureParse* pure_parse, double number) {
+    lipp_Tree* tree = lipp_TreeCreate(pure_parse, kTreeNumber, NULL, NULL);
     tree->data.number = number;
     return tree;
 }
 
-void lipp_TreeDestroy(lipp_Tree* self) {
+void lipp_TreeDestroy(lipp_PureParse* pure_parse, lipp_Tree* self) {
     if (self == NULL) {
+        yyerror(pure_parse, "end node");
         return;
     }
 
-    lipp_TreeDestroy(self->left);
-    lipp_TreeDestroy(self->right);
+    lipp_TreeDestroy(pure_parse, self->left);
+    lipp_TreeDestroy(pure_parse, self->right);
     free(self);
 }
 
-void yyerror(const char* s, ...) {
+void yyerror(lipp_PureParse* pure_parse, const char* s, ...) {
     va_list ap;
     va_start(ap, s);
 
-    fprintf(stderr, "%d: error: ", yylineno);
+    fprintf(stderr, "%d: error: ", yyget_lineno(pure_parse->scan_info));
     vfprintf(stderr, s, ap);
     fprintf(stderr, "\n");
 }

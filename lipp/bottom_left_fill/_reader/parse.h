@@ -17,17 +17,14 @@
   along with lipp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LIPP_BOTTOM_LEFT_FILL__READER_BLF_PARSE_H_
-#define LIPP_BOTTOM_LEFT_FILL__READER_BLF_PARSE_H_
-
-#include <stdlib.h>
+#ifndef LIPP_BOTTOM_LEFT_FILL__READER_PARSE_H_
+#define LIPP_BOTTOM_LEFT_FILL__READER_PARSE_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern int yylineno;
-typedef double Real;
+typedef void* yyscan_t;
 
 typedef enum lipp_PrimitiveType {
     kPrimitiveLine, kPrimitiveArc
@@ -35,20 +32,20 @@ typedef enum lipp_PrimitiveType {
 
 typedef struct lipp_Line {
     lipp_PrimitiveType type;
-    Real x1;
-    Real y1;
-    Real x2;
-    Real y2;
+    double x1;
+    double y1;
+    double x2;
+    double y2;
 } lipp_Line;
 
 typedef struct lipp_Arc {
     lipp_PrimitiveType type;
     lipp_Line line;
-    Real x;
-    Real y;
-    Real radius;
-    Real start_angle;
-    Real offset_angle;
+    double x;
+    double y;
+    double radius;
+    double start_angle;
+    double offset_angle;
 } lipp_Arc;
 
 typedef union lipp_Primitive {
@@ -93,7 +90,7 @@ typedef struct lipp_Tree lipp_Tree;
 struct lipp_Tree {
     int type;
     union {
-        Real number;
+        double number;
         lipp_Primitive primitive;
         lipp_Loop loop;
         lipp_Shape shape;
@@ -103,16 +100,22 @@ struct lipp_Tree {
     lipp_Tree* right;
 };
 
-lipp_Tree* lipp_TreeCreate(int type, lipp_Tree* left, lipp_Tree* right);
+typedef struct lipp_PureParse {
+    yyscan_t scan_info;
+    lipp_Tree* tree;
+} lipp_PureParse;
 
-lipp_Tree* lipp_TreeCreateNumber(Real number);
+lipp_Tree* lipp_TreeCreate(lipp_PureParse* pure_parse, int type,
+    lipp_Tree* left, lipp_Tree* right);
 
-void lipp_TreeDestroy(lipp_Tree* self);
+lipp_Tree* lipp_TreeCreateNumber(lipp_PureParse* pure_parse, double number);
 
-void yyerror(const char* s, ...);
+void lipp_TreeDestroy(lipp_PureParse* pure_parse, lipp_Tree* self);
+
+void yyerror(lipp_PureParse* pure_parse, const char* s, ...);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* LIPP_BOTTOM_LEFT_FILL__READER_BLF_PARSE_H_ */
+#endif /* LIPP_BOTTOM_LEFT_FILL__READER_PARSE_H_ */
 

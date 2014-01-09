@@ -21,7 +21,10 @@
 
 #include <stdio.h>
 
-void ExtractTuple(lipp_Tree* node, Real* x, Real* y) {
+#include "parse.tab.h"
+#include "scan.lex.h"
+
+void ExtractTuple(lipp_Tree* node, double* x, double* y) {
     *x = node->left->data.number;
     *y = node->right->data.number;
 }

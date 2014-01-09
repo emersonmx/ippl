@@ -17,17 +17,24 @@
   along with lipp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+%define api.pure
+%parse-param { lipp_PureParse* pure_parse }
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "parse_util.h"
-
 %}
 
 %union {
-    Real number;
-    lipp_Tree* tree;
+    double number;
+    struct lipp_Tree* tree;
 }
+
+%{
+#include "scan.lex.h"
+#include "parse_util.h"
+
+#define YYLEX_PARAM pure_parse->scan_info
+%}
 
 /* declare tokens */
 %token <number> NUMBER
@@ -86,7 +93,8 @@
 input:
     | input profile {
             printf("Profiles:\n");
-            PrintProfile(&($2->right->data.profile));
+            pure_parse->tree = $2;
+            YYACCEPT;
         }
     ;
 
@@ -94,14 +102,14 @@ input:
 profile: profile_object shapes {
             $1->right = $2;
             ExtractShapes($2, &($1->data.profile));
-            $$ = lipp_TreeCreate(kTreeTuple, NULL, $1);
+            $$ = lipp_TreeCreate(pure_parse, kTreeTuple, NULL, $1);
         }
     ;
 
 profile_object: profile_declaration ',' profile_shapes {
             $3->left = $1;
             $3->data.profile.id = $1->left->data.number;
-            Real width, height;
+            double width, height;
             ExtractTuple($1->right, &width, &height);
             $3->data.profile.width = width;
             $3->data.profile.height = height;
@@ -110,8 +118,8 @@ profile_object: profile_declaration ',' profile_shapes {
     ;
 
 profile_declaration: profile_id ':' tuple {
-            lipp_Tree* number = lipp_TreeCreateNumber($1);
-            $$ = lipp_TreeCreate(kTreeTuple, number, $3);
+            lipp_Tree* number = lipp_TreeCreateNumber(pure_parse, $1);
+            $$ = lipp_TreeCreate(pure_parse, kTreeTuple, number, $3);
         }
     ;
 
@@ -119,13 +127,14 @@ profile_id: PROFILE NUMBER { $$ = $2; }
     ;
 
 profile_shapes: profile_shapes_value ',' profile_rotations {
-              lipp_Tree* node = lipp_TreeCreate(kTreeProfile, NULL, NULL);
-              lipp_Shape* shapes = CALLOC($1, sizeof(lipp_Shape));
-              CHECK_ERROR(shapes, "out of space")
-              node->data.profile.rotations = $3;
-              node->data.profile.shapes = shapes;
-              node->data.profile.shapes_length = $1;
-              $$ = node;
+            lipp_Tree* node = lipp_TreeCreate(pure_parse, kTreeProfile,
+                NULL, NULL);
+            lipp_Shape* shapes = CALLOC($1, sizeof(lipp_Shape));
+            CHECK_ERROR(pure_parse, shapes, "out of space")
+            node->data.profile.rotations = $3;
+            node->data.profile.shapes = shapes;
+            node->data.profile.shapes_length = $1;
+            $$ = node;
         }
     ;
 
@@ -166,9 +175,10 @@ shape_options: '(' shape_options_attributes ')' { $$ = $2; }
     ;
 
 shape_options_attributes: shape_loops ',' shape_quantity {
-            lipp_Tree* node = lipp_TreeCreate(kTreeShape, NULL, NULL);
+            lipp_Tree* node = lipp_TreeCreate(pure_parse, kTreeShape,
+                NULL, NULL);
             lipp_Loop* loops = CALLOC($1, sizeof(lipp_Loop));
-            CHECK_ERROR(loops, "out of space");
+            CHECK_ERROR(pure_parse, loops, "out of space");
             node->data.shape.loops = loops;
             node->data.shape.loops_length = $1;
             node->data.shape.quantity = $3;
@@ -199,7 +209,7 @@ loop: loop_object primitives {
 
 loop_object: loop_declaration ':' loop_primitives_length {
             lipp_Primitive* primitives = CALLOC($3, sizeof(lipp_Primitive));
-            CHECK_ERROR(primitives, "out of space")
+            CHECK_ERROR(pure_parse, primitives, "out of space")
             $1->data.loop.primitives = primitives;
             $1->data.loop.primitives_length = $3;
             $$ = $1;
@@ -207,7 +217,8 @@ loop_object: loop_declaration ':' loop_primitives_length {
     ;
 
 loop_declaration: loop_id loop_type {
-            lipp_Tree* node = lipp_TreeCreate(kTreeLoop, NULL, NULL);
+            lipp_Tree* node = lipp_TreeCreate(pure_parse, kTreeLoop,
+                NULL, NULL);
             node->data.loop.id = $1;
             node->data.loop.type = $2;
             $$ = node;
@@ -241,7 +252,7 @@ primitive: line { $$ = $1; }
 
 /* line */
 line: line_object {
-            lipp_Tree* node = lipp_TreeCreate(kTreeTuple, $1, NULL);
+            lipp_Tree* node = lipp_TreeCreate(pure_parse, kTreeTuple, $1, NULL);
             $$ = node;
         }
     ;
@@ -250,9 +261,9 @@ line_object: LINE ':' line_data { $$ = $3; }
     ;
 
 line_data: tuple ',' tuple {
-            lipp_Tree* node = lipp_TreeCreate(kTreeLine, $1, $3);
+            lipp_Tree* node = lipp_TreeCreate(pure_parse, kTreeLine, $1, $3);
             lipp_Line line;
-            Real x, y;
+            double x, y;
             ExtractTuple($1, &x, &y);
             line.x1 = x;
             line.y1 = y;
@@ -268,7 +279,7 @@ line_data: tuple ',' tuple {
 
 /* arc */
 arc: arc_object {
-            lipp_Tree* node = lipp_TreeCreate(kTreeTuple, $1, NULL);
+            lipp_Tree* node = lipp_TreeCreate(pure_parse, kTreeTuple, $1, NULL);
             $$ = node;
         }
     ;
@@ -285,7 +296,7 @@ arc_data: line_data ',' arc_centre_point {
 
 arc_centre_point: arc_centre_point_value ',' arc_radius {
             $3->left = $1;
-            Real x, y;
+            double x, y;
             ExtractTuple($1, &x, &y);
 
             $3->data.primitive.arc.x = x;
@@ -307,7 +318,7 @@ arc_radius_value: RADIUS ':' NUMBER { $$ = $3; }
     ;
 
 arc_angles: arc_start_angle_value ',' arc_offset_angle {
-            lipp_Tree* node = lipp_TreeCreate(kTreeArc, NULL, NULL);
+            lipp_Tree* node = lipp_TreeCreate(pure_parse, kTreeArc, NULL, NULL);
             node->data.primitive.type = kPrimitiveArc;
             node->data.primitive.arc.start_angle = $1;
             node->data.primitive.arc.offset_angle = $3;
@@ -326,9 +337,9 @@ tuple: '(' tuple_values ')' { $$ = $2; }
     ;
 
 tuple_values: NUMBER ',' NUMBER {
-            lipp_Tree* first = lipp_TreeCreateNumber($1);
-            lipp_Tree* second = lipp_TreeCreateNumber($3);
-            $$ = lipp_TreeCreate(kTreeTuple, first, second);
+            lipp_Tree* first = lipp_TreeCreateNumber(pure_parse, $1);
+            lipp_Tree* second = lipp_TreeCreateNumber(pure_parse, $3);
+            $$ = lipp_TreeCreate(pure_parse, kTreeTuple, first, second);
         }
     ;
 %%

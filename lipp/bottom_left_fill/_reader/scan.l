@@ -17,11 +17,12 @@
   along with lipp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-%option noyywrap nodefault yylineno
+%option noyywrap nodefault yylineno reentrant bison-bridge
+%option header-file="scan.lex.h"
 
 %{
-#include "parse.h"
 #include "parse.tab.h"
+#include "parse.h"
 %}
 
 SIGN -?
@@ -30,11 +31,16 @@ INT {SIGN}{DIGIT}+
 REAL {INT}"."{DIGIT}+
 NUMBER {REAL}|{INT}
 %%
+
+%{
+lipp_PureParse* pp = yyextra;
+%}
+
 ":" |
 "(" |
 ")" |
 "," { return yytext[0]; }
-{NUMBER} { yylval.number = atof(yytext); return NUMBER; }
+{NUMBER} { yylval->number = atof(yytext); return NUMBER; }
 Profiles { return PROFILE; }
 Shapes { return SHAPES; }
 Rotations { return ROTATIONS; }
@@ -53,5 +59,5 @@ Rad { return RADIUS; }
 StAng { return START_ANGLE; }
 Offset { return OFFSET_ANGLE; }
 [ \t\n] { /* ignore */ }
-. { printf("Mystery character %s\n", yytext); }
+. { yyerror(pp, "Mystery character %c\n", *yytext); }
 %%

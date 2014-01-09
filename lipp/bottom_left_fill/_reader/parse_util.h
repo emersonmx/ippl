@@ -28,9 +28,9 @@ extern "C" {
 
 #define ALLOC(T) malloc(sizeof(T))
 #define CALLOC(N, T) calloc(N, sizeof(T))
-#define CHECK_ERROR(V, MSG_ERROR) if (V == NULL) { yyerror(MSG_ERROR); }
+#define CHECK_ERROR(PP, V, MSG_ERROR) if (V == NULL) { yyerror(PP, MSG_ERROR); }
 
-void ExtractTuple(lipp_Tree* node, Real* x, Real* y);
+void ExtractTuple(lipp_Tree* node, double* x, double* y);
 
 int ExtractPrimitives(lipp_Tree* node, lipp_Loop* loop);
 
