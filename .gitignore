@@ -7,10 +7,10 @@
 *.log
 *.png
 tags
-*.c
 *.so
 *.o
 *.dat
 *test
 y.tab.h
+blf_reader
 
