@@ -121,7 +121,6 @@ static void PrintData(lipp_Tree* node) {
 %token SHAPES ROTATIONS INCREMENTAL SHAPE LOOPS QUANTITY LOOP EXTERNAL
     INTERNAL PRIMITIVES LINE ARC CENTRE_POINT RADIUS START_ANGLE OFFSET_ANGLE
 
-%type <tree> profiles
 %type <tree> profile
 %type <tree> profile_object
 %type <tree> profile_declaration
@@ -171,20 +170,13 @@ static void PrintData(lipp_Tree* node) {
 %type <number> arc_offset_angle
 %%
 input:
-    | input profiles {
+    | input profile {
             printf("Profiles:\n");
-            PrintData($2);
+            PrintProfile(&($2->right->data.profile));
         }
     ;
 
 /* profile */
-profiles: profile { $$ = $1; }
-    | profiles profile {
-            $2->left = $1;
-            $$ = $2;
-        }
-    ;
-
 profile: profile_object shapes {
             $1->right = $2;
             ExtractShapes($2, &($1->data.profile));
