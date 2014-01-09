@@ -21,7 +21,7 @@
 
 %{
 #include "parse.h"
-#include "y.tab.h"
+#include "parse.tab.h"
 %}
 
 SIGN -?
