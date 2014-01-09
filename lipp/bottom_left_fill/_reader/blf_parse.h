@@ -29,8 +29,6 @@ extern "C" {
 extern int yylineno;
 typedef double Real;
 
-void yyerror(const char* s, ...);
-
 typedef enum lipp_PrimitiveType {
     kPrimitiveLine, kPrimitiveArc
 } lipp_PrimitiveType;
@@ -85,6 +83,33 @@ typedef struct lipp_Profile {
     lipp_Shape* shapes;
     int shapes_length;
 } lipp_Profile;
+
+typedef enum lipp_TreeNodeType {
+    kTreeNumber, kTreeTuple, kTreeLine, kTreeArc, kTreeLoop, kTreeShape,
+    kTreeProfile
+} lipp_TreeType;
+
+typedef struct lipp_Tree lipp_Tree;
+struct lipp_Tree {
+    int type;
+    union {
+        Real number;
+        lipp_Primitive primitive;
+        lipp_Loop loop;
+        lipp_Shape shape;
+        lipp_Profile profile;
+    } data;
+    lipp_Tree* left;
+    lipp_Tree* right;
+};
+
+lipp_Tree* lipp_TreeCreate(int type, lipp_Tree* left, lipp_Tree* right);
+
+lipp_Tree* lipp_TreeCreateNumber(Real number);
+
+void lipp_TreeDestroy(lipp_Tree* self);
+
+void yyerror(const char* s, ...);
 
 #ifdef __cplusplus
 }

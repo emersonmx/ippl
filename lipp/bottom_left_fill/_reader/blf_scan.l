@@ -20,7 +20,6 @@
 %option noyywrap nodefault yylineno
 
 %{
-#include "tree.h"
 #include "blf_parse.h"
 #include "y.tab.h"
 %}
