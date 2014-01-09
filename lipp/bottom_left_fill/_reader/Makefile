@@ -3,15 +3,14 @@ BISON = bison
 BFLAGS = -d
 CFLAGS = -g
 LDFLAGS = -lfl
-objects = scan.lex.o parse.tab.o parse_impl.o
+objects = scan.lex.o parse.tab.o parse_impl.o parse_util.o
 
 reader: $(objects) reader.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-scan.lex.o: scan.lex.c parse.tab.o parse.h
+scan.lex.o: scan.lex.c parse.tab.o
 scan.lex.c: scan.l
 	$(FLEX) -o $@ $^
-parse.tab.o: parse.tab.c parse.h
 parse.tab.c: parse.y
 	$(BISON) $(BFLAGS) $^
 
