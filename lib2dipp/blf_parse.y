@@ -15,13 +15,18 @@ static void ExtractTuple(lipp_Tree* node, Real* x, Real* y) {
 }
 
 static int ExtractPrimitives(lipp_Tree* node, lipp_Loop* loop) {
-    if (node == NULL) {
-        return 0;
-    }
+    if (node == NULL) { return 0; }
 
     int index = ExtractPrimitives(node->right, loop);
     loop->primitives[index] = node->left->data.primitive;
+    return ++index;
+}
 
+static int ExtractLoops(lipp_Tree* node, lipp_Shape* shape) {
+    if (node == NULL) { return 0; }
+
+    int index = ExtractLoops(node->left, shape);
+    shape->loops[index] = node->data.loop;
     return ++index;
 }
 
@@ -45,11 +50,20 @@ static void PrintPrimitive(lipp_Primitive primitive) {
 static void PrintLoop(lipp_Loop* loop) {
     int i;
     printf("Loop %d (%s):\n"
-            "\t%d Primitives\n", loop->id,
-            (loop->type == kExternal ? "external" : "internal"),
-            loop->primitives_length);
+           "\t%d Primitives\n", loop->id,
+           (loop->type == kExternal ? "external" : "internal"),
+           loop->primitives_length);
     for (i = 0; i < loop->primitives_length; i++) {
         PrintPrimitive(loop->primitives[i]);
+    }
+}
+
+static void PrintShape(lipp_Shape* shape) {
+    int i;
+    printf("Shape %d (Loops: %d, Quantity: %d)\n", shape->id,
+           shape->loops_length, shape->quantity);
+    for (i = 0; i < shape->loops_length; i++) {
+        PrintLoop(&(shape->loops[i]));
     }
 }
 %}
@@ -65,6 +79,15 @@ static void PrintLoop(lipp_Loop* loop) {
 %token SHAPES ROTATIONS INCREMENTAL SHAPE LOOPS QUANTITY LOOP EXTERNAL
     INTERNAL PRIMITIVES LINE ARC CENTRE_POINT RADIUS START_ANGLE OFFSET_ANGLE
 
+%type <tree> shape
+%type <tree> shape_object
+%type <number> shape_declaration
+%type <tree> shape_options
+%type <tree> shape_options_attributes
+%type <number> shape_options_attributes_loops
+%type <number> shape_options_attributes_quantity
+
+%type <tree> loops
 %type <tree> loop
 %type <tree> loop_object
 %type <tree> loop_declaration
@@ -115,22 +138,67 @@ input:
     | input data
     ;
 
-data: loop
-    | data loop
+data: shape
+    | data shape
+    ;
+
+/* shape */
+shape: shape_object loops {
+            $1->right = $2;
+            ExtractLoops($2, &($1->data.shape));
+            PrintShape(&($1->data.shape));
+            $$ = $1;
+        }
+    ;
+
+shape_object: shape_declaration shape_options {
+            $2->data.shape.id = $1;
+            $$ = $2;
+        }
+    ;
+
+shape_declaration: SHAPE NUMBER { $$ = $2; }
+    ;
+
+shape_options: '(' shape_options_attributes ')' { $$ = $2; }
+    ;
+
+shape_options_attributes:
+    shape_options_attributes_loops ',' shape_options_attributes_quantity {
+            lipp_Tree* node = lipp_TreeCreate(kTreeShape, NULL, NULL);
+            lipp_Loop* loops = CALLOC($1, sizeof(lipp_Loop));
+            CHECK_ERROR(loops, "out of space");
+            node->data.shape.loops = loops;
+            node->data.shape.loops_length = $1;
+            node->data.shape.quantity = $3;
+            $$ = node;
+        }
+    ;
+
+shape_options_attributes_loops: LOOPS ':' NUMBER { $$ = $3; }
+    ;
+
+shape_options_attributes_quantity: QUANTITY ':' NUMBER { $$ = $3; }
     ;
 
 /* loop */
+loops: loop { $$ = $1; }
+    | loops loop {
+            $2->left = $1;
+            $$ = $2;
+        }
+    ;
+
 loop: loop_object primitives {
             $1->right = $2;
             ExtractPrimitives($2, &($1->data.loop));
-            PrintLoop(&($1->data.loop));
             $$ = $1;
         }
     ;
 
 loop_object: loop_declaration ':' loop_primitives {
             lipp_Primitive* primitives = CALLOC($3, sizeof(lipp_Primitive));
-            CHECK_ERROR(primitives, "out of space");
+            CHECK_ERROR(primitives, "out of space")
             $1->data.loop.primitives = primitives;
             $1->data.loop.primitives_length = $3;
             $$ = $1;
