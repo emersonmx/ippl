@@ -81,11 +81,11 @@ static void PrintShape(lipp_Shape* shape) {
 
 %type <tree> shape
 %type <tree> shape_object
-%type <number> shape_declaration
+%type <number> shape_id
 %type <tree> shape_options
 %type <tree> shape_options_attributes
-%type <number> shape_options_attributes_loops
-%type <number> shape_options_attributes_quantity
+%type <number> shape_loops
+%type <number> shape_quantity
 
 %type <tree> loops
 %type <tree> loop
@@ -93,8 +93,8 @@ static void PrintShape(lipp_Shape* shape) {
 %type <tree> loop_declaration
 %type <number> loop_id
 %type <number> loop_type
-%type <number> loop_type_values
-%type <number> loop_primitives
+%type <number> loop_types
+%type <number> loop_primitives_length
 
 %type <tree> primitives
 %type <tree> primitive
@@ -109,12 +109,12 @@ static void PrintShape(lipp_Shape* shape) {
 %type <tree> arc
 %type <tree> arc_object
 %type <tree> arc_data
-%type <tree> arc_centre
 %type <tree> arc_centre_point
+%type <tree> arc_centre_point_value
 %type <tree> arc_radius
-%type <number> arc_radius_data
-%type <tree> arc_start_angle
-%type <number> arc_start_angle_data
+%type <number> arc_radius_value
+%type <tree> arc_angles
+%type <number> arc_start_angle_value
 %type <number> arc_offset_angle
 
 /*
@@ -151,20 +151,20 @@ shape: shape_object loops {
         }
     ;
 
-shape_object: shape_declaration shape_options {
+shape_object: shape_id shape_options {
             $2->data.shape.id = $1;
             $$ = $2;
         }
     ;
 
-shape_declaration: SHAPE NUMBER { $$ = $2; }
+shape_id: SHAPE NUMBER { $$ = $2; }
     ;
 
 shape_options: '(' shape_options_attributes ')' { $$ = $2; }
     ;
 
 shape_options_attributes:
-    shape_options_attributes_loops ',' shape_options_attributes_quantity {
+    shape_loops ',' shape_quantity {
             lipp_Tree* node = lipp_TreeCreate(kTreeShape, NULL, NULL);
             lipp_Loop* loops = CALLOC($1, sizeof(lipp_Loop));
             CHECK_ERROR(loops, "out of space");
@@ -175,10 +175,10 @@ shape_options_attributes:
         }
     ;
 
-shape_options_attributes_loops: LOOPS ':' NUMBER { $$ = $3; }
+shape_loops: LOOPS ':' NUMBER { $$ = $3; }
     ;
 
-shape_options_attributes_quantity: QUANTITY ':' NUMBER { $$ = $3; }
+shape_quantity: QUANTITY ':' NUMBER { $$ = $3; }
     ;
 
 /* loop */
@@ -196,7 +196,7 @@ loop: loop_object primitives {
         }
     ;
 
-loop_object: loop_declaration ':' loop_primitives {
+loop_object: loop_declaration ':' loop_primitives_length {
             lipp_Primitive* primitives = CALLOC($3, sizeof(lipp_Primitive));
             CHECK_ERROR(primitives, "out of space")
             $1->data.loop.primitives = primitives;
@@ -216,14 +216,14 @@ loop_declaration: loop_id loop_type {
 loop_id: LOOP NUMBER { $$ = $2; }
     ;
 
-loop_type: '(' loop_type_values ')' { $$ = $2; }
+loop_type: '(' loop_types ')' { $$ = $2; }
     ;
 
-loop_type_values: EXTERNAL { $$ = kExternal; }
+loop_types: EXTERNAL { $$ = kExternal; }
     | INTERNAL { $$ = kInternal; }
     ;
 
-loop_primitives: NUMBER PRIMITIVES { $$ = $1; }
+loop_primitives_length: NUMBER PRIMITIVES { $$ = $1; }
     ;
 
 /* primitives */
@@ -275,14 +275,14 @@ arc: arc_object {
 arc_object: ARC ':' arc_data { $$ = $3; }
     ;
 
-arc_data: line_data ',' arc_centre {
+arc_data: line_data ',' arc_centre_point {
             $3->data.primitive.arc.line = $1->data.primitive.line;
             $3->right = $1;
             $$ = $3;
         }
     ;
 
-arc_centre: arc_centre_point ',' arc_radius {
+arc_centre_point: arc_centre_point_value ',' arc_radius {
             $3->left = $1;
             Real x, y;
             ExtractTuple($1, &x, &y);
@@ -293,19 +293,19 @@ arc_centre: arc_centre_point ',' arc_radius {
         }
     ;
 
-arc_centre_point: CENTRE_POINT ':' tuple { $$ = $3; }
+arc_centre_point_value: CENTRE_POINT ':' tuple { $$ = $3; }
     ;
 
-arc_radius: arc_radius_data ',' arc_start_angle {
+arc_radius: arc_radius_value ',' arc_angles {
             $3->data.primitive.arc.radius = $1;
             $$ = $3;
         }
     ;
 
-arc_radius_data: RADIUS ':' NUMBER { $$ = $3; }
+arc_radius_value: RADIUS ':' NUMBER { $$ = $3; }
     ;
 
-arc_start_angle: arc_start_angle_data ',' arc_offset_angle {
+arc_angles: arc_start_angle_value ',' arc_offset_angle {
             lipp_Tree* node = lipp_TreeCreate(kTreeArc, NULL, NULL);
             node->data.primitive.type = kPrimitiveArc;
             node->data.primitive.arc.start_angle = $1;
@@ -314,7 +314,7 @@ arc_start_angle: arc_start_angle_data ',' arc_offset_angle {
         }
     ;
 
-arc_start_angle_data: START_ANGLE ':' NUMBER { $$ = $3; }
+arc_start_angle_value: START_ANGLE ':' NUMBER { $$ = $3; }
     ;
 
 arc_offset_angle: OFFSET_ANGLE NUMBER { $$ = $2; }
