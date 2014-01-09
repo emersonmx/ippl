@@ -1,7 +1,6 @@
 %option noyywrap nodefault yylineno
 
 %{
-#include "_queue.h"
 #include "_tree.h"
 #include "blf_parse.h"
 #include "y.tab.h"

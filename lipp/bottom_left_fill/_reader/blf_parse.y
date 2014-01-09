@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "blf_parse.h"
-#include "_queue.h"
 #include "_tree.h"
 
 #define ALLOC(T) malloc(sizeof(T))
@@ -426,10 +425,4 @@ tuple_values: NUMBER ',' NUMBER {
         }
     ;
 %%
-
-int main() {
-    yyparse();
-
-    return 0;
-}
 
