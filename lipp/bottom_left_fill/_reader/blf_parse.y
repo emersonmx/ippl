@@ -99,7 +99,7 @@ static void PrintProfile(lipp_Profile* profile) {
            profile->id, profile->width, profile->height, profile->shapes_length,
            profile->rotations);
     for (i = 0; i < profile->shapes_length; i++) {
-        PrintShape(profile->shapes);
+        PrintShape(&(profile->shapes[i]));
     }
 }
 
