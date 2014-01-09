@@ -170,23 +170,6 @@ static void PrintData(lipp_Tree* node) {
 %type <tree> arc_angles
 %type <number> arc_start_angle_value
 %type <number> arc_offset_angle
-
-/*
-%type <profile> profile
-%type <queue> profile_size_assign
-%type <integer_list> profile_size_value
-%type <integer> profile_id
-%type <integer_list> profile_shapes
-%type <integer> profile_shapes_assign
-%type <queue> profile_rotations
-%type <integer> profile_rotations_assign
-%type <integer> profile_rotations_value
-%type <shape> shape
-%type <integer> shape_id
-%type <integer_list> shape_options
-%type <integer> shape_loops
-%type <integer> shape_quantity
-*/
 %%
 input:
     | input profiles {
