@@ -20,7 +20,7 @@
 %option noyywrap nodefault yylineno
 
 %{
-#include "blf_parse.h"
+#include "parse.h"
 #include "y.tab.h"
 %}
 

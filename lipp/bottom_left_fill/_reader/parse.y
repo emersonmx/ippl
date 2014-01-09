@@ -20,7 +20,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "blf_parse.h"
+#include "parse.h"
 
 #define ALLOC(T) malloc(sizeof(T))
 #define CALLOC(N, T) calloc(N, sizeof(T))

@@ -3,14 +3,14 @@ YACC = bison -y
 YFLAGS = -d
 CFLAGS = -g
 LDFLAGS = -lfl
-objects = blf_scan.o blf_parse.o blf_parse_impl.o
+objects = scan.o parse.o parse_impl.o
 
-blf_reader: blf_reader.o $(objects)
+reader: reader.o $(objects)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-blf_scan.o: blf_scan.l blf_parse.o
-blf_parse.o: blf_parse.y
+scan.o: scan.l parse.o
+parse.o: parse.y
 
 .PHONY: clean
-clean: $(objects) blf_reader.o blf_reader y.tab.h
+clean: $(objects) reader.o reader y.tab.h
 	rm -f $^

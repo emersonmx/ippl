@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "blf_parse.h"
+#include "parse.h"
 
 lipp_Tree* lipp_TreeCreate(int type, lipp_Tree* left, lipp_Tree* right) {
     lipp_Tree* tree = malloc(sizeof(lipp_Tree));

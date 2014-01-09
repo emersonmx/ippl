@@ -17,7 +17,7 @@
   along with lipp.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "blf_parse.h"
+#include "parse.h"
 
 int main() {
     yyparse();
