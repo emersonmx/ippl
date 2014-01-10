@@ -31,10 +31,6 @@ typedef struct lipp_Tuple {
     double second;
 } lipp_Tuple;
 
-typedef enum lipp_PrimitiveType {
-    kPrimitiveLine, kPrimitiveArc
-} lipp_PrimitiveType;
-
 typedef struct lipp_Line {
     double x1;
     double y1;
@@ -51,6 +47,10 @@ typedef struct lipp_Arc {
     double offset_angle;
 } lipp_Arc;
 
+typedef enum lipp_PrimitiveType {
+    kPrimitiveLine, kPrimitiveArc
+} lipp_PrimitiveType;
+
 typedef struct lipp_Primitive {
     lipp_PrimitiveType type;
     union {
@@ -66,14 +66,14 @@ typedef enum lipp_LoopType {
 typedef struct lipp_Loop {
     int id;
     lipp_LoopType type;
-    lipp_Primitive* primitives;
+    lipp_Primitive** primitives;
     int primitives_length;
 } lipp_Loop;
 
 typedef struct lipp_Shape {
     int id;
     int quantity;
-    lipp_Loop* loops;
+    lipp_Loop** loops;
     int loops_length;
 } lipp_Shape;
 
@@ -82,12 +82,12 @@ typedef struct lipp_Profile {
     int width;
     int height;
     int rotations;
-    lipp_Shape* shapes;
+    lipp_Shape** shapes;
     int shapes_length;
 } lipp_Profile;
 
 typedef enum lipp_ListNodeType {
-    kListPrimitive, kListLoop, kListShape, kListProfile
+    kListNumber, kListTuple, kListPrimitive, kListLoop, kListShape, kListProfile
 } lipp_ListType;
 
 typedef struct lipp_List lipp_List;
@@ -95,6 +95,7 @@ struct lipp_List {
     int type;
     union {
         double number;
+        lipp_Tuple* tuple;
         lipp_Primitive* primitive;
         lipp_Loop* loop;
         lipp_Shape* shape;
@@ -111,7 +112,7 @@ typedef struct lipp_PureParse {
 lipp_List* lipp_ListCreate(lipp_PureParse* pure_parse, int type,
     lipp_List* next);
 
-void lipp_ListDestroy(lipp_PureParse* pure_parse, lipp_List* self);
+void lipp_ListDestroy(lipp_List* self);
 
 void yyerror(lipp_PureParse* pure_parse, const char* s, ...);
 

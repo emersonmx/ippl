@@ -36,6 +36,26 @@ int ExtractLoops(lipp_List* node, lipp_Shape* shape);
 
 int ExtractShapes(lipp_List* node, lipp_Profile* profile);
 
+void DestroyLine(lipp_Line* line);
+
+void DestroyArc(lipp_Arc* arc);
+
+void DestroyPrimitives(lipp_List* primitives);
+
+void DestroyPrimitive(lipp_Primitive* primitive);
+
+void DestroyLoops(lipp_List* loops);
+
+void DestroyLoop(lipp_Loop* loop);
+
+void DestroyShapes(lipp_List* shapes);
+
+void DestroyShape(lipp_Shape* shape);
+
+void DestroyProfiles(lipp_List* profiles);
+
+void DestroyProfile(lipp_Profile* profile);
+
 void PrintPrimitive(lipp_Primitive* primitive);
 
 void PrintLoop(lipp_Loop* loop);
@@ -43,8 +63,6 @@ void PrintLoop(lipp_Loop* loop);
 void PrintShape(lipp_Shape* shape);
 
 void PrintProfile(lipp_Profile* profile);
-
-void PrintData(lipp_List* node);
 
 #ifdef __cplusplus
 }

@@ -30,6 +30,15 @@ int main() {
     }
 
     yyparse(&p);
+    lipp_List* profiles = p.list;
+    lipp_List* aux = profiles;
+
+    while (aux != NULL) {
+        PrintProfile(aux->data.profile);
+        aux = aux->next;
+    }
+
+    DestroyProfiles(profiles);
 
     return 0;
 }

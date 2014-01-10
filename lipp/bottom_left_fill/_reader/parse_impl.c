@@ -36,13 +36,13 @@ lipp_List* lipp_ListCreate(lipp_PureParse* pure_parse, int type,
     return list;
 }
 
-void lipp_ListDestroy(lipp_PureParse* pure_parse, lipp_List* self) {
-    if (self == NULL) {
-        return;
-    }
+void lipp_ListDestroy(lipp_List* self) {
+    lipp_List* aux = self;
 
-    lipp_ListDestroy(pure_parse, self->next);
-    free(self);
+    while (aux != NULL) {
+        free(aux);
+        aux = aux->next;
+    }
 }
 
 void yyerror(lipp_PureParse* pure_parse, const char* s, ...) {

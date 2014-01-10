@@ -30,6 +30,9 @@
     struct lipp_Line* line;
     struct lipp_Arc* arc;
     struct lipp_Primitive* primitive;
+    struct lipp_Loop* loop;
+    struct lipp_Shape* shape;
+    struct lipp_Profile* profile;
     struct lipp_List* list;
 }
 
@@ -46,34 +49,33 @@
 %token SHAPES ROTATIONS INCREMENTAL SHAPE LOOPS QUANTITY LOOP EXTERNAL
     INTERNAL PRIMITIVES LINE ARC CENTRE_POINT RADIUS START_ANGLE OFFSET_ANGLE
 
-/*
-%type <tree> profile
-%type <tree> profile_object
-%type <tree> profile_declaration
+
+%type <list> profile
+%type <profile> profile_object
+%type <list> profile_declaration
 %type <number> profile_id
-%type <tree> profile_shapes
+%type <profile> profile_shapes
 %type <number> profile_shapes_value
 %type <number> profile_rotations
 %type <number> profile_rotations_value
 
-%type <tree> shapes
-%type <tree> shape
-%type <tree> shape_object
+%type <list> shapes
+%type <list> shape
+%type <shape> shape_object
 %type <number> shape_id
-%type <tree> shape_options
-%type <tree> shape_options_attributes
+%type <shape> shape_options
+%type <shape> shape_options_attributes
 %type <number> shape_loops
 %type <number> shape_quantity
 
-%type <tree> loops
-%type <tree> loop
-%type <tree> loop_object
-%type <tree> loop_declaration
+%type <list> loops
+%type <list> loop
+%type <loop> loop_object
+%type <loop> loop_declaration
 %type <number> loop_id
 %type <number> loop_type
 %type <number> loop_types
 %type <number> loop_primitives_length
-*/
 
 %type <list> primitives
 %type <list> primitive
@@ -97,52 +99,38 @@
 %type <number> arc_offset_angle
 %%
 input:
-    | input primitives {
-            lipp_List* aux = $2;
-            while (aux != NULL) {
-                PrintPrimitive(aux->data.primitive);
-                aux = aux->next;
-            }
-            /*
-            if ($2->type == kPrimitiveLine) {
-                free($2->data.line);
-            } else if ($2->type == kPrimitiveArc) {
-                free($2->data.arc->line);
-                free($2->data.arc);
-            }
-            free($2);*/
-        }
-    ;
-/*
-input:
     | input profile {
-            printf("Profiles:\n");
-            pure_parse->tree = $2;
+            pure_parse->list = $2;
             YYACCEPT;
         }
     ;
 
+/* profile */
 profile: profile_object shapes {
-            $1->right = $2;
-            ExtractShapes($2, &($1->data.profile));
-            $$ = lipp_TreeCreate(pure_parse, kTreeTuple, NULL, $1);
+            ExtractShapes($2, $1);
+            lipp_List* list = lipp_ListCreate(pure_parse, kListProfile, NULL);
+            list->data.profile = $1;
+            $$ = list;
         }
     ;
 
 profile_object: profile_declaration ',' profile_shapes {
-            $3->left = $1;
-            $3->data.profile.id = $1->left->data.number;
-            double width, height;
-            ExtractTuple($1->right, &width, &height);
-            $3->data.profile.width = width;
-            $3->data.profile.height = height;
+            lipp_Tuple* tuple = $1->next->data.tuple;
+            $3->id = $1->data.number;
+            $3->width = tuple->first;
+            $3->height = tuple->second;
+            free($1->next->data.tuple);
+            free($1->next);
             $$ = $3;
         }
     ;
 
 profile_declaration: profile_id ':' tuple {
-            lipp_Tree* number = lipp_TreeCreateNumber(pure_parse, $1);
-            $$ = lipp_TreeCreate(pure_parse, kTreeTuple, number, $3);
+            lipp_List* tuple = lipp_ListCreate(pure_parse, kListTuple, NULL);
+            tuple->data.tuple = $3;
+            lipp_List* number = lipp_ListCreate(pure_parse, kListNumber, tuple);
+            number->data.number = $1;
+            $$ = number;
         }
     ;
 
@@ -150,14 +138,13 @@ profile_id: PROFILE NUMBER { $$ = $2; }
     ;
 
 profile_shapes: profile_shapes_value ',' profile_rotations {
-            lipp_Tree* node = lipp_TreeCreate(pure_parse, kTreeProfile,
-                NULL, NULL);
-            lipp_Shape* shapes = CALLOC($1, sizeof(lipp_Shape));
-            CHECK_ERROR(pure_parse, shapes, "out of space")
-            node->data.profile.rotations = $3;
-            node->data.profile.shapes = shapes;
-            node->data.profile.shapes_length = $1;
-            $$ = node;
+            lipp_Profile* profile = ALLOC(lipp_Profile);
+            CHECK_ERROR(pure_parse, profile, "out of space")
+            profile->shapes = CALLOC($1, lipp_Shape*);
+            CHECK_ERROR(pure_parse, profile->shapes, "out of space")
+            profile->rotations = $3;
+            profile->shapes_length = $1;
+            $$ = profile;
         }
     ;
 
@@ -170,22 +157,24 @@ profile_rotations: ROTATIONS ':' profile_rotations_value { $$ = $3; }
 profile_rotations_value: NUMBER INCREMENTAL { $$ = $1; }
     ;
 
+/* shape */
 shapes: shape { $$ = $1; }
     | shapes shape {
-            $2->left = $1;
+            $2->next = $1;
             $$ = $2;
         }
     ;
 
 shape: shape_object loops {
-            $1->right = $2;
-            ExtractLoops($2, &($1->data.shape));
-            $$ = $1;
+            ExtractLoops($2, $1);
+            lipp_List* list = lipp_ListCreate(pure_parse, kListShape, NULL);
+            list->data.shape = $1;
+            $$ = list;
         }
     ;
 
 shape_object: shape_id shape_options {
-            $2->data.shape.id = $1;
+            $2->id = $1;
             $$ = $2;
         }
     ;
@@ -197,14 +186,14 @@ shape_options: '(' shape_options_attributes ')' { $$ = $2; }
     ;
 
 shape_options_attributes: shape_loops ',' shape_quantity {
-            lipp_Tree* node = lipp_TreeCreate(pure_parse, kTreeShape,
-                NULL, NULL);
-            lipp_Loop* loops = CALLOC($1, sizeof(lipp_Loop));
-            CHECK_ERROR(pure_parse, loops, "out of space");
-            node->data.shape.loops = loops;
-            node->data.shape.loops_length = $1;
-            node->data.shape.quantity = $3;
-            $$ = node;
+            lipp_Shape* shape = ALLOC(lipp_Shape);
+            CHECK_ERROR(pure_parse, shape, "out of space");
+            shape->loops = CALLOC($1, lipp_Loop);
+            CHECK_ERROR(pure_parse, shape->loops, "out of space")
+            shape->loops_length = $1;
+            shape->quantity = $3;
+
+            $$ = shape;
         }
     ;
 
@@ -214,35 +203,38 @@ shape_loops: LOOPS ':' NUMBER { $$ = $3; }
 shape_quantity: QUANTITY ':' NUMBER { $$ = $3; }
     ;
 
-loops: loop { $$ = $1; }
+/* loop */
+loops: loop {
+            $$ = $1;
+        }
     | loops loop {
-            $2->left = $1;
+            $2->next = $1;
             $$ = $2;
         }
     ;
 
 loop: loop_object primitives {
-            $1->right = $2;
-            ExtractPrimitives($2, &($1->data.loop));
-            $$ = $1;
+            ExtractPrimitives($2, $1);
+            lipp_List* list = lipp_ListCreate(pure_parse, kListLoop, NULL);
+            list->data.loop = $1;
+            $$ = list;
         }
     ;
 
 loop_object: loop_declaration ':' loop_primitives_length {
-            lipp_Primitive* primitives = CALLOC($3, sizeof(lipp_Primitive));
-            CHECK_ERROR(pure_parse, primitives, "out of space")
-            $1->data.loop.primitives = primitives;
-            $1->data.loop.primitives_length = $3;
+            $1->primitives = CALLOC($3, lipp_Primitive*);
+            CHECK_ERROR(pure_parse, $1->primitives, "out of space")
+            $1->primitives_length = $3;
             $$ = $1;
         }
     ;
 
 loop_declaration: loop_id loop_type {
-            lipp_Tree* node = lipp_TreeCreate(pure_parse, kTreeLoop,
-                NULL, NULL);
-            node->data.loop.id = $1;
-            node->data.loop.type = $2;
-            $$ = node;
+            lipp_Loop* loop = ALLOC(lipp_Loop);
+            CHECK_ERROR(pure_parse, loop, "out of space")
+            loop->id = $1;
+            loop->type = $2;
+            $$ = loop;
         }
     ;
 
@@ -258,8 +250,8 @@ loop_types: EXTERNAL { $$ = kExternal; }
 
 loop_primitives_length: NUMBER PRIMITIVES { $$ = $1; }
     ;
-*/
 
+/* primitives */
 primitives: primitive {
             $$ = $1;
         }
@@ -289,6 +281,7 @@ primitive: line {
         }
     ;
 
+/* line */
 line: line_object {
             $$ = $1;
         }

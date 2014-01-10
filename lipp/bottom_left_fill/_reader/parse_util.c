@@ -27,25 +27,103 @@
 int ExtractPrimitives(lipp_List* node, lipp_Loop* loop) {
     if (node == NULL) { return 0; }
 
-    //int index = ExtractPrimitives(node->right, loop);
-    //loop->primitives[index] = node->left->data.primitive;
-    return 0;//++index;
+    int index = ExtractPrimitives(node->next, loop);
+    loop->primitives[index] = node->data.primitive;
+    return ++index;
 }
 
 int ExtractLoops(lipp_List* node, lipp_Shape* shape) {
     if (node == NULL) { return 0; }
 
-    //int index = ExtractLoops(node->left, shape);
-    //shape->loops[index] = node->data.loop;
-    return 0;//++index;
+    int index = ExtractLoops(node->next, shape);
+    shape->loops[index] = node->data.loop;
+    return ++index;
 }
 
 int ExtractShapes(lipp_List* node, lipp_Profile* profile) {
     if (node == NULL) { return 0; }
 
-    //int index = ExtractShapes(node->left, profile);
-    //profile->shapes[index] = node->data.shape;
-    return 0;//++index;
+    int index = ExtractShapes(node->next, profile);
+    profile->shapes[index] = node->data.shape;
+    return ++index;
+}
+
+void DestroyLine(lipp_Line* line) {
+    free(line);
+}
+
+void DestroyArc(lipp_Arc* arc) {
+    DestroyLine(arc->line);
+    free(arc);
+}
+
+void DestroyPrimitives(lipp_List* primitives) {
+    lipp_List* aux = primitives;
+    while (aux != NULL) {
+        DestroyPrimitive(aux->data.primitive);
+        aux = aux->next;
+    }
+}
+
+void DestroyPrimitive(lipp_Primitive* primitive) {
+    if (primitive->type == kPrimitiveLine) {
+        DestroyLine(primitive->data.line);
+    } else if (primitive->type == kPrimitiveArc) {
+        DestroyArc(primitive->data.arc);
+    }
+    free(primitive);
+}
+
+void DestroyLoops(lipp_List* loops) {
+    lipp_List* aux = loops;
+    while (aux != NULL) {
+        DestroyLoop(aux->data.loop);
+        aux = aux->next;
+    }
+}
+
+void DestroyLoop(lipp_Loop* loop) {
+    int i;
+    for (i = 0; i < loop->primitives_length; i++) {
+        DestroyPrimitive(loop->primitives[i]);
+    }
+    free(loop->primitives);
+    free(loop);
+}
+
+void DestroyShapes(lipp_List* shapes) {
+    lipp_List* aux = shapes;
+
+    while (aux != NULL) {
+        DestroyShape(aux->data.shape);
+        aux = aux->next;
+    }
+}
+
+void DestroyShape(lipp_Shape* shape) {
+    int i;
+    for (i = 0; i < shape->loops_length; i++) {
+        DestroyLoop(shape->loops[i]);
+    }
+    free(shape->loops);
+    free(shape);
+}
+
+void DestroyProfiles(lipp_List* profiles) {
+    lipp_List* aux = profiles;
+    while (aux != NULL) {
+        DestroyProfile(aux->data.profile);
+        aux = aux->next;
+    }
+}
+
+void DestroyProfile(lipp_Profile* profile) {
+    int i;
+    for (i = 0; i < profile->shapes_length; i++) {
+        DestroyShape(profile->shapes[i]);
+    }
+    free(profile->shapes);
+    free(profile);
 }
 
 void PrintPrimitive(lipp_Primitive* primitive) {
@@ -72,7 +150,7 @@ void PrintLoop(lipp_Loop* loop) {
            (loop->type == kExternal ? "external" : "internal"),
            loop->primitives_length);
     for (i = 0; i < loop->primitives_length; i++) {
-        //PrintPrimitive(loop->primitives[i]);
+        PrintPrimitive(loop->primitives[i]);
     }
 }
 
@@ -81,7 +159,7 @@ void PrintShape(lipp_Shape* shape) {
     printf("Shape %d (Loops: %d, Quantity: %d)\n", shape->id,
            shape->loops_length, shape->quantity);
     for (i = 0; i < shape->loops_length; i++) {
-        PrintLoop(&(shape->loops[i]));
+        PrintLoop(shape->loops[i]);
     }
 }
 
@@ -91,14 +169,7 @@ void PrintProfile(lipp_Profile* profile) {
            profile->id, profile->width, profile->height, profile->shapes_length,
            profile->rotations);
     for (i = 0; i < profile->shapes_length; i++) {
-        PrintShape(&(profile->shapes[i]));
+        PrintShape(profile->shapes[i]);
     }
-}
-
-void PrintData(lipp_List* node) {
-    if (node == NULL) { return; }
-
-    //PrintProfile(&(node->right->data.profile));
-    //PrintData(node->left);
 }
 
