@@ -108,6 +108,7 @@ input:
 /* profile */
 profile: profile_object shapes {
             ExtractShapes($2, $1);
+            lipp_ListDestroy($2);
             lipp_List* list = lipp_ListCreate(pure_parse, kListProfile, NULL);
             list->data.profile = $1;
             $$ = list;
@@ -120,7 +121,7 @@ profile_object: profile_declaration ',' profile_shapes {
             $3->width = tuple->first;
             $3->height = tuple->second;
             free($1->next->data.tuple);
-            free($1->next);
+            lipp_ListDestroy($1);
             $$ = $3;
         }
     ;
@@ -167,6 +168,7 @@ shapes: shape { $$ = $1; }
 
 shape: shape_object loops {
             ExtractLoops($2, $1);
+            lipp_ListDestroy($2);
             lipp_List* list = lipp_ListCreate(pure_parse, kListShape, NULL);
             list->data.shape = $1;
             $$ = list;
@@ -215,6 +217,7 @@ loops: loop {
 
 loop: loop_object primitives {
             ExtractPrimitives($2, $1);
+            lipp_ListDestroy($2);
             lipp_List* list = lipp_ListCreate(pure_parse, kListLoop, NULL);
             list->data.loop = $1;
             $$ = list;

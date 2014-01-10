@@ -38,10 +38,12 @@ lipp_List* lipp_ListCreate(lipp_PureParse* pure_parse, int type,
 
 void lipp_ListDestroy(lipp_List* self) {
     lipp_List* aux = self;
+    lipp_List* element = self;
 
-    while (aux != NULL) {
+    while (element != NULL) {
+        aux = element;
+        element = element->next;
         free(aux);
-        aux = aux->next;
     }
 }
 

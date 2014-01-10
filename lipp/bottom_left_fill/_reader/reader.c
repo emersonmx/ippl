@@ -24,6 +24,7 @@
 
 int main() {
     lipp_PureParse p = { NULL, NULL };
+
     if(yylex_init_extra(&p, &p.scan_info)) {
         perror("init alloc failed");
         return 1;
@@ -39,6 +40,10 @@ int main() {
     }
 
     DestroyProfiles(profiles);
+    lipp_ListDestroy(profiles);
+    p.list = NULL;
+
+    yylex_destroy(p.scan_info);
 
     return 0;
 }
