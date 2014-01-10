@@ -3,10 +3,11 @@
 CURRENT TASKS:
   - Criar classes bases (point?, line, arc, shape, loop).
     @ Added [Dom 2014-01-05]
-  - Criar leitor usando flex.
-    @ Added [Dom 2014-01-05]
   - Fazer uso da CGAL (Torcer para funcionar).
     @ Added [Dom 2014-01-05]
 COMPLETED TASKS:
+  - Criar leitor usando flex.
+    @ Added [Dom 2014-01-05]
+    @ DONE [Sex 2014-01-10]
 
 # vim:ft=quicktask
