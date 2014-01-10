@@ -31,8 +31,6 @@ int main() {
 
     yyparse(&p);
 
-    PrintProfile(&(p.tree->right->data.profile));
-
     return 0;
 }
 

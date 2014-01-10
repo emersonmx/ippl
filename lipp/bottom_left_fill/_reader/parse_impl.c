@@ -22,36 +22,26 @@
 #include <stdarg.h>
 
 #include "parse.h"
+#include "parse_util.h"
 
-lipp_Tree* lipp_TreeCreate(lipp_PureParse* pure_parse, int type,
-        lipp_Tree* left, lipp_Tree* right) {
+lipp_List* lipp_ListCreate(lipp_PureParse* pure_parse, int type,
+        lipp_List* next) {
 
-    lipp_Tree* tree = malloc(sizeof(lipp_Tree));
-    if (tree == NULL) {
-        yyerror(pure_parse, "out of space");
-    }
+    lipp_List* list = ALLOC(lipp_List);
+    CHECK_ERROR(pure_parse, list, "out of space");
 
-    tree->type = type;
-    tree->left = left;
-    tree->right = right;
+    list->type = type;
+    list->next = next;
 
-    return tree;
+    return list;
 }
 
-lipp_Tree* lipp_TreeCreateNumber(lipp_PureParse* pure_parse, double number) {
-    lipp_Tree* tree = lipp_TreeCreate(pure_parse, kTreeNumber, NULL, NULL);
-    tree->data.number = number;
-    return tree;
-}
-
-void lipp_TreeDestroy(lipp_PureParse* pure_parse, lipp_Tree* self) {
+void lipp_ListDestroy(lipp_PureParse* pure_parse, lipp_List* self) {
     if (self == NULL) {
-        yyerror(pure_parse, "end node");
         return;
     }
 
-    lipp_TreeDestroy(pure_parse, self->left);
-    lipp_TreeDestroy(pure_parse, self->right);
+    lipp_ListDestroy(pure_parse, self->next);
     free(self);
 }
 

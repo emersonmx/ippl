@@ -26,12 +26,16 @@ extern "C" {
 
 typedef void* yyscan_t;
 
+typedef struct lipp_Tuple {
+    double first;
+    double second;
+} lipp_Tuple;
+
 typedef enum lipp_PrimitiveType {
     kPrimitiveLine, kPrimitiveArc
 } lipp_PrimitiveType;
 
 typedef struct lipp_Line {
-    lipp_PrimitiveType type;
     double x1;
     double y1;
     double x2;
@@ -39,8 +43,7 @@ typedef struct lipp_Line {
 } lipp_Line;
 
 typedef struct lipp_Arc {
-    lipp_PrimitiveType type;
-    lipp_Line line;
+    lipp_Line* line;
     double x;
     double y;
     double radius;
@@ -48,10 +51,12 @@ typedef struct lipp_Arc {
     double offset_angle;
 } lipp_Arc;
 
-typedef union lipp_Primitive {
+typedef struct lipp_Primitive {
     lipp_PrimitiveType type;
-    lipp_Line line;
-    lipp_Arc arc;
+    union {
+        lipp_Line* line;
+        lipp_Arc* arc;
+    } data;
 } lipp_Primitive;
 
 typedef enum lipp_LoopType {
@@ -81,36 +86,32 @@ typedef struct lipp_Profile {
     int shapes_length;
 } lipp_Profile;
 
-typedef enum lipp_TreeNodeType {
-    kTreeNumber, kTreeTuple, kTreeLine, kTreeArc, kTreeLoop, kTreeShape,
-    kTreeProfile
-} lipp_TreeType;
+typedef enum lipp_ListNodeType {
+    kListPrimitive, kListLoop, kListShape, kListProfile
+} lipp_ListType;
 
-typedef struct lipp_Tree lipp_Tree;
-struct lipp_Tree {
+typedef struct lipp_List lipp_List;
+struct lipp_List {
     int type;
     union {
         double number;
-        lipp_Primitive primitive;
-        lipp_Loop loop;
-        lipp_Shape shape;
-        lipp_Profile profile;
+        lipp_Primitive* primitive;
+        lipp_Loop* loop;
+        lipp_Shape* shape;
+        lipp_Profile* profile;
     } data;
-    lipp_Tree* left;
-    lipp_Tree* right;
+    lipp_List* next;
 };
 
 typedef struct lipp_PureParse {
     yyscan_t scan_info;
-    lipp_Tree* tree;
+    lipp_List* list;
 } lipp_PureParse;
 
-lipp_Tree* lipp_TreeCreate(lipp_PureParse* pure_parse, int type,
-    lipp_Tree* left, lipp_Tree* right);
+lipp_List* lipp_ListCreate(lipp_PureParse* pure_parse, int type,
+    lipp_List* next);
 
-lipp_Tree* lipp_TreeCreateNumber(lipp_PureParse* pure_parse, double number);
-
-void lipp_TreeDestroy(lipp_PureParse* pure_parse, lipp_Tree* self);
+void lipp_ListDestroy(lipp_PureParse* pure_parse, lipp_List* self);
 
 void yyerror(lipp_PureParse* pure_parse, const char* s, ...);
 

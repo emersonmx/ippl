@@ -24,49 +24,44 @@
 #include "parse.tab.h"
 #include "scan.lex.h"
 
-void ExtractTuple(lipp_Tree* node, double* x, double* y) {
-    *x = node->left->data.number;
-    *y = node->right->data.number;
-}
-
-int ExtractPrimitives(lipp_Tree* node, lipp_Loop* loop) {
+int ExtractPrimitives(lipp_List* node, lipp_Loop* loop) {
     if (node == NULL) { return 0; }
 
-    int index = ExtractPrimitives(node->right, loop);
-    loop->primitives[index] = node->left->data.primitive;
-    return ++index;
+    //int index = ExtractPrimitives(node->right, loop);
+    //loop->primitives[index] = node->left->data.primitive;
+    return 0;//++index;
 }
 
-int ExtractLoops(lipp_Tree* node, lipp_Shape* shape) {
+int ExtractLoops(lipp_List* node, lipp_Shape* shape) {
     if (node == NULL) { return 0; }
 
-    int index = ExtractLoops(node->left, shape);
-    shape->loops[index] = node->data.loop;
-    return ++index;
+    //int index = ExtractLoops(node->left, shape);
+    //shape->loops[index] = node->data.loop;
+    return 0;//++index;
 }
 
-int ExtractShapes(lipp_Tree* node, lipp_Profile* profile) {
+int ExtractShapes(lipp_List* node, lipp_Profile* profile) {
     if (node == NULL) { return 0; }
 
-    int index = ExtractShapes(node->left, profile);
-    profile->shapes[index] = node->data.shape;
-    return ++index;
+    //int index = ExtractShapes(node->left, profile);
+    //profile->shapes[index] = node->data.shape;
+    return 0;//++index;
 }
 
-void PrintPrimitive(lipp_Primitive primitive) {
-    if (primitive.type == kPrimitiveLine) {
-        lipp_Line line = primitive.line;
-        printf("Line: (%f, %f), (%f, %f)\n", line.x1, line.y1,
-            line.x2, line.y2);
-    } else if (primitive.type == kPrimitiveArc) {
-        lipp_Arc arc = primitive.arc;
+void PrintPrimitive(lipp_Primitive* primitive) {
+    if (primitive->type == kPrimitiveLine) {
+        lipp_Line* line = primitive->data.line;
+        printf("Line: (%f, %f), (%f, %f)\n", line->x1, line->y1,
+            line->x2, line->y2);
+    } else if (primitive->type == kPrimitiveArc) {
+        lipp_Arc* arc = primitive->data.arc;
         printf("Arc: (%f, %f), (%f, %f),\n"
             "\tCentre point: (%f, %f)\n"
             "\tRad: %f\n"
             "\tStart Angle: %f\n"
-            "\tOffset Angle: %f\n", arc.line.x1, arc.line.y1,
-            arc.line.x2, arc.line.y2, arc.x, arc.y, arc.radius,
-            arc.start_angle, arc.offset_angle);
+            "\tOffset Angle: %f\n", arc->line->x1, arc->line->y1,
+            arc->line->x2, arc->line->y2, arc->x, arc->y, arc->radius,
+            arc->start_angle, arc->offset_angle);
     }
 }
 
@@ -77,7 +72,7 @@ void PrintLoop(lipp_Loop* loop) {
            (loop->type == kExternal ? "external" : "internal"),
            loop->primitives_length);
     for (i = 0; i < loop->primitives_length; i++) {
-        PrintPrimitive(loop->primitives[i]);
+        //PrintPrimitive(loop->primitives[i]);
     }
 }
 
@@ -100,10 +95,10 @@ void PrintProfile(lipp_Profile* profile) {
     }
 }
 
-void PrintData(lipp_Tree* node) {
+void PrintData(lipp_List* node) {
     if (node == NULL) { return; }
 
-    PrintProfile(&(node->right->data.profile));
-    PrintData(node->left);
+    //PrintProfile(&(node->right->data.profile));
+    //PrintData(node->left);
 }
 

@@ -30,15 +30,13 @@ extern "C" {
 #define CALLOC(N, T) calloc(N, sizeof(T))
 #define CHECK_ERROR(PP, V, MSG_ERROR) if (V == NULL) { yyerror(PP, MSG_ERROR); }
 
-void ExtractTuple(lipp_Tree* node, double* x, double* y);
+int ExtractPrimitives(lipp_List* node, lipp_Loop* loop);
 
-int ExtractPrimitives(lipp_Tree* node, lipp_Loop* loop);
+int ExtractLoops(lipp_List* node, lipp_Shape* shape);
 
-int ExtractLoops(lipp_Tree* node, lipp_Shape* shape);
+int ExtractShapes(lipp_List* node, lipp_Profile* profile);
 
-int ExtractShapes(lipp_Tree* node, lipp_Profile* profile);
-
-void PrintPrimitive(lipp_Primitive primitive);
+void PrintPrimitive(lipp_Primitive* primitive);
 
 void PrintLoop(lipp_Loop* loop);
 
@@ -46,7 +44,7 @@ void PrintShape(lipp_Shape* shape);
 
 void PrintProfile(lipp_Profile* profile);
 
-void PrintData(lipp_Tree* node);
+void PrintData(lipp_List* node);
 
 #ifdef __cplusplus
 }
