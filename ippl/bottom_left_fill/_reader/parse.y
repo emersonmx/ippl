@@ -1,24 +1,24 @@
 /*
   Copyright (C) 2014 Emerson Max de Medeiros Silva
 
-  This file is part of lipp.
+  This file is part of ippl.
 
-  lipp is free software: you can redistribute it and/or modify
+  ippl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  lipp is distributed in the hope that it will be useful,
+  ippl is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with lipp.  If not, see <http://www.gnu.org/licenses/>.
+  along with ippl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 %define api.pure
-%parse-param { lipp_PureParse* pure_parse }
+%parse-param { ippl_PureParse* pure_parse }
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,14 +26,14 @@
 
 %union {
     double number;
-    struct lipp_Tuple* tuple;
-    struct lipp_Line* line;
-    struct lipp_Arc* arc;
-    struct lipp_Primitive* primitive;
-    struct lipp_Loop* loop;
-    struct lipp_Shape* shape;
-    struct lipp_Profile* profile;
-    struct lipp_List* list;
+    struct ippl_Tuple* tuple;
+    struct ippl_Line* line;
+    struct ippl_Arc* arc;
+    struct ippl_Primitive* primitive;
+    struct ippl_Loop* loop;
+    struct ippl_Shape* shape;
+    struct ippl_Profile* profile;
+    struct ippl_List* list;
 }
 
 %{
@@ -108,28 +108,28 @@ input:
 /* profile */
 profile: profile_object shapes {
             ExtractShapes($2, $1);
-            lipp_ListDestroy($2);
-            lipp_List* list = lipp_ListCreate(pure_parse, kListProfile, NULL);
+            ippl_ListDestroy($2);
+            ippl_List* list = ippl_ListCreate(pure_parse, kListProfile, NULL);
             list->data.profile = $1;
             $$ = list;
         }
     ;
 
 profile_object: profile_declaration ',' profile_shapes {
-            lipp_Tuple* tuple = $1->next->data.tuple;
+            ippl_Tuple* tuple = $1->next->data.tuple;
             $3->id = $1->data.number;
             $3->width = tuple->first;
             $3->height = tuple->second;
             free($1->next->data.tuple);
-            lipp_ListDestroy($1);
+            ippl_ListDestroy($1);
             $$ = $3;
         }
     ;
 
 profile_declaration: profile_id ':' tuple {
-            lipp_List* tuple = lipp_ListCreate(pure_parse, kListTuple, NULL);
+            ippl_List* tuple = ippl_ListCreate(pure_parse, kListTuple, NULL);
             tuple->data.tuple = $3;
-            lipp_List* number = lipp_ListCreate(pure_parse, kListNumber, tuple);
+            ippl_List* number = ippl_ListCreate(pure_parse, kListNumber, tuple);
             number->data.number = $1;
             $$ = number;
         }
@@ -139,9 +139,9 @@ profile_id: PROFILE NUMBER { $$ = $2; }
     ;
 
 profile_shapes: profile_shapes_value ',' profile_rotations {
-            lipp_Profile* profile = ALLOC(lipp_Profile);
+            ippl_Profile* profile = ALLOC(ippl_Profile);
             CHECK_ERROR(pure_parse, profile, "out of space")
-            profile->shapes = CALLOC($1, lipp_Shape*);
+            profile->shapes = CALLOC($1, ippl_Shape*);
             CHECK_ERROR(pure_parse, profile->shapes, "out of space")
             profile->rotations = $3;
             profile->shapes_length = $1;
@@ -168,8 +168,8 @@ shapes: shape { $$ = $1; }
 
 shape: shape_object loops {
             ExtractLoops($2, $1);
-            lipp_ListDestroy($2);
-            lipp_List* list = lipp_ListCreate(pure_parse, kListShape, NULL);
+            ippl_ListDestroy($2);
+            ippl_List* list = ippl_ListCreate(pure_parse, kListShape, NULL);
             list->data.shape = $1;
             $$ = list;
         }
@@ -188,9 +188,9 @@ shape_options: '(' shape_options_attributes ')' { $$ = $2; }
     ;
 
 shape_options_attributes: shape_loops ',' shape_quantity {
-            lipp_Shape* shape = ALLOC(lipp_Shape);
+            ippl_Shape* shape = ALLOC(ippl_Shape);
             CHECK_ERROR(pure_parse, shape, "out of space");
-            shape->loops = CALLOC($1, lipp_Loop);
+            shape->loops = CALLOC($1, ippl_Loop);
             CHECK_ERROR(pure_parse, shape->loops, "out of space")
             shape->loops_length = $1;
             shape->quantity = $3;
@@ -217,15 +217,15 @@ loops: loop {
 
 loop: loop_object primitives {
             ExtractPrimitives($2, $1);
-            lipp_ListDestroy($2);
-            lipp_List* list = lipp_ListCreate(pure_parse, kListLoop, NULL);
+            ippl_ListDestroy($2);
+            ippl_List* list = ippl_ListCreate(pure_parse, kListLoop, NULL);
             list->data.loop = $1;
             $$ = list;
         }
     ;
 
 loop_object: loop_declaration ':' loop_primitives_length {
-            $1->primitives = CALLOC($3, lipp_Primitive*);
+            $1->primitives = CALLOC($3, ippl_Primitive*);
             CHECK_ERROR(pure_parse, $1->primitives, "out of space")
             $1->primitives_length = $3;
             $$ = $1;
@@ -233,7 +233,7 @@ loop_object: loop_declaration ':' loop_primitives_length {
     ;
 
 loop_declaration: loop_id loop_type {
-            lipp_Loop* loop = ALLOC(lipp_Loop);
+            ippl_Loop* loop = ALLOC(ippl_Loop);
             CHECK_ERROR(pure_parse, loop, "out of space")
             loop->id = $1;
             loop->type = $2;
@@ -265,8 +265,8 @@ primitives: primitive {
     ;
 
 primitive: line {
-            lipp_List* list = lipp_ListCreate(pure_parse, kListPrimitive, NULL);
-            lipp_Primitive* primitive = ALLOC(lipp_Primitive);
+            ippl_List* list = ippl_ListCreate(pure_parse, kListPrimitive, NULL);
+            ippl_Primitive* primitive = ALLOC(ippl_Primitive);
             CHECK_ERROR(pure_parse, primitive, "out of space");
             primitive->type = kPrimitiveLine;
             primitive->data.line = $1;
@@ -274,8 +274,8 @@ primitive: line {
             $$ = list;
         }
     | arc {
-            lipp_List* list = lipp_ListCreate(pure_parse, kListPrimitive, NULL);
-            lipp_Primitive* primitive = ALLOC(lipp_Primitive);
+            ippl_List* list = ippl_ListCreate(pure_parse, kListPrimitive, NULL);
+            ippl_Primitive* primitive = ALLOC(ippl_Primitive);
             CHECK_ERROR(pure_parse, primitive, "out of space");
             primitive->type = kPrimitiveArc;
             primitive->data.arc= $1;
@@ -294,7 +294,7 @@ line_object: LINE ':' line_data { $$ = $3; }
     ;
 
 line_data: tuple ',' tuple {
-            lipp_Line* line = ALLOC(lipp_Line);
+            ippl_Line* line = ALLOC(ippl_Line);
             CHECK_ERROR(pure_parse, line, "out of space")
             line->x1 = $1->first;
             line->y1 = $1->second;
@@ -345,7 +345,7 @@ arc_radius_value: RADIUS ':' NUMBER { $$ = $3; }
     ;
 
 arc_angles: arc_start_angle_value ',' arc_offset_angle {
-            lipp_Arc* arc = ALLOC(lipp_Arc);
+            ippl_Arc* arc = ALLOC(ippl_Arc);
             CHECK_ERROR(pure_parse, arc, "out of space")
             arc->start_angle = $1;
             arc->offset_angle = $3;
@@ -363,7 +363,7 @@ tuple: '(' tuple_values ')' { $$ = $2; }
     ;
 
 tuple_values: NUMBER ',' NUMBER {
-            lipp_Tuple* tuple = ALLOC(lipp_Tuple);
+            ippl_Tuple* tuple = ALLOC(ippl_Tuple);
             CHECK_ERROR(pure_parse, tuple, "out of space");
             tuple->first = $1;
             tuple->second = $3;

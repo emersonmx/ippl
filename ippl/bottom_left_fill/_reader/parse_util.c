@@ -1,20 +1,20 @@
 /*
   Copyright (C) 2014 Emerson Max de Medeiros Silva
 
-  This file is part of lipp.
+  This file is part of ippl.
 
-  lipp is free software: you can redistribute it and/or modify
+  ippl is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  lipp is distributed in the hope that it will be useful,
+  ippl is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with lipp.  If not, see <http://www.gnu.org/licenses/>.
+  along with ippl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "parse_util.h"
@@ -24,7 +24,7 @@
 #include "parse.tab.h"
 #include "scan.lex.h"
 
-int ExtractPrimitives(lipp_List* node, lipp_Loop* loop) {
+int ExtractPrimitives(ippl_List* node, ippl_Loop* loop) {
     if (node == NULL) { return 0; }
 
     int index = ExtractPrimitives(node->next, loop);
@@ -32,7 +32,7 @@ int ExtractPrimitives(lipp_List* node, lipp_Loop* loop) {
     return ++index;
 }
 
-int ExtractLoops(lipp_List* node, lipp_Shape* shape) {
+int ExtractLoops(ippl_List* node, ippl_Shape* shape) {
     if (node == NULL) { return 0; }
 
     int index = ExtractLoops(node->next, shape);
@@ -40,7 +40,7 @@ int ExtractLoops(lipp_List* node, lipp_Shape* shape) {
     return ++index;
 }
 
-int ExtractShapes(lipp_List* node, lipp_Profile* profile) {
+int ExtractShapes(ippl_List* node, ippl_Profile* profile) {
     if (node == NULL) { return 0; }
 
     int index = ExtractShapes(node->next, profile);
@@ -48,24 +48,24 @@ int ExtractShapes(lipp_List* node, lipp_Profile* profile) {
     return ++index;
 }
 
-void DestroyLine(lipp_Line* line) {
+void DestroyLine(ippl_Line* line) {
     free(line);
 }
 
-void DestroyArc(lipp_Arc* arc) {
+void DestroyArc(ippl_Arc* arc) {
     DestroyLine(arc->line);
     free(arc);
 }
 
-void DestroyPrimitives(lipp_List* primitives) {
-    lipp_List* aux = primitives;
+void DestroyPrimitives(ippl_List* primitives) {
+    ippl_List* aux = primitives;
     while (aux != NULL) {
         DestroyPrimitive(aux->data.primitive);
         aux = aux->next;
     }
 }
 
-void DestroyPrimitive(lipp_Primitive* primitive) {
+void DestroyPrimitive(ippl_Primitive* primitive) {
     if (primitive->type == kPrimitiveLine) {
         DestroyLine(primitive->data.line);
     } else if (primitive->type == kPrimitiveArc) {
@@ -74,15 +74,15 @@ void DestroyPrimitive(lipp_Primitive* primitive) {
     free(primitive);
 }
 
-void DestroyLoops(lipp_List* loops) {
-    lipp_List* aux = loops;
+void DestroyLoops(ippl_List* loops) {
+    ippl_List* aux = loops;
     while (aux != NULL) {
         DestroyLoop(aux->data.loop);
         aux = aux->next;
     }
 }
 
-void DestroyLoop(lipp_Loop* loop) {
+void DestroyLoop(ippl_Loop* loop) {
     int i;
     for (i = 0; i < loop->primitives_length; i++) {
         DestroyPrimitive(loop->primitives[i]);
@@ -91,8 +91,8 @@ void DestroyLoop(lipp_Loop* loop) {
     free(loop);
 }
 
-void DestroyShapes(lipp_List* shapes) {
-    lipp_List* aux = shapes;
+void DestroyShapes(ippl_List* shapes) {
+    ippl_List* aux = shapes;
 
     while (aux != NULL) {
         DestroyShape(aux->data.shape);
@@ -100,7 +100,7 @@ void DestroyShapes(lipp_List* shapes) {
     }
 }
 
-void DestroyShape(lipp_Shape* shape) {
+void DestroyShape(ippl_Shape* shape) {
     int i;
     for (i = 0; i < shape->loops_length; i++) {
         DestroyLoop(shape->loops[i]);
@@ -109,15 +109,15 @@ void DestroyShape(lipp_Shape* shape) {
     free(shape);
 }
 
-void DestroyProfiles(lipp_List* profiles) {
-    lipp_List* aux = profiles;
+void DestroyProfiles(ippl_List* profiles) {
+    ippl_List* aux = profiles;
     while (aux != NULL) {
         DestroyProfile(aux->data.profile);
         aux = aux->next;
     }
 }
 
-void DestroyProfile(lipp_Profile* profile) {
+void DestroyProfile(ippl_Profile* profile) {
     int i;
     for (i = 0; i < profile->shapes_length; i++) {
         DestroyShape(profile->shapes[i]);
@@ -126,13 +126,13 @@ void DestroyProfile(lipp_Profile* profile) {
     free(profile);
 }
 
-void PrintPrimitive(lipp_Primitive* primitive) {
+void PrintPrimitive(ippl_Primitive* primitive) {
     if (primitive->type == kPrimitiveLine) {
-        lipp_Line* line = primitive->data.line;
+        ippl_Line* line = primitive->data.line;
         printf("Line: (%f, %f), (%f, %f)\n", line->x1, line->y1,
             line->x2, line->y2);
     } else if (primitive->type == kPrimitiveArc) {
-        lipp_Arc* arc = primitive->data.arc;
+        ippl_Arc* arc = primitive->data.arc;
         printf("Arc: (%f, %f), (%f, %f),\n"
             "\tCentre point: (%f, %f)\n"
             "\tRad: %f\n"
@@ -143,7 +143,7 @@ void PrintPrimitive(lipp_Primitive* primitive) {
     }
 }
 
-void PrintLoop(lipp_Loop* loop) {
+void PrintLoop(ippl_Loop* loop) {
     int i;
     printf("Loop %d (%s):\n"
            "\t%d Primitives\n", loop->id,
@@ -154,7 +154,7 @@ void PrintLoop(lipp_Loop* loop) {
     }
 }
 
-void PrintShape(lipp_Shape* shape) {
+void PrintShape(ippl_Shape* shape) {
     int i;
     printf("Shape %d (Loops: %d, Quantity: %d)\n", shape->id,
            shape->loops_length, shape->quantity);
@@ -163,7 +163,7 @@ void PrintShape(lipp_Shape* shape) {
     }
 }
 
-void PrintProfile(lipp_Profile* profile) {
+void PrintProfile(ippl_Profile* profile) {
     int i;
     printf("Profile %d: (%d, %d), Shapes: %d, Rotations: %d incremental\n",
            profile->id, profile->width, profile->height, profile->shapes_length,
