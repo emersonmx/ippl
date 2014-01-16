@@ -18,24 +18,10 @@
 */
 
 #include "reader.h"
+#include <stdlib.h>
 
-#include "parse_util.h"
-#include "parse.tab.h"
-#include "scan.lex.h"
-
-ippl_List* ippl_LoadProfiles(const char* filename) {
-    ippl_PureParse p = { NULL, NULL };
-
-    if(yylex_init_extra(&p, &p.scan_info)) {
-        perror("init alloc failed");
-        return NULL;
-    }
-
-    FILE* input = fopen(filename, "rb");
-    yyset_in(input, p.scan_info);
-
-    yyparse(&p);
-    ippl_List* profiles = p.list;
+int main() {
+    ippl_List* profiles = ippl_LoadProfiles("profile.dat");
     ippl_List* aux = profiles;
 
     while (aux != NULL) {
@@ -43,14 +29,8 @@ ippl_List* ippl_LoadProfiles(const char* filename) {
         aux = aux->next;
     }
 
-    yylex_destroy(p.scan_info);
-    fclose(input);
+    ippl_DestroyProfiles(profiles);
 
-    return profiles;
-}
-
-void ippl_DestroyProfiles(ippl_List* profiles) {
-    DestroyProfiles(profiles);
-    ippl_ListDestroy(profiles);
+    return 0;
 }
 

@@ -7,8 +7,9 @@
 *.log
 *.png
 tags
-*.so
 *.o
+*.a
+*.so
 *.dat
 *test
 y.tab.h
