@@ -21,21 +21,45 @@
 
 #include "_reader/reader.h"
 
+typedef int MyCustomType;
+
 namespace ippl {
 
-typedef struct ArcData {
+/*typedef struct ArcData {
     Point_2 center;
     Point_2 source;
     Point_2 target;
 } ArcData;
 
+Curve_2 CreateSegment(const ippl_Line& line) {
+    Curve_2 result;
+
+    return result;
+}
+
+void RotateArcPoints(Point_2& center, Point_2& source, Point_2& target) {
+
+}
+
+Curve_2 CreateArc(const ippl_Arc& arc) {
+    Curve_2 result;
+
+    return result;
+}
+
+void _CreateShape(double angle, ippl_Shape* shape, Polygon_set_list& psl) {
+    // Transformation rotate e translate
+}
+
 template <typename Container>
-void _CreateRotatedShape(int rotations, ippl_Shape* shape,
+void _CreateRotatedShapes(int rotations, ippl_Shape* shape,
         Container& rotated_shapes) {
 
     int iterations = 360.0 / rotations;
     for (int i = 0; i < iterations; i++) {
-
+        Polygon_set_list psl;
+        _CreateShape(i * rotations, shape, psl);
+        rotated_shapes.push_back(psl);
     }
 }
 
@@ -68,12 +92,12 @@ Profile* _LoadBLF(ippl_List* profiles) {
     _CreateShapes(profile_data, profile->shapes);
 
     return profile;
-}
+}*/
 
 Profile* LoadBLF(const char* filename) {
     ippl_List* profiles = ippl_LoadProfiles(filename);
 
-    Profile* profile = _LoadBLF(profiles);
+    Profile* profile = NULL; //_LoadBLF(profiles);
     ippl_DestroyProfiles(profiles);
 
     return profile;
