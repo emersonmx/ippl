@@ -20,7 +20,6 @@
 from ippl.shape.point import Point
 from ippl.shape.rectangle import Rectangle
 from ippl.shape.line import Line
-from ippl.shape.arc import Arc
 
 
 class Loop(list):
@@ -43,23 +42,13 @@ class Loop(list):
             primitive = iterator.next()
             if isinstance(primitive, Line):
                 self._lowest_point = primitive.begin
-            elif isinstance(primitive, Arc):
-                self._lowest_point = primitive.line.begin
 
             for primitive in iterator:
                 line = primitive
-                if isinstance(primitive, Arc):
-                    primitive.calculate_ends()
-                    line = primitive.line
 
                 if (line.begin.distance(local_origin) <
                         self._lowest_point.distance(local_origin)):
                     self._lowest_point = line.begin
-
-                if isinstance(primitive, Arc):
-                    if (line.end.distance(local_origin) <
-                            self._lowest_point.distance(local_origin)):
-                        self._lowest_point = line.end
 
             self._lowest_point_calculated = True
 
@@ -67,42 +56,6 @@ class Loop(list):
 
     def bounds(self):
         return self.aabb
-
-    def contained(self, loop):
-        """Checks whether this loop is inside of loop.
-        Will only work properly if the AABB polygons are intersecting and that
-        has no intersection between the loop primitives.
-
-        Parameters:
-            loop a list of Primitives.
-
-        Return:
-            True if this loop is within loop, or False otherwise.
-        """
-
-        for primitive in self:
-            if isinstance(primitive, Line):
-                line = primitive
-                if not line.begin.intersect_loop(loop):
-                    return False
-            elif isinstance(primitive, Arc):
-                arc = primitive
-                arc.calculate_ends()
-                if not arc.centre_point.intersect_loop(loop):
-                    return False
-
-        return True
-
-    def contains(self, loop):
-        """Checks whether a loop within this loop.
-
-        Parameters:
-            shape a Shape object.
-        Return:
-            True if the form is contained, or False otherwise.
-        """
-
-        return loop.contained(self)
 
     def calculate_bounds(self):
         iterator = iter(self)

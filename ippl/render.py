@@ -26,7 +26,6 @@ from ippl import util
 from ippl.shape.point import Point
 from ippl.shape.rectangle import Rectangle
 from ippl.shape.line import Line
-from ippl.shape.arc import Arc
 from ippl.shape.shape import Shape
 
 
@@ -54,43 +53,6 @@ class Render(object):
         xy = ((line.begin.x, line.begin.y), (line.end.x, line.end.y))
         self._image_drawer.line(xy, color, width)
 
-    def _arc(self, arc, color, width=1):
-        start = math.degrees(arc.start_angle)
-        end = math.degrees(arc.offset_angle)
-
-        done = False
-        i = 0
-        if start < end:
-            size = abs(end - start)
-        else:
-            size = 360 - abs(end - start)
-
-        begin_point = None
-        while not done:
-            if i >= size:
-                done = True
-
-            degrees = util.wrap_360(start + i)
-
-            if begin_point:
-                x = (arc.centre_point.x +
-                     arc.radius * math.cos(math.radians(degrees)))
-                y = (arc.centre_point.y +
-                     arc.radius * math.sin(math.radians(degrees)))
-                end_point = (x, y)
-
-                x1, y1, x2, y2 = begin_point + end_point
-                self._line(Line(Point(x1, y1), Point(x2, y2)), color, width)
-                begin_point = end_point
-            else:
-                x = (arc.centre_point.x +
-                     arc.radius * math.cos(math.radians(degrees)))
-                y = (arc.centre_point.y +
-                     arc.radius * math.sin(math.radians(degrees)))
-                begin_point = (x, y)
-
-            i += 1
-
     def _aabb(self, aabb, color):
         lines = []
         lines.append(Line(Point(aabb.left, aabb.bottom),
@@ -111,13 +73,6 @@ class Render(object):
             result = a.intersect_line(b)
             if result:
                 results = [result]
-        elif isinstance(a, Line) and isinstance(b, Arc):
-            results = a.intersect_arc(b)
-        elif isinstance(a, Arc) and isinstance(b, Line):
-            results = b.intersect_arc(a)
-        elif isinstance(a, Arc) and isinstance(b, Arc):
-            results = a.intersect_arc(b)
-
         for result in results:
             if isinstance(result, Point):
                 xy = Rectangle(int(result.x) - 1, int(result.y) - 1,
@@ -125,8 +80,6 @@ class Render(object):
                 self._aabb(xy, self.intersect_color)
             elif isinstance(result, Line):
                 self._line(result, self.intersect_color, 3)
-            elif isinstance(result, Arc):
-                self._arc(result, self.intersect_color, 3)
 
     def initialize(self):
         self._image = Image.new(self.image_mode, self.image_size,
@@ -137,8 +90,6 @@ class Render(object):
         for primitive in shape.outer_loop:
             if isinstance(primitive, Line):
                 self._line(primitive, self.shape_external_color)
-            elif isinstance(primitive, Arc):
-                self._arc(primitive, self.shape_external_color)
             if self.draw_bounds:
                 self._aabb(primitive.bounds(), self.aabb_color)
 
@@ -146,8 +97,6 @@ class Render(object):
             for primitive in loop:
                 if isinstance(primitive, Line):
                     self._line(primitive, self.shape_internal_color)
-                elif isinstance(primitive, Arc):
-                    self._arc(primitive, self.shape_internal_color)
 
     def shapes(self, shapes):
         for shape in shapes:
@@ -159,8 +108,6 @@ class Render(object):
 
 if __name__ == "__main__":
     s = Shape()
-    a = Arc(Point(50.0, 50.0), 50.0, 0.0, util.pi)
-    s.outer_loop.append(a)
     s.outer_loop.append(Line(Point(0.0, 50.0), Point(0.0, 0.0)))
     s.outer_loop.append(Line(Point(0.0, 0.0), Point(100.0, 0.0)))
     s.outer_loop.append(Line(Point(100.0, 0.0), Point(100.0, 50.0)))

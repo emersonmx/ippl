@@ -30,9 +30,6 @@ ext_modules = [
     Extension("ippl/render", [
         "ippl/render.py"
     ]),
-    Extension("ippl/shape/arc", [
-        "ippl/shape/arc.py"
-    ]),
     Extension("ippl/shape/base", [
         "ippl/shape/base.py"
     ]),

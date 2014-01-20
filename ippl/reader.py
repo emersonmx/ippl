@@ -31,9 +31,7 @@ class BLFReader(object):
         "shape": 2,
         "loop": 3,
         "line": 4,
-        "arc_info": 5,
-        "arc": 6,
-        "end": 7
+        "end": 5
     }
 
     EXPRESSIONS = {
@@ -45,15 +43,7 @@ class BLFReader(object):
         "loop": re.compile(r"^Loop (?P<id>\d+) \((?P<type>\w+)\): "
                            r"(?P<primitives>\d+) Primitives$"),
         "line": re.compile(r"^Line: (?P<begin>\([-]*\d+\.\d+, [-]*\d+\.\d+\)),"
-                           r"(?P<end>\([-]*\d+\.\d+, [-]*\d+\.\d+\))$"),
-        "arc_init": re.compile(r"^Arc: (?P<begin>\([-]*\d+\.\d+, "
-                               r"[-]*\d+\.\d+\)),(?P<end>\([-]*\d+\.\d+, "
-                               r"[-]*\d+\.\d+\)),$"),
-        "arc_position": re.compile(r"^Cen: (?P<centre_point>\([-]*\d+\.\d+, "
-                                   r"[-]*\d+\.\d+\)), "
-                                   r"Rad: (?P<radius>\d+\.\d+),$"),
-        "arc_angles": re.compile(r"^StAng: (?P<start_angle>[-]*\d+\.\d+), "
-                                 r"Offset (?P<offset_angle>[-]*\d+\.\d+)$")
+                           r"(?P<end>\([-]*\d+\.\d+, [-]*\d+\.\d+\))$")
     }
 
     def __init__(self):
@@ -93,36 +83,6 @@ class BLFReader(object):
         return line_shape.rounded()
 
     @staticmethod
-    def arc(groups):
-        arc_shape = Arc()
-
-        begin = ast.literal_eval(groups["begin"])
-        end = ast.literal_eval(groups["end"])
-        centre_point = ast.literal_eval(groups["centre_point"])
-        radius = ast.literal_eval(groups["radius"])
-        start_angle = ast.literal_eval(groups["start_angle"])
-        offset_angle = ast.literal_eval(groups["offset_angle"])
-
-        if offset_angle < 0:
-            begin, end = end, begin
-        else:
-            start_angle, offset_angle = offset_angle, start_angle
-
-        start_angle = util.wrap_2pi(start_angle)
-        offset_angle = util.wrap_2pi(offset_angle)
-
-        arc_shape.line.begin = Point(begin[0], begin[1])
-        arc_shape.line.end = Point(end[0], end[1])
-        arc_shape.centre_point = Point(centre_point[0], centre_point[1])
-        arc_shape.radius = radius
-        arc_shape.start_angle = start_angle
-        arc_shape.offset_angle = offset_angle
-
-        arc_shape.calculate_angles()
-
-        return arc_shape.rounded()
-
-    @staticmethod
     def end():
         pass
 
@@ -159,7 +119,6 @@ class BLFReader(object):
 
         blf_data = {}
         line_number = 0
-        arc_data = None
         sh = None
         shape_quantity = 0
         inner_loop = []
@@ -204,8 +163,6 @@ class BLFReader(object):
                     line_number += 1
                 elif re.search(r"^Line:", line):
                     self.current_state = self.STATES["line"]
-                elif re.search(r"^Arc:", line):
-                    self.current_state = self.STATES["arc_info"]
                 else:
                     self.current_state = self.STATES["end"]
             elif self.current_state == self.STATES["line"]:
@@ -216,66 +173,6 @@ class BLFReader(object):
                     elif loop_type == "internal":
                         inner_loop.append(BLFReader.line(match.groupdict()))
                     line_number += 1
-                elif re.search(r"^Arc:", line):
-                    self.current_state = self.STATES["arc_info"]
-                elif re.search(r"^Loop \d+", line):
-                    if inner_loop:
-                        sh.inner_loops.append(inner_loop)
-                    inner_loop = []
-
-                    self.current_state = self.STATES["loop"]
-                elif re.search(r"^Shape \d+", line):
-                    if inner_loop:
-                        sh.inner_loops.append(inner_loop)
-                    inner_loop = []
-
-                    for i in xrange(shape_quantity):
-                        shape_orientations = (
-                            BLFReader.create_rotated_shapes(sh,
-                                blf_data["profile"]["rotation"]))
-                        shapes.append(shape_orientations)
-                    sh = Shape()
-                    self.current_state = self.STATES["shape"]
-                elif re.search(r"^Profiles\d+:", line):
-                    if inner_loop:
-                        sh.inner_loops.append(inner_loop)
-                    inner_loop = []
-
-                    for i in xrange(shape_quantity):
-                        shape_orientations = (
-                            BLFReader.create_rotated_shapes(sh,
-                                blf_data["profile"]["rotation"]))
-                        shapes.append(shape_orientations)
-                    sh = Shape()
-                    self.current_state = self.STATES["profile"]
-                else:
-                    self.current_state = self.STATES["end"]
-            elif self.current_state == self.STATES["arc_info"]:
-                match_init = self.EXPRESSIONS["arc_init"].search(line)
-                match_position = self.EXPRESSIONS["arc_position"].search(line)
-                match_angles = self.EXPRESSIONS["arc_angles"].search(line)
-                if match_init:
-                    arc_data = match_init.groupdict().items()
-                    line_number += 1
-                elif match_position:
-                    arc_data = arc_data + match_position.groupdict().items()
-                    line_number += 1
-                elif match_angles:
-                    arc_data = dict(arc_data + match_angles.groupdict().items())
-                    if loop_type == "external":
-                        sh.outer_loop.append(BLFReader.arc(arc_data))
-                    elif loop_type == "internal":
-                        inner_loop.append(BLFReader.arc(arc_data))
-                    arc_data = None
-                    line_number += 1
-                    self.current_state = self.STATES["arc"]
-                else:
-                    self.current_state = self.STATES["end"]
-            elif self.current_state == self.STATES["arc"]:
-                if re.search(r"^Arc:", line):
-                    self.current_state = self.STATES["arc_info"]
-                elif re.search(r"^Line:", line):
-                    self.current_state = self.STATES["line"]
                 elif re.search(r"^Loop \d+", line):
                     if inner_loop:
                         sh.inner_loops.append(inner_loop)

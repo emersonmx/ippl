@@ -82,32 +82,13 @@ class Point(object):
         odd_nodes = False
         polygon_size = len(loop)
 
-        for primitive in loop:
-            if isinstance(primitive, Line):
-                line = primitive
-                if ((line.y2 < self.y and line.y1 >= self.y) or
-                        (line.y1 < self.y and line.y2 >= self.y)):
-                    x_value = (line.x2 + (self.y - line.y2) /
-                        (line.y1 - line.y2) * (line.x1 - line.x2))
-                    if x_value < self.x:
-                        odd_nodes = not odd_nodes
-            elif isinstance(primitive, Arc):
-                arc = primitive
-                horizontal_line = Line(self, Point(self.x - 1, self.y))
-                #horizontal_line.position(0, self.y)
-                points = (
-                    horizontal_line.calculate_intersection_circle_points(arc))
-
-                if len(points) > 1:
-                    for point in points:
-                        angle = util.wrap_2pi(
-                            math.atan2(point.y - arc.centre_point.y,
-                                       point.x - arc.centre_point.x))
-                        start = arc.start_angle
-                        end = arc.offset_angle
-                        if (util.angle_in_range(angle, start, end)):
-                            if point.x < self.x:
-                                odd_nodes = not odd_nodes
+        for line in loop:
+            if ((line.y2 < self.y and line.y1 >= self.y) or
+                    (line.y1 < self.y and line.y2 >= self.y)):
+                x_value = (line.x2 + (self.y - line.y2) /
+                    (line.y1 - line.y2) * (line.x1 - line.x2))
+                if x_value < self.x:
+                    odd_nodes = not odd_nodes
 
         return odd_nodes
 
@@ -116,9 +97,6 @@ class Point(object):
             (self.x - line.x1) * (line.y2 - line.y1))
 
         return util.approx_equal(abs(cross_product), 0.0)
-
-    def rounded(self):
-        return Point(util.round_number(self.x), util.round_number(self.y))
 
     def __getitem__(self, index):
         return (self.x, self.y)[index]

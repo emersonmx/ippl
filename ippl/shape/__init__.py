@@ -21,5 +21,4 @@ from ippl.shape.point import *
 from ippl.shape.rectangle import *
 from ippl.shape.line import *
 from ippl.shape.loop import *
-from ippl.shape.arc import *
 from ippl.shape.shape import *

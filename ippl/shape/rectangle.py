@@ -104,22 +104,13 @@ class Rectangle(object):
         left = value.x
         top = value.y
 
-    def position(self, *args, **kwargs):
-        point = Point(*args, **kwargs)
+    def position(self, x, y):
+        point = Point(x, y)
         x, y = (point.x - self.left, point.y - self.bottom)
 
         self.move(x, y)
 
-    def move(self, *args, **kwargs):
-        values = [0.0, 0.0]
-        if args:
-            for i in range(len(args)):
-                values[i] = args[i]
-        elif kwargs:
-            values[0] = kwargs.get("x", values[0])
-            values[1] = kwargs.get("y", values[1])
-
-        x, y = values
+    def move(self, x, y):
         self._left_bottom.move(x, y)
         self._right_top.move(x, y)
 
@@ -137,13 +128,6 @@ class Rectangle(object):
         fourth = self.bottom > rectangle.top
 
         return not first and not second and not third and not fourth
-
-    def rounded(self):
-        left_bottom = self.left_bottom.rounded()
-        right_top = self.right_top.rounded()
-        x1, y1 = left_bottom.x, left_bottom.y
-        x2, y2 = right_top.x, right_top.y
-        return Rectangle(x1, y1, x2, y2)
 
     def __eq__(self, rectangle):
         return (util.approx_equal(self.left, rectangle.left) and

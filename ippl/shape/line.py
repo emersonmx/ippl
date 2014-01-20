@@ -44,7 +44,6 @@ class Line(object):
 
         super(Line, self).__init__()
 
-
         self.begin = begin
         self.end = end
 
@@ -129,48 +128,6 @@ class Line(object):
 
         return None
 
-    def intersect_arc(self, arc, ignore_alpha=False, ignore_beta=False):
-        """Calculate the points between a line and a arc.
-
-        Parameters:
-            arc a Arc object.
-            ignore_alpha a bool value.
-            ignore_beta a bool value.
-        Return:
-            A list of 0-2 points if the same are within the angle range of the
-            arc.
-        """
-
-        result = []
-        points = self.calculate_intersection_circle_points(arc)
-        if points:
-            aabb = self.bounds()
-            for point in points:
-                if (ignore_alpha or aabb.intersect_point(point)):
-                    angle = wrap_2pi(math.atan2(point.y - arc.centre_point.y,
-                                                point.x - arc.centre_point.x))
-                    start = arc.start_angle
-                    end = arc.offset_angle
-                    if (ignore_beta or angle_in_range(angle, start, end)):
-                        result.append(point)
-
-        return result
-
-    def intersection_points_of_shape(self, shape):
-        points = []
-
-        for primitive in shape.primitive_iterator():
-            if isinstance(primitive, Line):
-                line = primitive
-                point = self.intersect_line(line, True)
-                if point:
-                    points.append(point)
-            elif isinstance(primitive, Arc):
-                arc = primitive
-                points += self.intersect_arc(arc, True)
-
-        return points
-
     def calculate_intersection_line_point(self, line):
         """Calculate the intersection point between lines.
 
@@ -196,45 +153,6 @@ class Line(object):
         result["beta"] = ((a.x * c.y) - (a.y * c.x)) / denominator
 
         return result
-
-    def calculate_intersection_circle_points(self, circle):
-        """Calculate the points between a line and a circle.
-
-        Parameters:
-            circle a Arc object.
-        Return:
-            An empty list if delta < 0, a list with a point if delta == 0 and a
-            list with two points of delta > 0.
-        """
-
-        x1, y1 = self.begin
-        x2, y2 = self.end
-        cx, cy = circle.centre_point
-
-        dx = x2 - x1
-        dy = y2 - y1
-        a = (dx * dx) + (dy * dy)
-        b = 2 * (dx * (x1 - cx) + dy * (y1 - cy))
-        c = (cx * cx) + (cy * cy)
-        c += (x1 * x1) + (y1 * y1)
-        c -= 2 * (cx * x1 + cy * y1)
-        c -= circle.radius * circle.radius
-
-        delta = (b * b) - 4 * a * c
-        if delta < 0:
-            return []
-        else:
-            result = (-b + math.sqrt(delta)) / (2 * a)
-            x_ = x1 + result * dx
-            y_ = y1 + result * dy
-            if approx_equal(delta, 0.0):
-                return [Point(x_, y_)]
-
-            result = (-b - math.sqrt(delta)) / (2 * a)
-            x__ = x1 + result * dx
-            y__ = y1 + result * dy
-
-            return [Point(x_, y_), Point(x__, y__)]
 
     def calculate_perpendicular_line(self, point):
         """Calculate the perpendicular line passing through the point on the
@@ -344,11 +262,6 @@ class Line(object):
 
     def point_in_ends(self, point):
         return ((point == self.begin) or (point == self.end))
-
-    def rounded(self):
-        begin = self.begin.rounded()
-        end = self.end.rounded()
-        return Line(begin, end)
 
     def __eq__(self, line):
         if isinstance(line, Line):
