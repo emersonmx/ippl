@@ -27,53 +27,41 @@ class Loop(list):
     def __init__(self, *args):
         list.__init__(self, *args)
 
-        self.aabb = Rectangle()
-        self._lowest_point = Point()
-        self._lowest_point_calculated = False
+    def calculate_lowest_point(self):
+        lowest_point = Point()
+        local_origin = self.calculate_bounding_box().left_bottom
 
-        self.bounds()
-
-    @property
-    def lowest_point(self):
-        if not self._lowest_point_calculated:
-            local_origin = self.bounds().left_bottom
-
-            iterator = iter(self)
-            primitive = iterator.next()
-            if isinstance(primitive, Line):
-                self._lowest_point = primitive.begin
-
-            for primitive in iterator:
-                line = primitive
-
-                if (line.begin.distance(local_origin) <
-                        self._lowest_point.distance(local_origin)):
-                    self._lowest_point = line.begin
-
-            self._lowest_point_calculated = True
-
-        return self._lowest_point
-
-    def bounds(self):
-        return self.aabb
-
-    def calculate_bounds(self):
         iterator = iter(self)
-        try:
-            self.aabb = iterator.next().bounds()
-        except:
-            return self.bounds()
+        primitive = iterator.next()
+        if isinstance(primitive, Line):
+            lowest_point = primitive.begin
 
         for primitive in iterator:
-            aabb = primitive.bounds()
-            if aabb.left < self.aabb.left:
-                self.aabb.left = aabb.left
-            if aabb.bottom < self.aabb.bottom:
-                self.aabb.bottom = aabb.bottom
-            if aabb.right > self.aabb.right:
-                self.aabb.right = aabb.right
-            if aabb.top > self.aabb.top:
-                self.aabb.top = aabb.top
+            line = primitive
 
-        return self.bounds()
+            if (line.begin.distance(local_origin) <
+                    lowest_point.distance(local_origin)):
+                lowest_point = line.begin
+
+        return lowest_point
+
+    def calculate_bounding_box(self):
+        iterator = iter(self)
+        try:
+            bounding_box = iterator.next().calculate_bounding_box()
+        except:
+            return Rectangle()
+
+        for primitive in iterator:
+            bounding_box = primitive.calculate_bounding_box()
+            if bounding_box.left < bounding_box.left:
+                bounding_box.left = bounding_box.left
+            if bounding_box.bottom < bounding_box.bottom:
+                bounding_box.bottom = bounding_box.bottom
+            if bounding_box.right > bounding_box.right:
+                bounding_box.right = bounding_box.right
+            if bounding_box.top > bounding_box.top:
+                bounding_box.top = bounding_box.top
+
+        return bounding_box
 

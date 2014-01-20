@@ -20,7 +20,6 @@
 from ippl.shape.point import Point
 from ippl.shape.rectangle import Rectangle
 from ippl.shape.loop import Loop
-from ippl.shape.arc import Arc
 from ippl.shape.line import Line
 from ippl import util
 
@@ -40,51 +39,24 @@ class Shape(object):
         self.outer_loop = Loop()
         self.inner_loops = []
 
-        self.aabb_dirty = True
+        self.lowest_point = Point()
+        self.bounding_box = Rectangle();
 
     def position(self, x, y):
         point = Point(x, y)
-        aabb = self.bounds()
-        x, y = (point.x - aabb.left, point.y - aabb.bottom)
+        x, y = (point.x - self.bounding_box.left,
+                point.y - self.bounding_box.bottom)
         self.move(x, y)
-        self.aabb_dirty = True
 
     def move(self, x, y):
         for primitive in self.primitive_iterator():
             primitive.move(x, y)
 
-        self.aabb_dirty = True
+        self.lowest_point.move(x, y)
+        self.bounding_box.move(x, y)
 
-    def rotate(self, angle):
-        def to_point(data):
-            return Point(data[0], data[1])
-
-        for primitive in self.primitive_iterator():
-            if isinstance(primitive, Line):
-                line = primitive
-                line.begin = to_point(
-                    util.calculate_point_rotation(line.begin, angle))
-                line.end = to_point(
-                    util.calculate_point_rotation(line.end, angle))
-            elif isinstance(primitive, Arc):
-                arc = primitive
-                arc.calculate_ends()
-                arc.line.begin = to_point(
-                    util.calculate_point_rotation(arc.line.begin, angle))
-                arc.line.end = to_point(
-                    util.calculate_point_rotation(arc.line.end, angle))
-                arc.centre_point = to_point(
-                    util.calculate_point_rotation(arc.centre_point, angle))
-                arc.calculate_angles()
-
-        self.aabb_dirty = True
-
-    def bounds(self):
-        if self.aabb_dirty:
-            self.aabb_dirty = False
-            return self.outer_loop.calculate_bounds()
-
-        return self.outer_loop.bounds()
+    def calculate_bounding_box(self):
+        self.bounding_box = self.outer_loop.calculate_bounds()
 
     def outer_loop_iterator(self):
         for primitive in self.outer_loop:

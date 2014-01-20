@@ -80,7 +80,6 @@ class Point(object):
         """
 
         odd_nodes = False
-        polygon_size = len(loop)
 
         for line in loop:
             if ((line.y2 < self.y and line.y1 >= self.y) or
@@ -98,9 +97,6 @@ class Point(object):
 
         return util.approx_equal(abs(cross_product), 0.0)
 
-    def __getitem__(self, index):
-        return (self.x, self.y)[index]
-
     def __eq__(self, point):
         return ((util.approx_equal(self.x, point.x) and
             util.approx_equal(self.y, point.y)))
@@ -115,4 +111,3 @@ class Point(object):
         return "<{}>".format(self)
 
 from ippl.shape.line import Line
-from ippl.shape.arc import Arc

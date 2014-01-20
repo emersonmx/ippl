@@ -46,6 +46,7 @@ class Line(object):
 
         self.begin = begin
         self.end = end
+        self.bounding_box = Rectangle()
 
     @property
     def x1(self):
@@ -81,16 +82,17 @@ class Line(object):
 
     def position(self, x, y):
         point = Point(x, y)
-        aabb = self.bounds()
-        x, y = (point.x - aabb.left, point.y - aabb.bottom)
+        x, y = (point.x - self.bounding_box.left,
+                point.y - self.bounding_box.bottom)
 
         self.move(x, y)
 
     def move(self, x, y):
         self.begin.move(x, y)
         self.end.move(x, y)
+        self.bounding_box.move(x, y)
 
-    def bounds(self):
+    def calculate_bounding_box(self):
         minimum_x = min(self.x1, self.x2)
         maximum_x = max(self.x1, self.x2)
         minimum_y = min(self.y1, self.y2)
@@ -259,9 +261,6 @@ class Line(object):
             return False
 
         return True
-
-    def point_in_ends(self, point):
-        return ((point == self.begin) or (point == self.end))
 
     def __eq__(self, line):
         if isinstance(line, Line):
