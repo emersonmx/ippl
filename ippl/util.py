@@ -17,6 +17,8 @@
 # along with ippl.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import math
+
 def round_number(number, places=6):
     off = 10 ** places
     return int(number * off) / float(off)
@@ -36,8 +38,8 @@ def approx_equal(a, b, epsilon=1e-06):
 
 def calculate_point_rotation(point, angle):
     def rotate_vetor(x, y, angle):
-        return (x * math.cos(angle) - y * math.sin(angle),
-                x * math.sin(angle) + y * math.cos(angle))
+        return (round_number(x * math.cos(angle) - y * math.sin(angle)),
+                round_number(x * math.sin(angle) + y * math.cos(angle)))
 
     return rotate_vetor(point.x, point.y, angle)
 

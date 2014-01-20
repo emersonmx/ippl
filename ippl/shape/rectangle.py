@@ -105,9 +105,7 @@ class Rectangle(object):
         top = value.y
 
     def position(self, x, y):
-        point = Point(x, y)
-        x, y = (point.x - self.left, point.y - self.bottom)
-
+        x, y = (x - self.left, y - self.bottom)
         self.move(x, y)
 
     def move(self, x, y):

@@ -20,28 +20,16 @@
 from ippl.shape import *
 
 if __name__ == "__main__":
-    l = Loop()
-    l.append(Line(Point(50, 0), Point(100, 0)))
-    l.append(Line(Point(100, 0), Point(100, 100)))
-    l.append(Line(Point(100, 100), Point(50, 100)))
+    l = []
+    l.append(Line(Point(50, 50), Point(100, 50)))
+    l.append(Line(Point(100, 50), Point(75, 100)))
+    l.append(Line(Point(75, 100), Point(50, 50)))
 
-    l_in = Loop()
-    l_in.append(Line(Point(30, 30), Point(50, 30)))
-    l_in.append(Line(Point(50, 30), Point(40, 50)))
-    l_in.append(Line(Point(40, 50), Point(30, 30)))
-
-    pt_in = Point(40, 40)
-    pt_out = Point(1000, 1000)
-
-    print l
-    print "l bounds:", l.bounds()
-    print "l_in bounds:", l_in.bounds()
-    print l.lowest_point
-    print "l lowest_point:", l.lowest_point
-    print "l_in lowest_point:", l_in.lowest_point
-    print "Point {} is contained? {}".format(pt_in, pt_in.intersect_loop(l))
-    print "Point {} is contained? {}".format(pt_out, pt_out.intersect_loop(l))
-    print "l constains l_in? {}".format(l.contains(l_in))
-    print "l_in constains l? {}".format(l_in.contains(l))
-    print "l is within of l_in? {}".format(l.contained(l_in))
-    print "l_in is within of l? {}".format(l_in.contained(l))
+    s=Shape()
+    s.outer_loop = l
+    s.update()
+    print s
+    s.position(0, 0)
+    print s
+    print s.bounding_box
+    print s.lowest_point

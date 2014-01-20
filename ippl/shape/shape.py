@@ -17,9 +17,10 @@
 # along with ippl.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import copy
+
 from ippl.shape.point import Point
 from ippl.shape.rectangle import Rectangle
-from ippl.shape.loop import Loop
 from ippl.shape.line import Line
 from ippl import util
 
@@ -36,16 +37,14 @@ class Shape(object):
 
         super(Shape, self).__init__()
 
-        self.outer_loop = Loop()
+        self.outer_loop = []
         self.inner_loops = []
 
         self.lowest_point = Point()
         self.bounding_box = Rectangle();
 
     def position(self, x, y):
-        point = Point(x, y)
-        x, y = (point.x - self.bounding_box.left,
-                point.y - self.bounding_box.bottom)
+        x, y = (x - self.bounding_box.left, y - self.bounding_box.bottom)
         self.move(x, y)
 
     def move(self, x, y):
@@ -55,8 +54,39 @@ class Shape(object):
         self.lowest_point.move(x, y)
         self.bounding_box.move(x, y)
 
+    def update(self):
+        self.calculate_bounding_box()
+        self.calculate_lowest_point()
+
+    def calculate_lowest_point(self):
+        local_origin = self.bounding_box.left_bottom
+        iterator = iter(self.outer_loop)
+        primitive = iterator.next()
+        lowest_point = primitive.begin
+
+        for line in iterator:
+            if (line.begin.distance(local_origin) <
+                    lowest_point.distance(local_origin)):
+                lowest_point = line.begin
+
+        self.lowest_point = copy.deepcopy(lowest_point)
+
     def calculate_bounding_box(self):
-        self.bounding_box = self.outer_loop.calculate_bounds()
+        iterator = iter(self.outer_loop)
+        bounding_box = copy.deepcopy(iterator.next().calculate_bounding_box())
+
+        for primitive in iterator:
+            bbox = primitive.calculate_bounding_box()
+            if bbox.left < bounding_box.left:
+                bounding_box.left = bbox.left
+            if bbox.bottom < bounding_box.bottom:
+                bounding_box.bottom = bbox.bottom
+            if bbox.right > bounding_box.right:
+                bounding_box.right = bbox.right
+            if bbox.top > bounding_box.top:
+                bounding_box.top = bbox.top
+
+        self.bounding_box = copy.deepcopy(bounding_box)
 
     def outer_loop_iterator(self):
         for primitive in self.outer_loop:
@@ -75,11 +105,26 @@ class Shape(object):
             yield primitive
 
     def __str__(self):
+        outer_str = ""
+        for primitive in self.outer_loop_iterator():
+            outer_str += "    " + str(primitive) + "\n"
+
+        inner_str = ""
+        for i in xrange(len(self.inner_loops)):
+            inner_str += "Loop {}\n".format(i)
+            for primitive in self.inner_loops[i]:
+                inner_str += "    " + str(primitive) + "\n"
+
+        if not inner_str:
+            return ("{} (\n"
+                    "  Outer Loop:\n"
+                    "{})").format(type(self).__name__, outer_str)
+
         return ("{} (\n"
-                "  outer_loop={},\n"
-                "  inner_loops={}\n"
-                ")").format(type(self).__name__, self.outer_loop,
-                           self.inner_loops)
+                "  Outer Loop:\n"
+                "{}\n"
+                "Inner Loop:\n"
+                "{})").format(type(self).__name__, outer_str, inner_str)
 
     def __repr__(self):
         return "<{}>".format(self)

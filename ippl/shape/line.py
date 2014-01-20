@@ -17,6 +17,7 @@
 # along with ippl.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import copy
 import math
 
 from ippl.util import *
@@ -46,7 +47,6 @@ class Line(object):
 
         self.begin = begin
         self.end = end
-        self.bounding_box = Rectangle()
 
     @property
     def x1(self):
@@ -81,16 +81,12 @@ class Line(object):
         self.end.y = value
 
     def position(self, x, y):
-        point = Point(x, y)
-        x, y = (point.x - self.bounding_box.left,
-                point.y - self.bounding_box.bottom)
-
+        x, y = (x - self.bounding_box.left, y - self.bounding_box.bottom)
         self.move(x, y)
 
     def move(self, x, y):
         self.begin.move(x, y)
         self.end.move(x, y)
-        self.bounding_box.move(x, y)
 
     def calculate_bounding_box(self):
         minimum_x = min(self.x1, self.x2)
@@ -268,7 +264,7 @@ class Line(object):
         return False
 
     def __str__(self):
-        return "{} (begin={}, end={})".format(
+        return "{} ({}, {})".format(
             type(self).__name__, self.begin, self.end)
 
     def __repr__(self):
