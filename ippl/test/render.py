@@ -24,60 +24,6 @@ from ippl.render import *
 
 if __name__ == "__main__":
     s = Shape()
-    # I - 180 arcs
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(0), offset_angle=math.radians(180))
-    a.move(50, 60)
-    s.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(180), offset_angle=math.radians(360))
-    a.move(50, 165)
-    s.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(270), offset_angle=math.radians(90))
-    a.move(55, 220)
-    s.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(90), offset_angle=math.radians(270))
-    a.move(50, 220)
-    s.outer_loop.append(a)
-
-    # II - 45 arcs
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(315), offset_angle=math.radians(45))
-    a.move(80, 55)
-    s.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(45), offset_angle=math.radians(135))
-    a.move(150, -35)
-    s.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(135), offset_angle=math.radians(225))
-    a.move(185, 55)
-    s.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(225), offset_angle=math.radians(315))
-    a.move(150, 145)
-    s.outer_loop.append(a)
-
-    # III - 90 arcs
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(0), offset_angle=math.radians(90))
-    a.move(165, 180)
-    s.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(90), offset_angle=math.radians(180))
-    a.move(160, 180)
-    s.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(180), offset_angle=math.radians(270))
-    a.move(160, 175)
-    s.outer_loop.append(a)
-    a = Arc(centre_point=Point(0, 0), radius=50,
-            start_angle=math.radians(270), offset_angle=math.radians(0))
-    a.move(165, 175)
-    s.outer_loop.append(a)
-
     # IV - Lines
     l = Line(Point(0, 0), Point(50, 25))
     s.outer_loop.append(l)

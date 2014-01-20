@@ -28,7 +28,6 @@ if __name__ == "__main__":
     s = Shape()
     loop_1 = Loop()
     loop_1.append(Line(Point(0, 0), Point(10, 0)))
-    loop_1.append(Arc(Point(20, 0), 10, 0, util.pi))
     loop_1.append(Line(Point(30, 0), Point(50, 0)))
     loop_1.append(Line(Point(50, 0), Point(50, 30)))
     loop_1.append(Line(Point(50, 30), Point(0, 30)))
@@ -49,9 +48,7 @@ if __name__ == "__main__":
     shapes.append(s1)
     s2 = Shape()
     s2.outer_loop.append(Line(Point(40, 0), Point(80, 0)))
-    s2.outer_loop.append(Arc(Point(80, 40), 40, 3*util.pi/2, util.pi/2))
     s2.outer_loop.append(Line(Point(80, 80), Point(40, 80)))
-    s2.outer_loop.append(Arc(Point(40, 40), 40, util.pi/2, 3*util.pi/2))
     s2.position(0, 60)
     shapes.append(s2)
 

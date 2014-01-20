@@ -21,7 +21,6 @@ from ippl.shape import *
 
 if __name__ == "__main__":
     l = Loop()
-    l.append(Arc(Point(50, 50), 50, util.pi / 2.0, 3.0 * util.pi / 2.0))
     l.append(Line(Point(50, 0), Point(100, 0)))
     l.append(Line(Point(100, 0), Point(100, 100)))
     l.append(Line(Point(100, 100), Point(50, 100)))

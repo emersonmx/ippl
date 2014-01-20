@@ -25,8 +25,6 @@ if __name__ == "__main__":
     print Point(50, 10)
     print Line()
     print Line(Point(0, 0), Point(1, 1))
-    print Arc()
-    print Arc(Point(10, 10), 5.0, 0, util.pi)
 
     s = Shape()
     s.outer_loop.append(Line(Point(0, 0), Point(1, 0)))
@@ -40,14 +38,7 @@ if __name__ == "__main__":
     l2 = Line(Point(3, 0), Point(10, 0))
     print "Line-Line: {}".format(l1.intersect_line(l2))
     l = Line(Point(0, 2), Point(4, 2))
-    a = Arc(Point(2, 2), 2, 0, 0)
-    b = Arc(Point(5, 2), 2, 0, 0)
-    a.calculate_ends()
-    b.calculate_ends()
 
-    print "Line-Arc: {}".format(l.intersect_arc(a))
-    print "Arcs: {}".format(a.intersect_arc(b))
-    print "Arcs: {}".format(a.intersect_arc(a))
     p = Point(0, 0)
     pl = Line(Point(1, 1), Point(5, 5))
     print "Perpendicular: {}".format(pl.calculate_perpendicular_line(p))

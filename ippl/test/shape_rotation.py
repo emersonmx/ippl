@@ -27,7 +27,6 @@ if __name__ == "__main__":
     s.outer_loop.append(Line(Point(0, 100), Point(0, 0)))
     s.outer_loop.append(Line(Point(0, 0), Point(100, 0)))
     s.outer_loop.append(Line(Point(100, 0), Point(100, 100)))
-    s.outer_loop.append(Arc(Point(50, 100), 50, 0, util.pi))
     loop = Loop()
     loop.append(Line(Point(10, 10), Point(30, 10)))
     loop.append(Line(Point(30, 10), Point(20, 30)))
