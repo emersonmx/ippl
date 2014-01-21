@@ -124,7 +124,6 @@ class Rectangle(object):
         second = self.right < rectangle.left
         third = self.top < rectangle.bottom
         fourth = self.bottom > rectangle.top
-
         return not first and not second and not third and not fourth
 
     def __eq__(self, rectangle):

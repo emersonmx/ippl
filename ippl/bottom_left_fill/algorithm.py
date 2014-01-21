@@ -49,7 +49,7 @@ class BottomLeftFill(object):
         return False
 
     @staticmethod
-    def next_primitive(shape, static_shape):
+    def next_move(shape, static_shape):
         odd_nodes = False
         next_lowest_y_move = None
         vertical_line = Line.vertical_line()
@@ -136,9 +136,10 @@ class BottomLeftFill(object):
     def run(self):
         best_orientation = 0
         position_data = {}
+        origin = Point(0, 0)
 
         shape = self.shapes[0][0]
-        shape.position(0, 0)
+        shape.position(origin.x, origin.y)
         self.sheetshape.append(shape)
 
         position = shape.bounding_box.left_bottom
@@ -153,7 +154,7 @@ class BottomLeftFill(object):
                 key = "{}".format(shape.id)
                 position = position_data.get(key)
                 if not position:
-                    position = Point(0, 0)
+                    position = origin
 
                 shape.position(position.x, position.y)
 
@@ -184,10 +185,10 @@ class BottomLeftFill(object):
             best_shape = orientations[best_orientation]
             print "Put {}/{} on sheetshape.".format(best_shape.id,
                 best_orientation)
-            print "Sheet Shape size:", len(self.sheetshape)
             self.sheetshape.append(best_shape)
+            print "Sheet Shape size:", len(self.sheetshape)
 
-        self.sheetshape.bounding_box
+        return self.sheetshape.bounding_box
 
     def overlap_sheetshape(self, shape):
         bounding_box = shape.bounding_box
@@ -195,7 +196,7 @@ class BottomLeftFill(object):
         for static_shape in self.sheetshape:
             static_bounding_box = static_shape.bounding_box
             if bounding_box.intersect_rectangle(static_bounding_box):
-                result = BottomLeftFill.next_primitive(shape, static_shape)
+                result = BottomLeftFill.next_move(shape, static_shape)
                 if result:
                     return result
 

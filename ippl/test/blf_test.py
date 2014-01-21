@@ -26,7 +26,7 @@ if __name__ == "__main__":
     print "Loading data..."
     t = time.time()
     reader = BLFReader()
-    blf_data = reader.load("data/blf/profile6")
+    blf_data = reader.load("data/blf/profile7")
     print "Loading time: {:.20f}".format(time.time() - t)
 
     print "Initializing BLF..."
@@ -41,8 +41,9 @@ if __name__ == "__main__":
 
     print "Running..."
     t = time.time()
-    blf.run()
+    sheetshape_bounding_box = blf.run()
     print "Running BLF time: {:.20f}".format(time.time() - t)
+    print "Sheet shape bounding box:", sheetshape_bounding_box
 
     print "Rendering..."
     t = time.time()

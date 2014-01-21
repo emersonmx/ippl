@@ -53,16 +53,16 @@ class Render(object):
         xy = ((line.begin.x, line.begin.y), (line.end.x, line.end.y))
         self._image_drawer.line(xy, color, width)
 
-    def _aabb(self, aabb, color):
+    def _bounding_box(self, bounding_box, color):
         lines = []
-        lines.append(Line(Point(aabb.left, aabb.bottom),
-                          Point(aabb.right, aabb.bottom)))
-        lines.append(Line(Point(aabb.right, aabb.bottom),
-                          Point(aabb.right, aabb.top)))
-        lines.append(Line(Point(aabb.right, aabb.top),
-                          Point(aabb.left, aabb.top)))
-        lines.append(Line(Point(aabb.left, aabb.top),
-                          Point(aabb.left, aabb.bottom)))
+        lines.append(Line(Point(bounding_box.left, bounding_box.bottom),
+                          Point(bounding_box.right, bounding_box.bottom)))
+        lines.append(Line(Point(bounding_box.right, bounding_box.bottom),
+                          Point(bounding_box.right, bounding_box.top)))
+        lines.append(Line(Point(bounding_box.right, bounding_box.top),
+                          Point(bounding_box.left, bounding_box.top)))
+        lines.append(Line(Point(bounding_box.left, bounding_box.top),
+                          Point(bounding_box.left, bounding_box.bottom)))
 
         for line in lines:
             self._line(line, color)
@@ -77,7 +77,7 @@ class Render(object):
             if isinstance(result, Point):
                 xy = Rectangle(int(result.x) - 1, int(result.y) - 1,
                     int(result.x) + 1, int(result.y) + 1)
-                self._aabb(xy, self.intersect_color)
+                self._bounding_box(xy, self.intersect_color)
             elif isinstance(result, Line):
                 self._line(result, self.intersect_color, 3)
 
@@ -90,8 +90,9 @@ class Render(object):
         for primitive in shape.outer_loop:
             if isinstance(primitive, Line):
                 self._line(primitive, self.shape_external_color)
-            if self.draw_bounding_box:
-                self._aabb(primitive.calculate_bounding_box(), self.aabb_color)
+
+        if self.draw_bounding_box:
+            self._bounding_box(shape.bounding_box, self.aabb_color)
 
         for loop in shape.inner_loops:
             for primitive in loop:
@@ -113,9 +114,9 @@ if __name__ == "__main__":
     s.outer_loop.append(Line(Point(100.0, 0.0), Point(100.0, 50.0)))
     s.update()
     r = Render()
-    aabb = s.bounding_box
-    r.image_size = (int(aabb.right - aabb.left) + 1,
-                    int(aabb.top - aabb.bottom) + 1)
+    bounding_box = s.bounding_box
+    size = bounding_box.size()
+    r.image_size = (int(size[0]) + 1, int(size[1]) + 1)
     r.shape(s)
     r.save("render.png")
 

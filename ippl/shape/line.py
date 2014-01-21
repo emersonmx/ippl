@@ -102,14 +102,6 @@ class Line(object):
 
         return self.bounding_box
 
-    def check_line_intersection(self, line):
-        def ccw(a, b, c):
-            return (c.y - a.y) * (b.x - a.x) > (b.y - a.y) * (c.x - a.x)
-
-        a, b = self.begin, self.end
-        c, d = line.begin, line.end
-        return (ccw(a, c, d) != ccw(b, c, d)) and (ccw(a, b, c) != ccw(a, b, d))
-
     def intersect_line(self, line, ignore_alpha=False, ignore_beta=False):
         """Calculate the collision between lines.
 
