@@ -25,9 +25,6 @@ class SheetShape(list):
     def out(self, shape):
         pass
 
-    def bounds(self):
-        pass
-
 
 class RectangularSheetShape(SheetShape):
 
@@ -35,26 +32,27 @@ class RectangularSheetShape(SheetShape):
         list.__init__(self, *args)
 
         self.rectangle = Rectangle()
+        self.bounding_box = None
+
+    def append(self, o):
+        list.append(self, o)
+
+        if self.bounding_box:
+            bbox = o.bounding_box
+            if bbox.left < self.bounding_box.left:
+                self.bounding_box.left = bbox.left
+            if bbox.bottom < self.bounding_box.bottom:
+                self.bounding_box.bottom = bbox.bottom
+            if bbox.right > self.bounding_box.right:
+                self.bounding_box.right = bbox.right
+            if bbox.top > self.bounding_box.top:
+                self.bounding_box.top = bbox.top
+        else:
+            bbox = o.bounding_box
+            self.bounding_box = Rectangle(bbox.left, bbox.bottom,
+                bbox.right, bbox.top)
 
     def out(self, shape):
-        aabb = shape.bounds()
+        bounding_box = shape.bounding_box
+        return bounding_box.top > self.rectangle.top
 
-        return not (aabb.top <= self.rectangle.top)
-
-    def bounds(self):
-        iterator = iter(self.shapes)
-        aabb = iterator.next().bounds()
-
-        for shape in iterator:
-            shape_aabb = shape.bounds()
-
-            if shape_aabb.left < aabb.left:
-                aabb.left = shape_aabb.left
-            if shape_aabb.bounds < aabb.bottom:
-                aabb.bottom = shape_aabb.bottom
-            if shape_aabb.right > aabb.right:
-                aabb.right = shape_aabb.right
-            if shape_aabb.top > aabb.top:
-                aabb.top = shape_aabb.top
-
-        return aabb

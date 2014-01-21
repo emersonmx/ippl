@@ -37,6 +37,8 @@ class Shape(object):
 
         super(Shape, self).__init__()
 
+        self.id = 0
+
         self.outer_loop = []
         self.inner_loops = []
 
@@ -64,8 +66,8 @@ class Shape(object):
         self.lowest_point = primitive.begin
 
         for line in iterator:
-            if (line.begin.squared_distance(local_origin) <
-                    self.lowest_point.squared_distance(local_origin)):
+            if (line.begin.distance(local_origin) <
+                    self.lowest_point.distance(local_origin)):
                 self.lowest_point = line.begin
 
     def calculate_bounding_box(self):
@@ -83,7 +85,7 @@ class Shape(object):
             if bbox.top > bounding_box.top:
                 bounding_box.top = bbox.top
 
-        self.bounding_box = copy.deepcopy(bounding_box)
+        self.bounding_box = bounding_box
 
     def outer_loop_iterator(self):
         for primitive in self.outer_loop:
@@ -113,15 +115,16 @@ class Shape(object):
                 inner_str += "    " + str(primitive) + "\n"
 
         if not inner_str:
-            return ("{} (\n"
+            return ("{} {} (\n"
                     "  Outer Loop:\n"
-                    "{})").format(type(self).__name__, outer_str)
+                    "{})").format(type(self).__name__, self.id, outer_str)
 
-        return ("{} (\n"
+        return ("{} {} (\n"
                 "  Outer Loop:\n"
                 "{}\n"
                 "Inner Loop:\n"
-                "{})").format(type(self).__name__, outer_str, inner_str)
+                "{})").format(type(self).__name__, self.id,
+                              outer_str, inner_str)
 
     def __repr__(self):
         return "<{}>".format(self)

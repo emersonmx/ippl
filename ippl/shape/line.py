@@ -48,6 +48,8 @@ class Line(object):
         self.begin = begin
         self.end = end
 
+        self.bounding_box = Rectangle()
+
     @property
     def x1(self):
         return self.begin.x
@@ -81,13 +83,13 @@ class Line(object):
         self.end.y = value
 
     def position(self, x, y):
-        bounding_box = self.calculate_bounding_box()
-        x, y = (x - bounding_box.left, y - bounding_box.bottom)
+        x, y = (x - self.bounding_box.left, y - self.bounding_box.bottom)
         self.move(x, y)
 
     def move(self, x, y):
         self.begin.move(x, y)
         self.end.move(x, y)
+        self.bounding_box.move(x, y)
 
     def calculate_bounding_box(self):
         minimum_x = min(self.x1, self.x2)
@@ -95,7 +97,18 @@ class Line(object):
         minimum_y = min(self.y1, self.y2)
         maximum_y = max(self.y1, self.y2)
 
-        return Rectangle(minimum_x, minimum_y, maximum_x, maximum_y)
+        self.bounding_box = Rectangle(minimum_x, minimum_y,
+            maximum_x, maximum_y)
+
+        return self.bounding_box
+
+    def check_line_intersection(self, line):
+        def ccw(a, b, c):
+            return (c.y - a.y) * (b.x - a.x) > (b.y - a.y) * (c.x - a.x)
+
+        a, b = self.begin, self.end
+        c, d = line.begin, line.end
+        return (ccw(a, c, d) != ccw(b, c, d)) and (ccw(a, b, c) != ccw(a, b, d))
 
     def intersect_line(self, line, ignore_alpha=False, ignore_beta=False):
         """Calculate the collision between lines.

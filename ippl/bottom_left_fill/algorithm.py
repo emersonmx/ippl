@@ -26,20 +26,59 @@ from ippl.render import *
 
 class BottomLeftFill(object):
 
+    FREE_PRIMITIVE = 0
+    STATIC_PRIMITIVE = 1
+
     def __init__(self):
         super(BottomLeftFill, self).__init__()
 
         self.shapes = []
         self.sheetshape = RectangularSheetShape()
-        self.resolution = Point(10, 1)
+        self.resolution = Point(25, 1)
+
+    @staticmethod
+    def test_intersect_loop(point, primitive):
+        line = primitive
+        if ((line.y2 < point.y and line.y1 >= point.y) or
+                (line.y1 < point.y and line.y2 >= point.y)):
+            x_value = (line.x2 + (point.y - line.y2) /
+                (line.y1 - line.y2) * (line.x1 - line.x2))
+            if x_value < point.x:
+                return True
+
+        return False
 
     @staticmethod
     def next_primitive(shape, static_shape):
+        odd_nodes = False
+        next_lowest_y_move = None
+        vertical_line = Line.vertical_line()
+        vertical_line.position(shape.lowest_point.x, 0)
+
         for primitive in shape.primitive_iterator():
+            point = primitive.begin
             for static_primitive in static_shape.primitive_iterator():
                 if BottomLeftFill.intersect_primitives(primitive,
                         static_primitive):
                     return (primitive, static_primitive)
+                if BottomLeftFill.test_intersect_loop(point, static_primitive):
+                    odd_nodes = not odd_nodes
+
+                result = vertical_line.intersect_line(static_primitive, True)
+                if result:
+                    if isinstance(result, Line):
+                        bounding_box = result.bounding_box
+                        result = bounding_box.right_top
+
+                    if next_lowest_y_move:
+                        if ((result.y < next_lowest_y_move) and
+                                (result.y > shape.lowest_point.y)):
+                            next_lowest_y_move = result.y
+                    else:
+                        next_lowest_y_move = result.y
+
+        if odd_nodes:
+            return next_lowest_y_move - shape.lowest_point.y
 
         return None
 
@@ -51,139 +90,112 @@ class BottomLeftFill(object):
         return False
 
     @staticmethod
-    def contained_shape_point(shape, static_shape):
-        if shape.outer_loop.contained(static_shape.outer_loop):
-            for loop in static_shape.inner_loops:
-                if shape.outer_loop.contained(loop):
-                    return None
+    def calculate_pirs_data(primitive, static_primitive):
+        pirs = []
+        primitive_points = [primitive.begin, primitive.end]
+        static_points = [static_primitive.begin, static_primitive.end]
+        point_quantity = 2
 
-            return BottomLeftFill.next_point_in_shape(shape, static_shape)
+        for point in primitive_points:
+            if BottomLeftFill.point_in_range(point, static_primitive):
+                pirs.append([point, BottomLeftFill.STATIC_PRIMITIVE])
 
-        return None
+        for point in static_points:
+            if BottomLeftFill.point_in_range(point, primitive):
+                pirs.append([point, BottomLeftFill.FREE_PRIMITIVE])
 
-    @staticmethod
-    def next_point_in_shape(shape, static_shape):
-        result_point = None
-        lowest_point = shape.outer_loop.lowest_point
-        vertical_line = Line(lowest_point,
-            Point(lowest_point.x, lowest_point.y + 1))
-
-        for line in static_shape.primitive_iterator():
-            result = vertical_line.intersect_line(line, True)
-            if isinstance(result, Point):
-                if result.y > lowest_point.y:
-                    if not result_point:
-                        result_point = result
-
-                    if result.y < result_point.y:
-                        result_point = result
-            elif isinstance(result, Line):
-                left_bottom = result.bounds().left_bottom
-                if left_bottom.y > lowest_point.y:
-                    if not result_point:
-                        result_point = left_bottom
-
-                    if left_bottom.y < result_point.y:
-                        result_point = left_bottom
-
-        return result_point.y - lowest_point.y
+        return pirs
 
     @staticmethod
-    def calculate_pirs(primitive, static_primitive):
-        pirs = set()
-        pirs_count = 2
-        first, second = primitive, static_primitive
-        for i in xrange(pirs_count):
-            if BottomLeftFill.point_in_range(first.begin, second):
-                pirs.add(first.begin)
-            if BottomLeftFill.point_in_range(first.end, second):
-                pirs.add(first.end)
-
-            first, second = second, first
-
-        return list(pirs)
-
-    @staticmethod
-    def calculate_intersection_point(line, point, line_top=True):
+    def calculate_intersection_point(line, point):
         vertical_line = Line.vertical_line()
-        vertical_line.position(round_number(point.x), 0)
+        vertical_line.position(point.x, 0)
         result = vertical_line.intersect_line(line, True)
         if isinstance(result, Line):
-            aabb = line.bounds()
-            if line_top:
-                result = aabb.right_top
-            else:
-                result = aabb.left_bottom
+            bounding_box = line.bounding_box
+            result = bounding_box.right_top
 
         return result
 
     @staticmethod
-    def calculate_distance_pir_1(intersection_point, pir):
+    def calculate_pir_1(intersection_point, pir):
         return intersection_point.y - pir.y
 
     @staticmethod
-    def calculate_distance_pir_2(intersection_point, pir):
+    def calculate_pir_2(intersection_point, pir):
         return pir.y - intersection_point.y
 
     @staticmethod
     def point_in_range(point, primitive):
-        aabb = primitive.bounds()
-        if (approx_equal(point.x, aabb.left) or
-                approx_equal(point.x, aabb.right)):
-            return True
-        if aabb.left <= point.x <= aabb.right:
+        bounding_box = primitive.bounding_box
+        if (bounding_box.left <= point.x <= bounding_box.right):
             return True
 
         return False
 
     def run(self):
         best_orientation = 0
+        position_data = {}
 
         shape = self.shapes[0][0]
         shape.position(0, 0)
         self.sheetshape.append(shape)
 
+        position = shape.bounding_box.left_bottom
+        key = "{}".format(shape.id)
+        position_data[key] = position
+
         for i in xrange(1, len(self.shapes)):
             orientations = self.shapes[i]
             for j in xrange(len(orientations)):
                 shape = orientations[j]
-                shape.position(0, 0)
+
+                key = "{}".format(shape.id)
+                position = position_data.get(key)
+                if not position:
+                    position = Point(0, 0)
+
+                shape.position(position.x, position.y)
 
                 if self.sheetshape.out(shape):
-                    print "skipped."
-                    continue
+                    bounding_box = shape.bounding_box
+                    shape.position(bounding_box.left + self.resolution.x, 0)
 
-                print "Shape {}, Rotation {}\r".format(i, j)
+                print "Shape {}, Rotation {}\r".format(shape.id, j)
 
                 while True:
-                    result = self.overlap(shape)
+                    result = self.overlap_sheetshape(shape)
                     if not result:
                         break
 
                     self.resolve_overlapping(shape, result)
                     if self.sheetshape.out(shape):
-                        aabb = shape.bounds()
-                        shape.move(x=self.resolution.x, y=-aabb.bottom)
+                        bounding_box = shape.bounding_box
+                        shape.position(bounding_box.left + self.resolution.x, 0)
 
                 best_shape_orientation = orientations[best_orientation]
                 if self.check_best_orientation(shape, best_shape_orientation):
                     best_orientation = j
 
-            print "Put {}/{} on sheetshape.".format(i, best_orientation)
-            self.sheetshape.append(orientations[best_orientation])
+                key = "{}".format(shape.id)
+                position = shape.bounding_box.left_bottom
+                position_data[key] = position
 
-    def overlap(self, shape):
-        aabb = shape.bounds()
+            best_shape = orientations[best_orientation]
+            print "Put {}/{} on sheetshape.".format(best_shape.id,
+                best_orientation)
+            print "Sheet Shape size:", len(self.sheetshape)
+            self.sheetshape.append(best_shape)
+
+        self.sheetshape.bounding_box
+
+    def overlap_sheetshape(self, shape):
+        bounding_box = shape.bounding_box
 
         for static_shape in self.sheetshape:
-            static_aabb = static_shape.bounds()
-            if aabb.intersect_rectangle(static_aabb):
+            static_bounding_box = static_shape.bounding_box
+            if bounding_box.intersect_rectangle(static_bounding_box):
                 result = BottomLeftFill.next_primitive(shape, static_shape)
-                if result:
-                    return result
-
-                result = BottomLeftFill.contained_shape_point(shape,
-                    static_shape)
                 if result:
                     return result
 
@@ -191,6 +203,9 @@ class BottomLeftFill(object):
 
     def resolve_overlapping(self, shape, data):
         if isinstance(data, float):
+            if data < 0:
+                data = self.resolution.y
+
             data += self.resolution.y
             shape.move(0, data)
         elif isinstance(data, tuple):
@@ -202,17 +217,19 @@ class BottomLeftFill(object):
                 shape.move(0, y_move)
 
     def resolve_line_line(self, line, static_line):
-        pirs = BottomLeftFill.calculate_pirs(line, static_line)
-        if not pirs:
+        pirs_data = BottomLeftFill.calculate_pirs_data(line, static_line)
+        if not pirs_data:
             return -1
 
         intersection_points = []
-        for pir in pirs:
+        for data in pirs_data:
+            pir = data[0]
+            test_primitive = data[1]
             test_line = None
-            if line.point_in_ends(pir):
-                test_line = static_line
-            else:
+            if test_primitive == BottomLeftFill.FREE_PRIMITIVE:
                 test_line = line
+            elif test_primitive == BottomLeftFill.STATIC_PRIMITIVE:
+                test_line = static_line
 
             result = BottomLeftFill.calculate_intersection_point(test_line, pir)
             if result:
@@ -221,28 +238,34 @@ class BottomLeftFill(object):
         distances = []
         calculate_pir = None
         for i in xrange(len(intersection_points)):
-            pir = pirs[i]
+            pir = pirs_data[i][0]
+            test_primitive = pirs_data[i][1]
             intersection = intersection_points[i]
-            if line.point_in_ends(pir):
-                calculate_pir = BottomLeftFill.calculate_distance_pir_1
-            elif static_line.point_in_ends(pir):
-                calculate_pir = BottomLeftFill.calculate_distance_pir_2
+            if test_primitive == BottomLeftFill.FREE_PRIMITIVE:
+                calculate_pir = BottomLeftFill.calculate_pir_2
+            elif test_primitive == BottomLeftFill.STATIC_PRIMITIVE:
+                calculate_pir = BottomLeftFill.calculate_pir_1
 
             distance = calculate_pir(intersection, pir)
-            distances.append(math.ceil(distance))
+            distances.append(distance)
 
         result = max(distances)
-        if approx_equal(result, 0.0):
-            result = 1
-        if result > 0:
-            return result
+        if result == None:
+            result = 0
 
-        return 0
+        if util.approx_equal(result, 0.0):
+            result = self.resolution.y
+
+        if result < 0:
+            print "WHAT?!", result
+            return 0
+
+        return result
 
     def check_best_orientation(self, shape, best_shape_orientation):
-        aabb = shape.bounds()
-        best_aabb = best_shape_orientation.bounds()
-        shape_size = aabb.size()
-        best_size = best_aabb.size()
+        bounding_box = shape.bounding_box
+        best_bounding_box = best_shape_orientation.bounding_box
+        shape_size = bounding_box.size()
+        best_size = best_bounding_box.size()
         return shape_size[0] < best_size[0]
 

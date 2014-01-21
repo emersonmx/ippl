@@ -18,7 +18,6 @@
 #
 
 import ast
-import copy
 import re
 import sys
 
@@ -60,7 +59,10 @@ class BLFReader(object):
 
     @staticmethod
     def shape(groups):
-        return ast.literal_eval(groups["quantity"])
+        shape_data = {}
+        shape_data["id"] = ast.literal_eval(groups["id"])
+        shape_data["quantity"] = ast.literal_eval(groups["quantity"])
+        return shape_data
 
     @staticmethod
     def create_point(groups):
@@ -70,7 +72,6 @@ class BLFReader(object):
     @staticmethod
     def create_rotated_points(points, angle):
         point_list = []
-        points = copy.deepcopy(points)
 
         for point in points:
             xy_point = util.calculate_point_rotation(point, angle)
@@ -85,16 +86,18 @@ class BLFReader(object):
         size = len(point_list)
 
         for i in xrange(size):
-            begin = copy.deepcopy(point_list[i])
-            end = copy.deepcopy(point_list[(i + 1) % size])
-            line = Line(begin, end)
+            begin = point_list[i]
+            end = point_list[(i + 1) % size]
+            line = Line(Point(begin.x, begin.y), Point(end.x, end.y))
+            line.calculate_bounding_box()
             loop.append(line)
 
         return loop
 
     @staticmethod
-    def create_shape(outer_points, inner_points_list):
+    def create_shape(shape_id, outer_points, inner_points_list):
         shape = Shape()
+        shape.id = shape_id
         shape.outer_loop = BLFReader.create_loop(outer_points)
         for point_loop in inner_points_list:
             shape.inner_loops.append(BLFReader.create_loop(point_loop))
@@ -105,10 +108,9 @@ class BLFReader(object):
         return shape
 
     @staticmethod
-    def create_shapes(outer_points, inner_points_list, incremental_angle):
+    def create_shapes(shape_id, outer_points, inner_points_list,
+            incremental_angle):
         shapes = []
-        outer_points = copy.deepcopy(outer_points)
-        inner_points_list = copy.deepcopy(inner_points_list)
 
         incremental_angle = float(incremental_angle)
         if incremental_angle > 180:
@@ -122,7 +124,8 @@ class BLFReader(object):
             angle = math.radians(i * incremental_angle)
             if util.approx_equal(angle, 0.0):
                 shapes.append(
-                    BLFReader.create_shape(outer_points, inner_points_list))
+                    BLFReader.create_shape(shape_id, outer_points,
+                        inner_points_list))
             else:
                 outer_points_rotated = (
                     BLFReader.create_rotated_points(outer_points, angle))
@@ -132,8 +135,8 @@ class BLFReader(object):
                         BLFReader.create_rotated_points(points, angle))
                     inner_points_rotated_list.append(inner_points)
 
-                shapes.append(BLFReader.create_shape(outer_points_rotated,
-                    inner_points_rotated_list))
+                shapes.append(BLFReader.create_shape(shape_id,
+                    outer_points_rotated, inner_points_rotated_list))
 
         return shapes
 
@@ -146,7 +149,7 @@ class BLFReader(object):
 
         blf_data = {}
         line_number = 0
-        shape_quantity = 0
+        shape_data = {}
 
         outer_points = []
         inner_points = []
@@ -177,7 +180,7 @@ class BLFReader(object):
             elif self.current_state == self.STATES["shape"]:
                 match = self.EXPRESSIONS["shape"].search(line)
                 if match:
-                    shape_quantity = BLFReader.shape(match.groupdict())
+                    shape_data = BLFReader.shape(match.groupdict())
                     line_number += 1
                 elif re.search(r"^Loop \d+", line):
                     self.current_state = self.STATES["loop"]
@@ -214,10 +217,10 @@ class BLFReader(object):
                         inner_points_list.append(inner_points)
                     inner_points = []
 
-                    for i in xrange(shape_quantity):
+                    for i in xrange(shape_data["quantity"]):
                         shape_orientations = (
-                            BLFReader.create_shapes(outer_points,
-                                inner_points_list,
+                            BLFReader.create_shapes(shape_data["id"],
+                                outer_points, inner_points_list,
                                 blf_data["profile"]["rotation"]))
                         shapes.append(shape_orientations)
 
@@ -230,10 +233,10 @@ class BLFReader(object):
                     if inner_points:
                         inner_points_list.append(inner_points)
 
-                    for i in xrange(shape_quantity):
+                    for i in xrange(shape_data["quantity"]):
                         shape_orientations = (
-                            BLFReader.create_shapes(outer_points,
-                                inner_points_list,
+                            BLFReader.create_shapes(shape_data["id"],
+                                outer_points, inner_points_list,
                                 blf_data["profile"]["rotation"]))
                         shapes.append(shape_orientations)
 
@@ -249,9 +252,10 @@ class BLFReader(object):
                     inner_points_list.append(inner_points)
                 inner_points = []
 
-                for i in xrange(shape_quantity):
+                for i in xrange(shape_data["quantity"]):
                     shape_orientations = (
-                        BLFReader.create_shapes(outer_points, inner_points_list,
+                        BLFReader.create_shapes(shape_data["id"],
+                            outer_points, inner_points_list,
                             blf_data["profile"]["rotation"]))
                     shapes.append(shape_orientations)
 
