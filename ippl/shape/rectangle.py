@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Emerson Max de Medeiros Silva
+# Copyright (C) 2013-2014 Emerson Max de Medeiros Silva
 #
 # This file is part of ippl.
 #

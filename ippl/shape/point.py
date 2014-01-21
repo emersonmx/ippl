@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Emerson Max de Medeiros Silva
+# Copyright (C) 2013-2014 Emerson Max de Medeiros Silva
 #
 # This file is part of ippl.
 #
@@ -63,6 +63,10 @@ class Point(object):
     def distance(self, point):
         return math.sqrt((point.x - self.x) * (point.x - self.x) +
             (point.y - self.y) * (point.y - self.y))
+
+    def squared_distance(self, point):
+        return (((self.x - point.x) * (self.x - point.x)) +
+                ((self.y - point.y) * (self.y - point.y)))
 
     def intersect_point(self, point):
         return self == point

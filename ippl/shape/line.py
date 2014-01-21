@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Emerson Max de Medeiros Silva
+# Copyright (C) 2013-2014 Emerson Max de Medeiros Silva
 #
 # This file is part of ippl.
 #
@@ -81,7 +81,8 @@ class Line(object):
         self.end.y = value
 
     def position(self, x, y):
-        x, y = (x - self.bounding_box.left, y - self.bounding_box.bottom)
+        bounding_box = self.calculate_bounding_box()
+        x, y = (x - bounding_box.left, y - bounding_box.bottom)
         self.move(x, y)
 
     def move(self, x, y):

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Emerson Max de Medeiros Silva
+# Copyright (C) 2013-2014 Emerson Max de Medeiros Silva
 #
 # This file is part of ippl.
 #
@@ -51,7 +51,6 @@ class Shape(object):
         for primitive in self.primitive_iterator():
             primitive.move(x, y)
 
-        self.lowest_point.move(x, y)
         self.bounding_box.move(x, y)
 
     def update(self):
@@ -62,14 +61,12 @@ class Shape(object):
         local_origin = self.bounding_box.left_bottom
         iterator = iter(self.outer_loop)
         primitive = iterator.next()
-        lowest_point = primitive.begin
+        self.lowest_point = primitive.begin
 
         for line in iterator:
-            if (line.begin.distance(local_origin) <
-                    lowest_point.distance(local_origin)):
-                lowest_point = line.begin
-
-        self.lowest_point = copy.deepcopy(lowest_point)
+            if (line.begin.squared_distance(local_origin) <
+                    self.lowest_point.squared_distance(local_origin)):
+                self.lowest_point = line.begin
 
     def calculate_bounding_box(self):
         iterator = iter(self.outer_loop)

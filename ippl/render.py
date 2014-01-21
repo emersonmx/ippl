@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013 Emerson Max de Medeiros Silva
+# Copyright (C) 2013-2014 Emerson Max de Medeiros Silva
 #
 # This file is part of ippl.
 #
@@ -41,7 +41,7 @@ class Render(object):
         self.shape_external_color = (255, 0, 0)
         self.shape_internal_color = (92, 0, 0)
 
-        self.draw_bounds = False
+        self.draw_bounding_box = False
         self.aabb_color = (0, 0, 255)
 
         self.intersect_color = (0, 255, 0)
@@ -90,8 +90,8 @@ class Render(object):
         for primitive in shape.outer_loop:
             if isinstance(primitive, Line):
                 self._line(primitive, self.shape_external_color)
-            if self.draw_bounds:
-                self._aabb(primitive.bounds(), self.aabb_color)
+            if self.draw_bounding_box:
+                self._aabb(primitive.calculate_bounding_box(), self.aabb_color)
 
         for loop in shape.inner_loops:
             for primitive in loop:
@@ -111,8 +111,9 @@ if __name__ == "__main__":
     s.outer_loop.append(Line(Point(0.0, 50.0), Point(0.0, 0.0)))
     s.outer_loop.append(Line(Point(0.0, 0.0), Point(100.0, 0.0)))
     s.outer_loop.append(Line(Point(100.0, 0.0), Point(100.0, 50.0)))
+    s.update()
     r = Render()
-    aabb = s.bounds()
+    aabb = s.bounding_box
     r.image_size = (int(aabb.right - aabb.left) + 1,
                     int(aabb.top - aabb.bottom) + 1)
     r.shape(s)
