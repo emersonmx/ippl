@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2014 Emerson Max de Medeiros Silva
+# Copyright (C) 2014 Emerson Max de Medeiros Silva
 #
 # This file is part of ippl.
 #
@@ -17,10 +17,6 @@
 # along with ippl.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import crossover
-import mutation
+if __name__ == "__main__":
+    pass
 
-from ippl.genetic_algorithm.chromosome import *
-from ippl.genetic_algorithm.application import *
-from ippl.genetic_algorithm.crossover import *
-from ippl.genetic_algorithm.mutation import *
