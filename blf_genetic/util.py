@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2014 Emerson Max de Medeiros Silva
+# Copyright (C) 2014 Emerson Max de Medeiros Silva
 #
 # This file is part of ippl.
 #
@@ -17,12 +17,19 @@
 # along with ippl.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from ippl.genetic_algorithm.chromosome import Chromosome
 
-class Chromosome(object):
+
+class BLFChromosome(Chromosome):
 
     def __init__(self):
-        super(Chromosome, self).__init__()
+        super(BLFChromosome, self).__init__()
 
-        self.genes = []
-        self.fitness = 0.0
+        self.shapes = []
+
+    def calculate_fitness(self):
+        pass
+
+    def __getitem__(self, index):
+        return self.shapes[self.genes[index]]
 
