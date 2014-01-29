@@ -29,12 +29,12 @@ class Application(object):
         while self.running():
             parents = self.select()
 
-            offspring = self.crossover(parents)
+            offsprings = self.crossover(parents)
 
-            if offspring:
-                mutated_offspring = self.mutation(offspring)
+            if offsprings:
+                mutated_offsprings = self.mutation(offsprings)
 
-                self.update_next_population(mutated_offspring)
+                self.update_next_population(mutated_offsprings)
 
         self.finalize()
 
