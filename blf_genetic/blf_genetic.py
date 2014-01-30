@@ -30,12 +30,14 @@ class BLFApplication(Application):
         self._epoch = 1
         self.number_of_epochs = 100
         self._best_fitness = -1
-
-        self.population = []
-        self.next_population = []
+        self._max_fitness = -1
+        self.population_size = 10
 
         self.crossover_probability = 0.7
         self.mutation_probability = 0.01
+
+        self.population = []
+        self.next_population = []
 
     def initialize(self):
         pass

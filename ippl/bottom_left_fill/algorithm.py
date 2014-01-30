@@ -51,11 +51,13 @@ class BottomLeftFill(object):
     @staticmethod
     def next_move(shape, static_shape):
         odd_nodes = False
+        contained = False
         next_lowest_y_move = None
         vertical_line = Line.vertical_line()
         vertical_line.position(shape.lowest_point.x, 0)
 
         for primitive in shape.primitive_iterator():
+            odd_nodes = False
             point = primitive.begin
             for static_primitive in static_shape.primitive_iterator():
                 if BottomLeftFill.intersect_primitives(primitive,
@@ -64,20 +66,25 @@ class BottomLeftFill(object):
                 if BottomLeftFill.test_intersect_loop(point, static_primitive):
                     odd_nodes = not odd_nodes
 
-                result = vertical_line.intersect_line(static_primitive, True)
-                if result:
-                    if isinstance(result, Line):
-                        bounding_box = result.bounding_box
-                        result = bounding_box.right_top
+                if not contained:
+                    result = vertical_line.intersect_line(static_primitive,
+                        True)
+                    if result:
+                        if isinstance(result, Line):
+                            bounding_box = result.bounding_box
+                            result = bounding_box.right_top
 
-                    if next_lowest_y_move:
-                        if ((result.y < next_lowest_y_move) and
-                                (result.y > shape.lowest_point.y)):
+                        if next_lowest_y_move:
+                            if ((result.y < next_lowest_y_move) and
+                                    (result.y > shape.lowest_point.y)):
+                                next_lowest_y_move = result.y
+                        else:
                             next_lowest_y_move = result.y
-                    else:
-                        next_lowest_y_move = result.y
 
-        if odd_nodes:
+            if odd_nodes:
+                contained = True
+
+        if contained:
             return next_lowest_y_move - shape.lowest_point.y
 
         return None

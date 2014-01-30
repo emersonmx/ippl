@@ -30,10 +30,8 @@ class Application(object):
             parents = self.select()
 
             offsprings = self.crossover(parents)
-
             if offsprings:
                 mutated_offsprings = self.mutation(offsprings)
-
                 self.update_next_population(mutated_offsprings)
 
         self.finalize()
