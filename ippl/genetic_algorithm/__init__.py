@@ -19,8 +19,10 @@
 
 import crossover
 import mutation
+import select
 
-from ippl.genetic_algorithm.chromosome import *
 from ippl.genetic_algorithm.application import *
+from ippl.genetic_algorithm.chromosome import *
 from ippl.genetic_algorithm.crossover import *
 from ippl.genetic_algorithm.mutation import *
+from ippl.genetic_algorithm.select import *

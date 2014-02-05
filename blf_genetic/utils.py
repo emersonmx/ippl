@@ -17,6 +17,7 @@
 # along with ippl.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from ippl.bottom_left_fill import *
 from ippl.genetic_algorithm.chromosome import Chromosome
 
 
@@ -27,9 +28,25 @@ class BLFChromosome(Chromosome):
 
         self.shapes = []
 
-    def calculate_fitness(self):
-        pass
+    def calculate_fitness(self, blf_data):
+        self.shapes = blf_data["shapes"]
+
+        blf = BottomLeftFill()
+
+        size = blf_data["profile"]["size"]
+        sheetshape = RectangularSheetShape()
+        blf.sheetshape.rectangle = Rectangle(0, 0, size[0] + 1, size[1] + 1)
+        blf.shapes = self
+
+        bounding_box = blf.run()
+        self.fitness = bounding_box.size()[0]
 
     def __getitem__(self, index):
         return self.shapes[self.genes[index]]
 
+    def __len__(self):
+        return len(self.shapes)
+
+    def __str__(self):
+        return "Genes: {} Fitness: {:.20f}".format(self.genes,
+            self.fitness)

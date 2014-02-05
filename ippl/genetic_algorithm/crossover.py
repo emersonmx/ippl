@@ -55,8 +55,8 @@ def cycle(parents):
         if p1[i] in offspring:
             ciclic = True
 
-    for i in range(gene_number):
-        if not offspring[i]:
+    for i in xrange(gene_number):
+        if offspring[i] == None:
             offspring[i] = p2[i]
 
     return offspring

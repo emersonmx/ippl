@@ -169,7 +169,7 @@ class BottomLeftFill(object):
                     bounding_box = shape.bounding_box
                     shape.position(bounding_box.left + self.resolution.x, 0)
 
-                print "Shape {}, Rotation {}\r".format(shape.id, j)
+                #print "Shape {}, Rotation {}\r".format(shape.id, j)
 
                 while True:
                     result = self.overlap_sheetshape(shape)
@@ -190,10 +190,10 @@ class BottomLeftFill(object):
                 position_data[key] = position
 
             best_shape = orientations[best_orientation]
-            print "Put {}/{} on sheetshape.".format(best_shape.id,
-                best_orientation)
+            #print "Put {}/{} on sheetshape.".format(best_shape.id,
+            #    best_orientation)
             self.sheetshape.append(best_shape)
-            print "Sheet Shape size:", len(self.sheetshape)
+            #print "Sheet Shape size:", len(self.sheetshape)
 
         return self.sheetshape.bounding_box
 
@@ -265,7 +265,7 @@ class BottomLeftFill(object):
             result = self.resolution.y
 
         if result < 0:
-            print "WHAT?!", result
+            #print "WHAT?!", result
             return 0
 
         return result

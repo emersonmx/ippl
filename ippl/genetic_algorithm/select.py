@@ -17,8 +17,16 @@
 # along with ippl.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import blf_genetic
-import utils
+from random import random
 
-from blf_genetic.application import *
-from blf_genetic.utils import *
+def roulette(odds, parents_number=2):
+    selected_slices = []
+
+    for j in xrange(parents_number):
+        choice = random()
+        for i in xrange(len(odds)):
+            if choice >= odds[i][0] and choice < odds[i][1]:
+                selected_slices.append(i)
+                break
+
+    return selected_slices
