@@ -110,7 +110,7 @@ class BLFReader(object):
     @staticmethod
     def create_shapes(shape_id, outer_points, inner_points_list,
             incremental_angle):
-        use_old = False
+        use_old = True
         if use_old:
             return BLFReader.create_shapes_old(shape_id, outer_points,
                 inner_points_list, incremental_angle)

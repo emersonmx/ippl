@@ -66,6 +66,7 @@ class BLFApplication(Application):
                                                       self._best_fitness)
 
     def finalize(self):
+        self.population.sort(key=lambda o: o.fitness)
         chromosome = self.population[0]
         sheetshape = chromosome.calculate_fitness(self.blf_data)
         print "Rendering chromosome:", chromosome
@@ -96,12 +97,6 @@ class BLFApplication(Application):
             if chromosome != None:
                 parents.append(chromosome)
                 i += 1
-
-        #print "Choices:"
-        #for k, v in choices.items():
-        #    print "Chromosome:", (str(k) + ", weight:"), v
-
-        #print "Parents selected:", parents[0], "," , parents[1]
 
         return parents
 
