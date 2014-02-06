@@ -42,9 +42,13 @@ class BLFApplication(Application):
 
         self.crossover_probability = 0.7
         self.mutation_probability = 0.01
+        self.gene_mutation_number = 1
+        self.elite = 0.5
 
         self.population = []
         self.next_population = []
+
+        #self.jobs = 10
 
         self.blf_data = None
         self.fitness_cache = {}
@@ -55,7 +59,7 @@ class BLFApplication(Application):
         genes = range(len(self.blf_data["shapes"]))
         random.shuffle(genes)
 
-        for i in xrange(self.population_size):
+        for _ in xrange(self.population_size):
             chromosome = BLFChromosome()
             chromosome.genes = copy.copy(genes)
             self.population.append(chromosome)
@@ -107,7 +111,7 @@ class BLFApplication(Application):
         if random.random() < self.crossover_probability:
             p1, p2 = parents
 
-            for i in xrange(OFFSPRING_NUMBER):
+            for _ in xrange(OFFSPRING_NUMBER):
                 offspring = BLFChromosome()
                 parents = [copy.copy(p1.genes), copy.copy(p2.genes)]
                 offspring.genes = crossover.cycle(parents)
@@ -120,7 +124,8 @@ class BLFApplication(Application):
     def mutation(self, offsprings):
         if random.random() < self.mutation_probability:
             for offspring in offsprings:
-                offspring.genes = mutation.random(offspring.genes)
+                for _ in xrange(self.gene_mutation_number):
+                    offspring.genes = mutation.random(offspring.genes)
 
         return offsprings
 
@@ -144,13 +149,27 @@ class BLFApplication(Application):
         print "Epochs:", self.number_of_epochs
         print "Crossover probability:", self.crossover_probability
         print "Mutation probability:", self.mutation_probability
+        print "Gene mutation number:", self.gene_mutation_number
+        print "Elite ratio:", self.elite
         print "Population_size:", self.population_size
+        #print "Jobs:", self.jobs
         print "Resolution:", self.blf_data["resolution"]
         print "=" * 79
 
     def replace_population(self):
         print "Replacing population..."
-        self.population = self.next_population
+        new_population = []
+        for i in xrange(int(len(self.population) * self.elite)):
+            new_population.append(self.population[i])
+
+        self.next_population.sort(key=lambda o: o.fitness)
+        for i in xrange(len(self.next_population)):
+            if len(new_population) < self.population_size:
+                new_population.append(self.next_population[i])
+            else:
+                break
+
+        self.population = new_population
         self.next_population = []
         self.calculate_all_fitness(self.population)
 
@@ -160,14 +179,16 @@ class BLFApplication(Application):
 
     def calculate_all_fitness(self, population):
         print "\nCalculating the fitness of population..."
+
         for chromosome in population:
             key = tuple(chromosome.genes)
             if key in self.fitness_cache:
                 chromosome.fitness = self.fitness_cache[key]
+                print "(Cache hit!)", chromosome
             else:
                 chromosome.calculate_fitness(self.blf_data)
                 self.fitness_cache[key] = chromosome.fitness
-            print chromosome
+                print "(Cache miss!)", chromosome
 
         self.population.sort(key=lambda o: o.fitness)
         self._best_fitness = self.population[0].fitness
@@ -191,9 +212,20 @@ def command_line_arguments():
                         default=0.01,
                         help="The probability of a mutation to occur in "
                         "children of the pair of chromosomes (default: 0.01)")
+    parser.add_argument("--gene_mutation_number", type=int, nargs="?",
+                        default=1,
+                        help="The quantity of genes to be mutated (default: 1)")
+    parser.add_argument("--elite", type=float, nargs="?",
+                        default=0.5,
+                        help="The proportion of the population that is "
+                        "considered elite (this will be the next population) "
+                        "(default: 0.5)")
     parser.add_argument("--population", type=int, nargs="?", default=100,
                         help="The size of the population that will be used "
                         "during the execution of the algorithm (default: 100)")
+    #parser.add_argument("--jobs", type=int, nargs="?", default=10,
+    #                    help="The number of tasks to be executed in parallel "
+    #                    "(default: 10)")
     parser.add_argument("--resolution", type=float, nargs=2,
                         default=[25.0, 1.0],
                         help="The values that are used to move the shapes in "
@@ -212,7 +244,10 @@ def main():
     application.number_of_epochs = args.epochs
     application.crossover_probability = args.crossover_probability
     application.mutation_probability = args.mutation_probability
+    application.gene_mutation_number = args.gene_mutation_number
+    application.elite = args.elite
     application.population_size = args.population
+    #application.jobs = args.jobs
     blf_data["resolution"] = args.resolution
     application.blf_data = blf_data
 
