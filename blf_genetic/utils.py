@@ -32,6 +32,8 @@ class BLFChromosome(Chromosome):
         self.shapes = blf_data["shapes"]
 
         blf = BottomLeftFill()
+        resolution = blf_data["resolution"]
+        blf.resolution = Point(resolution[0], resolution[1])
 
         size = blf_data["profile"]["size"]
         sheetshape = RectangularSheetShape()

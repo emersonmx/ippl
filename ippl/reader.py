@@ -110,6 +110,17 @@ class BLFReader(object):
     @staticmethod
     def create_shapes(shape_id, outer_points, inner_points_list,
             incremental_angle):
+        use_old = False
+        if use_old:
+            return BLFReader.create_shapes_old(shape_id, outer_points,
+                inner_points_list, incremental_angle)
+        else:
+            return BLFReader.create_shapes_new(shape_id, outer_points,
+                inner_points_list, incremental_angle)
+
+    @staticmethod
+    def create_shapes_old(shape_id, outer_points, inner_points_list,
+            incremental_angle):
         shapes = []
 
         incremental_angle = float(incremental_angle)
@@ -138,6 +149,50 @@ class BLFReader(object):
                 shapes.append(BLFReader.create_shape(shape_id,
                     outer_points_rotated, inner_points_rotated_list))
 
+        return shapes
+
+    @staticmethod
+    def create_shapes_new(shape_id, outer_points, inner_points_list,
+            incremental_angle):
+        shapes = []
+
+        incremental_angle = float(incremental_angle)
+        if incremental_angle > 180:
+            incremental_angle = 180.0
+
+        iterations = 1
+        if not util.approx_equal(incremental_angle, 0.0):
+            iterations = int(360.0 / incremental_angle)
+
+        best_shape = None
+        for i in xrange(iterations):
+            angle = math.radians(i * incremental_angle)
+            if util.approx_equal(angle, 0.0):
+                shape = BLFReader.create_shape(shape_id, outer_points,
+                    inner_points_list)
+                if best_shape == None:
+                    best_shape = shape
+                elif (shape.bounding_box.size()[0] <
+                        best_shape.bounding_box.size()[0]):
+                    best_shape = shape
+            else:
+                outer_points_rotated = (
+                    BLFReader.create_rotated_points(outer_points, angle))
+                inner_points_rotated_list = []
+                for points in inner_points_list:
+                    inner_points = (
+                        BLFReader.create_rotated_points(points, angle))
+                    inner_points_rotated_list.append(inner_points)
+
+                shape = BLFReader.create_shape(shape_id, outer_points,
+                    inner_points_list)
+                if best_shape == None:
+                    best_shape = shape
+                elif (shape.bounding_box.size()[0] <
+                        best_shape.bounding_box.size()[0]):
+                    best_shape = shape
+
+        shapes.append(best_shape)
         return shapes
 
     def load(self, filename, render=False):

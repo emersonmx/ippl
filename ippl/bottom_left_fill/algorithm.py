@@ -181,9 +181,9 @@ class BottomLeftFill(object):
                         bounding_box = shape.bounding_box
                         shape.position(bounding_box.left + self.resolution.x, 0)
 
-                best_shape_orientation = orientations[best_orientation]
-                if self.check_best_orientation(shape, best_shape_orientation):
-                    best_orientation = j
+                #best_shape_orientation = orientations[best_orientation]
+                #if self.check_best_orientation(shape, best_shape_orientation):
+                #    best_orientation = j
 
                 key = "{}".format(shape.id)
                 position = shape.bounding_box.left_bottom

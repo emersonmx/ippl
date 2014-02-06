@@ -47,7 +47,7 @@ class BLFApplication(Application):
         self.next_population = []
 
         self.blf_data = None
-        self.resolution = [25.0, 1.0]
+        self.fitness_cache = {}
 
     def initialize(self):
         self.show_configuration()
@@ -141,7 +141,7 @@ class BLFApplication(Application):
         print "Crossover probability:", self.crossover_probability
         print "Mutation probability:", self.mutation_probability
         print "Population_size:", self.population_size
-        print "Resolution:", self.resolution
+        print "Resolution:", self.blf_data["resolution"]
         print "=" * 79
 
     def replace_population(self):
@@ -157,7 +157,12 @@ class BLFApplication(Application):
     def calculate_all_fitness(self, population):
         print "\nCalculating the fitness of population..."
         for chromosome in population:
-            chromosome.calculate_fitness(self.blf_data)
+            key = tuple(chromosome.genes)
+            if key in self.fitness_cache:
+                chromosome.fitness = self.fitness_cache[key]
+            else:
+                chromosome.calculate_fitness(self.blf_data)
+                self.fitness_cache[key] = chromosome.fitness
             print chromosome
 
         self.population.sort(key=lambda o: o.fitness)
@@ -204,8 +209,8 @@ def main():
     application.crossover_probability = args.crossover_probability
     application.mutation_probability = args.mutation_probability
     application.population_size = args.population
+    blf_data["resolution"] = args.resolution
     application.blf_data = blf_data
-    application.resolution = args.resolution
 
     print "Running..."
     application.run()
