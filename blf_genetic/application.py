@@ -66,7 +66,16 @@ class BLFApplication(Application):
                                                       self._best_fitness)
 
     def finalize(self):
-        pass
+        chromosome = self.population[0]
+        sheetshape = chromosome.calculate_fitness(self.blf_data)
+        print "Rendering chromosome:", chromosome
+        size = self.blf_data["profile"]["size"]
+        render = Render()
+        render.image_size = (int(size[0] + 1), int(size[1] + 1))
+        render.initialize()
+        render.shapes(sheetshape)
+        render.save("blf_genetic.png")
+        print "Saved."
 
     def running(self):
         return self._epoch < self.number_of_epochs

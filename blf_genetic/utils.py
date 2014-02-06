@@ -43,6 +43,8 @@ class BLFChromosome(Chromosome):
         bounding_box = blf.run()
         self.fitness = bounding_box.size()[0]
 
+        return blf.sheetshape
+
     def __radd__(self, other):
         return other.fitness + self.fitness
 
