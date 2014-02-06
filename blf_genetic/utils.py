@@ -41,6 +41,9 @@ class BLFChromosome(Chromosome):
         bounding_box = blf.run()
         self.fitness = bounding_box.size()[0]
 
+    def __radd__(self, other):
+        return other.fitness + self.fitness
+
     def __getitem__(self, index):
         return self.shapes[self.genes[index]]
 

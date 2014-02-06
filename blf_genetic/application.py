@@ -38,8 +38,7 @@ class BLFApplication(Application):
         self._epoch = 1
         self.number_of_epochs = 100
         self._best_fitness = -1
-        self._max_fitness = -1
-        self.population_size = 10
+        self.population_size = 100
 
         self.crossover_probability = 0.7
         self.mutation_probability = 0.01
@@ -48,44 +47,52 @@ class BLFApplication(Application):
         self.next_population = []
 
         self.blf_data = None
+        self.resolution = [25.0, 1.0]
 
     def initialize(self):
+        self.show_configuration()
+
         genes = range(len(self.blf_data["shapes"]))
         random.shuffle(genes)
 
-        for i in xrange(len(genes)):
+        for i in xrange(self.population_size):
             chromosome = BLFChromosome()
             chromosome.genes = copy.copy(genes)
             self.population.append(chromosome)
             random.shuffle(genes)
 
-        self.calculate_all_fitness()
+        self.calculate_all_fitness(self.population)
+        print "Epoch: {} - Fitness: {:.20f}\r".format(self._epoch,
+                                                      self._best_fitness)
 
     def finalize(self):
         pass
 
     def running(self):
-        print "Epoch: {} - Fitness: {:.20f}\r".format(self._epoch,
-                                                      self._best_fitness)
-
         return self._epoch < self.number_of_epochs
 
     def select(self):
-        total_fitness = 0.0
-        for chromosome in self.population:
-            total_fitness += self._max_fitness - chromosome.fitness + 1
+        PARENT_NUMBER = 2
 
-        min_value = 0.0
-        roulette_list = []
-        for chromosome in self.population:
-            fitness = self._max_fitness - chromosome.fitness + 1
-            probability = float(fitness) / total_fitness
-            roulette_list.append((min_value, min_value + probability))
-            min_value += probability
+        max_fitness = self.population[-1].fitness
+        choices = {
+            chromosome: (max_fitness - chromosome.fitness + 1)
+                for chromosome in self.population
+        }
 
         parents = []
-        for i in select.roulette(roulette_list):
-            parents.append(self.population[i])
+        i = 0
+        while i < PARENT_NUMBER:
+            chromosome = select.roulette(choices, max_fitness)
+            if chromosome != None:
+                parents.append(chromosome)
+                i += 1
+
+        #print "Choices:"
+        #for k, v in choices.items():
+        #    print "Chromosome:", (str(k) + ", weight:"), v
+
+        #print "Parents selected:", parents[0], "," , parents[1]
 
         return parents
 
@@ -126,30 +133,36 @@ class BLFApplication(Application):
             if replace_population:
                 self.replace_population()
 
+    def show_configuration(self):
+        print "=" * 79
+        print "Configuration:"
+        print "=" * 79
+        print "Epochs:", self.number_of_epochs
+        print "Crossover probability:", self.crossover_probability
+        print "Mutation probability:", self.mutation_probability
+        print "Population_size:", self.population_size
+        print "Resolution:", self.resolution
+        print "=" * 79
+
     def replace_population(self):
         print "Replacing population..."
         self.population = self.next_population
         self.next_population = []
-        self.calculate_all_fitness()
-        self._epoch += 1
+        self.calculate_all_fitness(self.population)
 
-    def calculate_all_fitness(self):
-        print "Calculating the fitness of population..."
-        for chromosome in self.population:
+        self._epoch += 1
+        print "Epoch: {} - Fitness: {:.20f}\r".format(self._epoch,
+                                                      self._best_fitness)
+
+    def calculate_all_fitness(self, population):
+        print "\nCalculating the fitness of population..."
+        for chromosome in population:
             chromosome.calculate_fitness(self.blf_data)
             print chromosome
 
+        self.population.sort(key=lambda o: o.fitness)
+        self._best_fitness = self.population[0].fitness
         print "Done!"
-
-        iterator = iter(self.population)
-        best_fitness = iterator.next().fitness
-
-        for chromosome in iterator:
-            if chromosome.fitness < best_fitness:
-                best_fitness = chromosome.fitness
-
-        self._best_fitness = best_fitness
-
 
 def command_line_arguments():
     parser = argparse.ArgumentParser(
@@ -169,9 +182,9 @@ def command_line_arguments():
                         default=0.01,
                         help="The probability of a mutation to occur in "
                         "children of the pair of chromosomes (default: 0.01)")
-    parser.add_argument("--population", type=int, nargs="?", default=10,
+    parser.add_argument("--population", type=int, nargs="?", default=100,
                         help="The size of the population that will be used "
-                        "during the execution of the algorithm (default: 10)")
+                        "during the execution of the algorithm (default: 100)")
     parser.add_argument("--resolution", type=float, nargs=2,
                         default=[25.0, 1.0],
                         help="The values that are used to move the shapes in "
@@ -182,7 +195,7 @@ def command_line_arguments():
 def main():
     args = command_line_arguments()
 
-    print "Loading data..."
+    print "Loading data from file \"{}\"".format(args.file)
     reader = BLFReader()
     blf_data = reader.load(args.file)
 
@@ -192,6 +205,7 @@ def main():
     application.mutation_probability = args.mutation_probability
     application.population_size = args.population
     application.blf_data = blf_data
+    application.resolution = args.resolution
 
     print "Running..."
     application.run()
