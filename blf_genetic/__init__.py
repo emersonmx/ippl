@@ -18,7 +18,9 @@
 #
 
 import blf_genetic
+import thread_pool
 import utils
 
 from blf_genetic.application import *
+from blf_genetic.thread_pool import  *
 from blf_genetic.utils import *

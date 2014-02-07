@@ -28,6 +28,7 @@ from ippl.genetic_algorithm import select
 from ippl.reader import *
 from ippl.bottom_left_fill.sheet_shape import RectangularSheetShape
 from blf_genetic.utils import BLFChromosome
+from blf_genetic.thread_pool import ThreadPool
 
 
 class BLFApplication(Application):
@@ -48,13 +49,16 @@ class BLFApplication(Application):
         self.population = []
         self.next_population = []
 
-        #self.jobs = 10
+        self.jobs = 1
+        self.pool = None
 
         self.blf_data = None
         self.fitness_cache = {}
 
     def initialize(self):
         self.show_configuration()
+
+        self.pool = ThreadPool(self.jobs, self.blf_data)
 
         genes = range(len(self.blf_data["shapes"]))
         random.shuffle(genes)
@@ -152,7 +156,7 @@ class BLFApplication(Application):
         print "Gene mutation number:", self.gene_mutation_number
         print "Elite ratio:", self.elite
         print "Population_size:", self.population_size
-        #print "Jobs:", self.jobs
+        print "Jobs:", self.jobs
         print "Resolution:", self.blf_data["resolution"]
         print "=" * 79
 
@@ -180,16 +184,24 @@ class BLFApplication(Application):
     def calculate_all_fitness(self, population):
         print "\nCalculating the fitness of population..."
 
+        def calculate_fitness(chromosome, key, pool):
+            blf_data = pool.data_queue.pop(0)
+            chromosome.calculate_fitness(blf_data)
+            self.fitness_cache[key] = chromosome.fitness
+            pool.data_queue.append(blf_data)
+
+            print "(Cache miss!)", chromosome
+
         for chromosome in population:
             key = tuple(chromosome.genes)
             if key in self.fitness_cache:
                 chromosome.fitness = self.fitness_cache[key]
                 print "(Cache hit!)", chromosome
             else:
-                chromosome.calculate_fitness(self.blf_data)
-                self.fitness_cache[key] = chromosome.fitness
-                print "(Cache miss!)", chromosome
+                self.pool.add_task(calculate_fitness,
+                    chromosome, key, self.pool)
 
+        self.pool.wait_completion()
         self.population.sort(key=lambda o: o.fitness)
         self._best_fitness = self.population[0].fitness
         print "Done!"
@@ -223,9 +235,9 @@ def command_line_arguments():
     parser.add_argument("--population", type=int, nargs="?", default=100,
                         help="The size of the population that will be used "
                         "during the execution of the algorithm (default: 100)")
-    #parser.add_argument("--jobs", type=int, nargs="?", default=10,
-    #                    help="The number of tasks to be executed in parallel "
-    #                    "(default: 10)")
+    parser.add_argument("--jobs", type=int, nargs="?", default=1,
+                        help="The number of tasks to be executed in parallel "
+                        "(default: 1)")
     parser.add_argument("--resolution", type=float, nargs=2,
                         default=[25.0, 1.0],
                         help="The values that are used to move the shapes in "
@@ -247,7 +259,7 @@ def main():
     application.gene_mutation_number = args.gene_mutation_number
     application.elite = args.elite
     application.population_size = args.population
-    #application.jobs = args.jobs
+    application.jobs = args.jobs
     blf_data["resolution"] = args.resolution
     application.blf_data = blf_data
 
