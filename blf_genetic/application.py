@@ -28,7 +28,6 @@ from ippl.genetic_algorithm import select
 from ippl.reader import *
 from ippl.bottom_left_fill.sheet_shape import RectangularSheetShape
 from blf_genetic.utils import BLFChromosome
-from blf_genetic.thread_pool import ThreadPool
 
 
 class BLFApplication(Application):
@@ -50,15 +49,12 @@ class BLFApplication(Application):
         self.next_population = []
 
         self.jobs = 1
-        self.pool = None
 
         self.blf_data = None
         self.fitness_cache = {}
 
     def initialize(self):
         self.show_configuration()
-
-        self.pool = ThreadPool(self.jobs, self.blf_data)
 
         genes = range(len(self.blf_data["shapes"]))
         random.shuffle(genes)
@@ -184,24 +180,16 @@ class BLFApplication(Application):
     def calculate_all_fitness(self, population):
         print "\nCalculating the fitness of population..."
 
-        def calculate_fitness(chromosome, key, pool):
-            blf_data = pool.data_queue.pop(0)
-            chromosome.calculate_fitness(blf_data)
-            self.fitness_cache[key] = chromosome.fitness
-            pool.data_queue.append(blf_data)
-
-            print "(Cache miss!)", chromosome
-
         for chromosome in population:
             key = tuple(chromosome.genes)
             if key in self.fitness_cache:
                 chromosome.fitness = self.fitness_cache[key]
                 print "(Cache hit!)", chromosome
             else:
-                self.pool.add_task(calculate_fitness,
-                    chromosome, key, self.pool)
+                chromosome.calculate_fitness(self.blf_data)
+                self.fitness_cache[key] = chromosome.fitness
+                print "(Cache miss)", chromosome
 
-        self.pool.wait_completion()
         self.population.sort(key=lambda o: o.fitness)
         self._best_fitness = self.population[0].fitness
         print "Done!"
