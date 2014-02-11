@@ -21,6 +21,8 @@ import argparse
 import copy
 import random
 
+from multiprocessing import Manager
+
 from ippl.genetic_algorithm.application import *
 from ippl.genetic_algorithm import crossover
 from ippl.genetic_algorithm import mutation
@@ -28,6 +30,13 @@ from ippl.genetic_algorithm import select
 from ippl.reader import *
 from ippl.bottom_left_fill.sheet_shape import RectangularSheetShape
 from blf_genetic.utils import BLFChromosome
+from blf_genetic.process_pool import ProcessPool
+
+def calculate_fitness(chromosome, key, cache, blf_data):
+    chromosome.calculate_fitness(blf_data)
+    fitness = chromosome.fitness
+    cache[key] = fitness
+    print "(Cache miss)", chromosome
 
 
 class BLFApplication(Application):
@@ -48,13 +57,16 @@ class BLFApplication(Application):
         self.population = []
         self.next_population = []
 
+        self.pool = None
         self.jobs = 1
 
         self.blf_data = None
-        self.fitness_cache = {}
+        self.fitness_cache = Manager().dict()
 
     def initialize(self):
         self.show_configuration()
+
+        self.pool = ProcessPool(self.jobs)
 
         genes = range(len(self.blf_data["shapes"]))
         random.shuffle(genes)
@@ -179,6 +191,7 @@ class BLFApplication(Application):
 
     def calculate_all_fitness(self, population):
         print "\nCalculating the fitness of population..."
+        cache_miss_chromosomes = []
 
         for chromosome in population:
             key = tuple(chromosome.genes)
@@ -186,9 +199,14 @@ class BLFApplication(Application):
                 chromosome.fitness = self.fitness_cache[key]
                 print "(Cache hit!)", chromosome
             else:
-                chromosome.calculate_fitness(self.blf_data)
-                self.fitness_cache[key] = chromosome.fitness
-                print "(Cache miss)", chromosome
+                cache_miss_chromosomes.append(chromosome)
+                self.pool.add_process(calculate_fitness,
+                    chromosome, key, self.fitness_cache, self.blf_data)
+
+        self.pool.wait_completion()
+        for chromosome in cache_miss_chromosomes:
+            key = tuple(chromosome.genes)
+            chromosome.fitness = self.fitness_cache[key]
 
         self.population.sort(key=lambda o: o.fitness)
         self._best_fitness = self.population[0].fitness
