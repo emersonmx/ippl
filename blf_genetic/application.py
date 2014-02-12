@@ -130,6 +130,11 @@ class BLFApplication(Application):
                 offsprings.append(offspring)
 
                 p1, p2 = p2, p1
+        else:
+            for parent in parents:
+                offspring = BLFChromosome()
+                offspring.genes = copy.copy(parent.genes)
+                offsprings.append(offspring)
 
         return offsprings
 
