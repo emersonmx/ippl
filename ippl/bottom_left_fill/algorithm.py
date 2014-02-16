@@ -150,15 +150,16 @@ class BottomLeftFill(object):
         self.sheetshape.append(shape)
 
         position = shape.bounding_box.left_bottom
-        key = "{}".format(shape.id)
+        key = "{}{}".format(shape.id, 0)
         position_data[key] = position
 
         for i in xrange(1, len(self.shapes)):
+            best_orientation = 0
             orientations = self.shapes[i]
             for j in xrange(len(orientations)):
                 shape = orientations[j]
 
-                key = "{}".format(shape.id)
+                key = "{}{}".format(shape.id, j)
                 position = position_data.get(key)
                 if not position:
                     position = origin
@@ -185,7 +186,7 @@ class BottomLeftFill(object):
                 if self.check_best_orientation(shape, best_shape_orientation):
                     best_orientation = j
 
-                key = "{}".format(shape.id)
+                key = "{}{}".format(shape.id, best_orientation)
                 position = shape.bounding_box.left_bottom
                 position_data[key] = position
 
