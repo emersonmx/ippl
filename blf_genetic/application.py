@@ -79,11 +79,6 @@ class BLFApplication(Application):
 
         self.calculate_all_fitness(self.population)
 
-    def finalize(self):
-        self.population.sort(key=lambda o: o.fitness)
-        chromosome = self.population[0]
-        sheetshape = chromosome.calculate_fitness(self.blf_data)
-
     def running(self):
         return self._epoch < self.number_of_epochs
 
@@ -278,13 +273,17 @@ def main():
     print "Running..."
     application.run()
 
-    print "Rendering chromosome:", chromosome
+    print "Rendering..."
+    application.population.sort(key=lambda o: o.fitness)
+    chromosome = application.population[0]
+    sheetshape = chromosome.calculate_fitness(application.blf_data)
+
     size = application.blf_data["profile"]["size"]
     render = Render()
     render.image_size = (int(size[0] + 1), int(size[1] + 1))
     render.initialize()
     render.shapes(sheetshape)
-    render.save(args.image_output)
+    render.save(args.out)
     print "Saved."
 
 if __name__ == "__main__":

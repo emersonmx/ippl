@@ -11,3 +11,4 @@ tags
 *.so
 *.o
 
+*.orig
