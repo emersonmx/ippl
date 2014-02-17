@@ -78,21 +78,13 @@ class BLFApplication(Application):
             random.shuffle(genes)
 
         self.calculate_all_fitness(self.population)
-        print "Epoch: {} - Fitness: {:.20f}\r".format(self._epoch,
-                                                      self._best_fitness)
+        print "Epoch: {} - Fitness: {:.20f}, Average fitness: {:.20f}\r".format(
+            self._epoch, self._best_fitness, self.average_fitness())
 
     def finalize(self):
         self.population.sort(key=lambda o: o.fitness)
         chromosome = self.population[0]
         sheetshape = chromosome.calculate_fitness(self.blf_data)
-        print "Rendering chromosome:", chromosome
-        size = self.blf_data["profile"]["size"]
-        render = Render()
-        render.image_size = (int(size[0] + 1), int(size[1] + 1))
-        render.initialize()
-        render.shapes(sheetshape)
-        render.save("blf_genetic.png")
-        print "Saved."
 
     def running(self):
         return self._epoch < self.number_of_epochs
@@ -191,8 +183,9 @@ class BLFApplication(Application):
         self.calculate_all_fitness(self.population)
 
         self._epoch += 1
-        print "Epoch: {} - Fitness: {:.20f}\r".format(self._epoch,
-                                                      self._best_fitness)
+        print "Epoch: {} - Fitness: {:.20f}, Average fitness: {:.20f}\r".format(
+            self._epoch, self._best_fitness, self.average_fitness())
+
 
     def calculate_all_fitness(self, population):
         print "\nCalculating the fitness of population..."
@@ -217,12 +210,23 @@ class BLFApplication(Application):
         self._best_fitness = self.population[0].fitness
         print "Done!"
 
+    def average_fitness(self):
+        def fitness_list(population):
+            for chromosome in population:
+                yield chromosome.fitness
+
+        sum_fitness = sum(fitness_list(self.population))
+
+        return sum_fitness / len(self.population)
+
 def command_line_arguments():
     parser = argparse.ArgumentParser(
         description="Packs a set of shapes on a sheet using the "
         "Bottom-Left Fill algorithm and Genetic Algorithms.")
     parser.add_argument("file", type=str,
                         help="The file containing the data of the forms")
+    parser.add_argument("--out", type=str, nargs="?", default="out.png",
+                        help="The output image (default: out.png)")
     parser.add_argument("--epochs", type=int, nargs="?", default=100,
                         help="The number of epochs that the genetic algorithm "
                         "must run before stopping (default: 100)")
@@ -276,6 +280,15 @@ def main():
 
     print "Running..."
     application.run()
+
+    print "Rendering chromosome:", chromosome
+    size = application.blf_data["profile"]["size"]
+    render = Render()
+    render.image_size = (int(size[0] + 1), int(size[1] + 1))
+    render.initialize()
+    render.shapes(sheetshape)
+    render.save(args.image_output)
+    print "Saved."
 
 if __name__ == "__main__":
     main()
