@@ -66,20 +66,19 @@ class BottomLeftFill(object):
                 if BottomLeftFill.test_intersect_loop(point, static_primitive):
                     odd_nodes = not odd_nodes
 
-                if not contained:
-                    result = vertical_line.intersect_line(static_primitive,
-                        True)
-                    if result:
-                        if isinstance(result, Line):
-                            bounding_box = result.bounding_box
-                            result = bounding_box.right_top
+                result = vertical_line.intersect_line(static_primitive,
+                    True)
+                if result:
+                    if isinstance(result, Line):
+                        bounding_box = result.bounding_box
+                        result = bounding_box.right_top
 
-                        if next_lowest_y_move:
-                            if ((result.y < next_lowest_y_move) and
-                                    (result.y > shape.lowest_point.y)):
-                                next_lowest_y_move = result.y
-                        else:
+                    if next_lowest_y_move:
+                        if ((result.y < next_lowest_y_move) and
+                                (result.y > shape.lowest_point.y)):
                             next_lowest_y_move = result.y
+                    else:
+                        next_lowest_y_move = result.y
 
             if odd_nodes:
                 contained = True
