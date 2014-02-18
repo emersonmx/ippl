@@ -103,6 +103,10 @@ class Shape(object):
         for primitive in self.inner_loops_iterator():
             yield primitive
 
+    def __eq__(self, other):
+        return ((self.id == other.id) and
+                (self.bounding_box == other.bounding_box))
+
     def __str__(self):
         outer_str = ""
         for primitive in self.outer_loop_iterator():

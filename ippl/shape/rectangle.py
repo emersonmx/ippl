@@ -127,10 +127,8 @@ class Rectangle(object):
         return not first and not second and not third and not fourth
 
     def __eq__(self, rectangle):
-        return (util.almost_equal(self.left, rectangle.left) and
-                util.almost_equal(self.bottom, rectangle.bottom) and
-                util.almost_equal(self.right, rectangle.right) and
-                util.almost_equal(self.top, rectangle.top))
+        return ((self.left_bottom == rectangle.left_bottom) and
+                (self.right_top == rectangle.right_top))
 
     def __str__(self):
         return "{} ({:.20f}, {:.20f}, {:.20f}, {:.20f})".format(

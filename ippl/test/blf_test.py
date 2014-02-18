@@ -18,7 +18,6 @@
 #
 
 import time
-import random
 
 from ippl.bottom_left_fill import *
 from ippl.reader import *
@@ -33,12 +32,11 @@ if __name__ == "__main__":
     print "Initializing BLF..."
     t = time.time()
     blf = BottomLeftFill()
-    blf.resolution = Point(25, 1)
+    blf.resolution = Point(50, 1)
     size = blf_data["profile"]["size"]
     sheetshape_rectangle = Rectangle(0, 0, size[0] + 1, size[1] + 1)
     blf.sheetshape.rectangle = sheetshape_rectangle
     blf.shapes = blf_data["shapes"]
-    random.shuffle(blf.shapes)
 
     print "Initializing BLF time: {:.20f}".format(time.time() - t)
     print len(blf.shapes)

@@ -55,19 +55,27 @@ class BottomLeftFill(object):
         next_lowest_y_move = None
         vertical_line = Line.vertical_line()
         vertical_line.position(shape.lowest_point.x, 0)
+        bounding_box = None
+        static_bounding_box = None
 
         for primitive in shape.primitive_iterator():
             odd_nodes = False
             point = primitive.begin
+            bounding_box = primitive.bounding_box
             for static_primitive in static_shape.primitive_iterator():
-                if BottomLeftFill.intersect_primitives(primitive,
-                        static_primitive):
-                    return (primitive, static_primitive)
+                static_bounding_box = static_primitive.bounding_box
+                if bounding_box.intersect_rectangle(static_bounding_box):
+                    if BottomLeftFill.intersect_primitives(primitive,
+                            static_primitive):
+                        return (primitive, static_primitive)
                 if BottomLeftFill.test_intersect_loop(point, static_primitive):
                     odd_nodes = not odd_nodes
 
-                result = vertical_line.intersect_line(static_primitive,
-                    True)
+                result = None
+                if (static_bounding_box.left <= vertical_line.x1 <=
+                        static_bounding_box.right):
+                    result = vertical_line.intersect_line(static_primitive, True)
+
                 if result:
                     if isinstance(result, Line):
                         bounding_box = result.bounding_box
@@ -90,7 +98,7 @@ class BottomLeftFill(object):
 
     @staticmethod
     def intersect_primitives(primitive1, primitive2):
-        if primitive1.do_intersect_line(primitive2):
+        if primitive1.intersect_line(primitive2):
             return True
 
         return False
@@ -125,7 +133,12 @@ class BottomLeftFill(object):
 
         vertical_line = Line.vertical_line()
         vertical_line.position(point.x, 0)
-        result = line_to_point(vertical_line.intersect_line(line, True))
+        bounding_box = line.bounding_box
+        result = None
+
+        if bounding_box.left <= vertical_line.x1 <= bounding_box.right:
+            result = line_to_point(vertical_line.intersect_line(line, True))
+
         if result == None:
             begin = line.begin
             end = line.end
