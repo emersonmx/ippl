@@ -23,7 +23,7 @@ def round_number(number, places=6):
     off = 10 ** places
     return int(number * off) / float(off)
 
-def approx_equal(a, b, epsilon=1e-06):
+def almost_equal(a, b, epsilon=1e-06):
     """Checks if a number is approx equal to each other.
 
     Parameters:
@@ -34,7 +34,7 @@ def approx_equal(a, b, epsilon=1e-06):
         otherwise.
     """
 
-    return abs(a - b) <= epsilon
+    return abs(a - b) < epsilon
 
 def calculate_point_rotation(point, angle):
     def rotate_vetor(x, y, angle):

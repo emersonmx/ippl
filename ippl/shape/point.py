@@ -99,11 +99,14 @@ class Point(object):
         cross_product = ((self.y - line.y1) * (line.x2 - line.x1) -
             (self.x - line.x1) * (line.y2 - line.y1))
 
-        return util.approx_equal(abs(cross_product), 0.0)
+        return util.almost_equal(abs(cross_product), 0.0)
 
     def __eq__(self, point):
-        return ((util.approx_equal(self.x, point.x) and
-            util.approx_equal(self.y, point.y)))
+        if isinstance(point, Point):
+            return ((util.almost_equal(self.x, point.x) and
+                util.almost_equal(self.y, point.y)))
+
+        return False
 
     def __str__(self):
         return "{} ({:.20f}, {:.20f})".format(type(self).__name__, self.x, self.y)

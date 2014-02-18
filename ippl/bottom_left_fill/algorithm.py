@@ -114,12 +114,25 @@ class BottomLeftFill(object):
 
     @staticmethod
     def calculate_intersection_point(line, point):
+
+        def line_to_point(primitive):
+            result = primitive
+            if isinstance(result, Line):
+                bounding_box = result.bounding_box
+                result = bounding_box.right_top
+
+            return result
+
         vertical_line = Line.vertical_line()
         vertical_line.position(point.x, 0)
-        result = vertical_line.intersect_line(line, True)
-        if isinstance(result, Line):
-            bounding_box = line.bounding_box
-            result = bounding_box.right_top
+        result = line_to_point(vertical_line.intersect_line(line, True))
+        if result == None:
+            begin = line.begin
+            end = line.end
+            if almost_equal(abs(point.x - begin.x), 0.0):
+                result = Point(begin.x, begin.y)
+            elif almost_equal(abs(point.x - end.x), 0.0):
+                result = Point(end.x, end.y)
 
         return result
 
@@ -149,7 +162,7 @@ class BottomLeftFill(object):
         self.sheetshape.append(shape)
 
         position = shape.bounding_box.left_bottom
-        key = "{}{}".format(shape.id, 0)
+        key = "{}".format(shape.id)
         position_data[key] = position
 
         for i in xrange(1, len(self.shapes)):
@@ -158,7 +171,7 @@ class BottomLeftFill(object):
             for j in xrange(len(orientations)):
                 shape = orientations[j]
 
-                key = "{}{}".format(shape.id, j)
+                key = "{}".format(shape.id)
                 position = position_data.get(key)
                 if not position:
                     position = origin
@@ -168,6 +181,8 @@ class BottomLeftFill(object):
                 if self.sheetshape.out(shape):
                     bounding_box = shape.bounding_box
                     shape.position(bounding_box.left + self.resolution.x, 0)
+                    if self.sheetshape.out(shape):
+                        continue
 
                 #print "Shape {}, Rotation {}\r".format(shape.id, j)
 
@@ -185,14 +200,15 @@ class BottomLeftFill(object):
                 if self.check_best_orientation(shape, best_shape_orientation):
                     best_orientation = j
 
-                key = "{}{}".format(shape.id, best_orientation)
-                position = shape.bounding_box.left_bottom
-                position_data[key] = position
-
             best_shape = orientations[best_orientation]
             #print "Put {}/{} on sheetshape.".format(best_shape.id,
             #    best_orientation)
             self.sheetshape.append(best_shape)
+
+            key = "{}".format(shape.id)
+            position = shape.bounding_box.left_bottom
+            position_data[key] = position
+
             #print "Sheet Shape size:", len(self.sheetshape)
 
         return self.sheetshape.bounding_box
@@ -257,11 +273,15 @@ class BottomLeftFill(object):
             distance = calculate_pir(intersection, pir)
             distances.append(distance)
 
+        if not distances:
+            import pdb
+            pdb.set_trace()
+
         result = max(distances)
         if result == None:
             result = 0
 
-        if util.approx_equal(result, 0.0):
+        if util.almost_equal(result, 0.0):
             result = self.resolution.y
 
         if result < 0:

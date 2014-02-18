@@ -115,7 +115,7 @@ class Line(object):
         """
 
         values = self.calculate_intersection_line_point(line)
-        if approx_equal(values["denominator"], 0.0):
+        if almost_equal(values["denominator"], 0.0):
             if self.begin.collinear(line):
                 return self.calculate_collinear_intersection(line, ignore_alpha,
                                                              ignore_beta)
@@ -150,7 +150,7 @@ class Line(object):
         denominator = (a.y * b.x) - (a.x * b.y)
         result["denominator"] = denominator
 
-        if approx_equal(denominator, 0.0):
+        if almost_equal(denominator, 0.0):
             return result
 
         result["alpha"] = ((b.y * c.x) - (b.x * c.y)) / denominator

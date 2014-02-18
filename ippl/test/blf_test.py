@@ -32,6 +32,7 @@ if __name__ == "__main__":
     print "Initializing BLF..."
     t = time.time()
     blf = BottomLeftFill()
+    blf.resolution = Point(50, 1)
     size = blf_data["profile"]["size"]
     sheetshape_rectangle = Rectangle(0, 0, size[0] + 1, size[1] + 1)
     blf.sheetshape.rectangle = sheetshape_rectangle
