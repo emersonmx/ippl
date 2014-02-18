@@ -36,7 +36,7 @@ def calculate_fitness(chromosome, key, cache, blf_data):
     chromosome.calculate_fitness(blf_data)
     fitness = chromosome.fitness
     cache[key] = fitness
-    print "(Cache miss)", chromosome
+    #print "(Cache miss)", chromosome
 
 
 class BLFApplication(Application):
@@ -62,6 +62,8 @@ class BLFApplication(Application):
 
         self.blf_data = None
         self.fitness_cache = Manager().dict()
+
+        self._verbose = True
 
     def initialize(self):
         self.show_configuration()
@@ -183,7 +185,7 @@ class BLFApplication(Application):
             key = tuple(chromosome.genes)
             if key in self.fitness_cache:
                 chromosome.fitness = self.fitness_cache[key]
-                print "(Cache hit!)", chromosome
+                # print "(Cache hit!)", chromosome
             else:
                 cache_miss_chromosomes.append(chromosome)
                 self.pool.add_process(calculate_fitness,
