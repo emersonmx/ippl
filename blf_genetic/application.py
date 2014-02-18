@@ -199,8 +199,8 @@ class BLFApplication(Application):
         print "Done!"
 
         self._epoch += 1
-        print "Epoch: {} - Fitness: {:.20f}, Average fitness: {:.20f}".format(
-            self._epoch, self._best_fitness, self.average_fitness())
+        print ("Epoch: {} - Best fitness: {:.20f}, Average fitness: {:.20f}"
+            .format(self._epoch, self._best_fitness, self.average_fitness()))
 
     def average_fitness(self):
         def fitness_list(population):
