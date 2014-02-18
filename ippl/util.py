@@ -36,6 +36,9 @@ def almost_equal(a, b, epsilon=1e-06):
 
     return abs(a - b) < epsilon
 
+def ccw(a, b, c):
+    return (((b.x - a.x) * (c.y - a.y)) > ((b.y - a.y) * (c.x - a.x)))
+
 def calculate_point_rotation(point, angle):
     def rotate_vetor(x, y, angle):
         return (round_number(x * math.cos(angle) - y * math.sin(angle)),

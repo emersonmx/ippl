@@ -132,6 +132,14 @@ class Line(object):
 
         return None
 
+    def do_intersect_line(self, line):
+        first = ccw(self.begin, line.begin, line.end)
+        second = ccw(self.end, line.begin, line.end)
+        third = ccw(self.begin, self.end, line.begin)
+        fourth = ccw(self.begin, self.end, line.end)
+
+        return first != second and third != fourth
+
     def calculate_intersection_line_point(self, line):
         """Calculate the intersection point between lines.
 

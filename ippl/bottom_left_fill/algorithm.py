@@ -90,7 +90,7 @@ class BottomLeftFill(object):
 
     @staticmethod
     def intersect_primitives(primitive1, primitive2):
-        if primitive1.intersect_line(primitive2):
+        if primitive1.do_intersect_line(primitive2):
             return True
 
         return False
@@ -184,7 +184,7 @@ class BottomLeftFill(object):
                     if self.sheetshape.out(shape):
                         continue
 
-                #print "Shape {}, Rotation {}\r".format(shape.id, j)
+                print "Shape {}, Rotation {}\r".format(shape.id, j)
 
                 while True:
                     result = self.overlap_sheetshape(shape)
@@ -201,8 +201,8 @@ class BottomLeftFill(object):
                     best_orientation = j
 
             best_shape = orientations[best_orientation]
-            #print "Put {}/{} on sheetshape.".format(best_shape.id,
-            #    best_orientation)
+            print "Put {}/{} on sheetshape.".format(best_shape.id,
+                best_orientation)
             self.sheetshape.append(best_shape)
 
             key = "{}".format(shape.id)
