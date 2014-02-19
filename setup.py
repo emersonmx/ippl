@@ -43,20 +43,17 @@ ext_modules = [
     Extension("ippl/genetic_algorithm/mutation", [
         "ippl/genetic_algorithm/mutation.py"
     ]),
+    Extension("ippl/genetic_algorithm/select", [
+        "ippl/genetic_algorithm/select.py"
+    ]),
     Extension("ippl/reader", [
         "ippl/reader.py"
     ]),
     Extension("ippl/render", [
         "ippl/render.py"
     ]),
-    Extension("ippl/shape/base", [
-        "ippl/shape/base.py"
-    ]),
     Extension("ippl/shape/line", [
         "ippl/shape/line.py"
-    ]),
-    Extension("ippl/shape/loop", [
-        "ippl/shape/loop.py"
     ]),
     Extension("ippl/shape/point", [
         "ippl/shape/point.py"
