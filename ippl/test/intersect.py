@@ -95,7 +95,8 @@ if __name__ == "__main__":
 
     i = 0
     for s in shapes:
-        aabb = s.bounds()
+        s.calculate_bounding_box()
+        aabb = s.bounding_box
         size = aabb.size()
         size = (int(size[0]) + 1, int(size[1]) + 1)
         r = Render()
