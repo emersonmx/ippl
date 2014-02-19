@@ -32,15 +32,3 @@ config="$file $population $epochs $crossover_probability $elite $resolution $job
 echo $config
 python blf_genetic/application.py $config > profile9_res101.log
 
-resolution="--resolution 5 1"
-out="--out profile9_res51.png"
-config="$file $population $epochs $crossover_probability $elite $resolution $jobs $out"
-echo $config
-python blf_genetic/application.py $config > profile9_res51.log
-
-resolution="--resolution 1 1"
-out="--out profile9_res11.png"
-config="$file $population $epochs $crossover_probability $elite $resolution $jobs $out"
-echo $config
-python blf_genetic/application.py $config > profile9_res11.log
-

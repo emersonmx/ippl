@@ -18,6 +18,7 @@
 #
 
 import time
+import random
 
 from ippl.bottom_left_fill import *
 from ippl.reader import *
@@ -26,17 +27,21 @@ if __name__ == "__main__":
     print "Loading data..."
     t = time.time()
     reader = BLFReader()
-    blf_data = reader.load("data/blf/profile6")
+    blf_data = reader.load("data/blf/profile8")
     print "Loading time: {:.20f}".format(time.time() - t)
 
     print "Initializing BLF..."
     t = time.time()
     blf = BottomLeftFill()
-    blf.resolution = Point(50, 1)
+    blf.resolution = Point(100, 1)
     size = blf_data["profile"]["size"]
     sheetshape_rectangle = Rectangle(0, 0, size[0] + 1, size[1] + 1)
     blf.sheetshape.rectangle = sheetshape_rectangle
-    blf.shapes = blf_data["shapes"]
+    #blf.shapes = blf_data["shapes"]
+    blf.shapes = []
+    od = [9, 6, 13, 12, 10, 3, 0, 11, 16, 4, 7, 8, 2, 15, 1, 5, 17, 14]
+    for i in od:
+        blf.shapes.append(blf_data["shapes"][i])
 
     print "Initializing BLF time: {:.20f}".format(time.time() - t)
     print len(blf.shapes)
