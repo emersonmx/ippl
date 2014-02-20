@@ -260,10 +260,8 @@ class BottomLeftFill(object):
 
     def check_best_orientation(self, shape):
         bounding_box = shape.bounding_box
-        shape_size = bounding_box.size()
         sheetshape_bounding_box = self.sheetshape.bounding_box
-        sheetshape_size = sheetshape_bounding_box.size()
-        return shape_size[0] < sheetshape_size[0]
+        return bounding_box.right < sheetshape_bounding_box.right
         #best_bounding_box = best_shape_orientation.bounding_box
         #best_size = best_bounding_box.size()
         #return shape_size[0] < best_size[0]

@@ -241,10 +241,6 @@ def command_line_arguments():
                         help="The proportion of the population that is "
                         "considered elite (this will be the next population) "
                         "(default: 0.5)")
-    parser.add_argument("-r", "--resolution", type=float, nargs=2,
-                        metavar="number", default=[25.0, 1.0],
-                        help="The values that are used to move the shapes in "
-                        "the Bottom-Left Fill algorithm (default: [25.0, 1.0])")
     parser.add_argument("-j","--jobs", type=int, default=1,
                         help="The number of tasks to be executed in parallel "
                         "(default: 1)")
@@ -271,6 +267,10 @@ def main():
     reader = BLFReader()
     blf_data = reader.load(args.file)
 
+    resolution_list = ((100.0, 1.0), (50.0, 1.0), (25.0, 1.0),
+        (10.0, 1.0), (1.0, 1.0))
+    resolution_iterator = iter(resolution_list)
+
     application = BLFApplication()
     application.number_of_epochs = args.epochs
     application.crossover_probability = args.crossover_probability
@@ -279,7 +279,7 @@ def main():
     application.elite = args.elite
     application.population_size = args.population
     application.jobs = args.jobs
-    blf_data["resolution"] = args.resolution
+    blf_data["resolution"] = resolution_iterator.next()
     application.blf_data = blf_data
 
     # Initial random population
@@ -298,15 +298,8 @@ def main():
     print "Running..."
     application.run()
 
-    resolution = application.blf_data["resolution"]
-    x_value = int(resolution[0])
-    min_value = 10.0
-    while not util.almost_equal(x_value, 1.0):
-        x_value = int(x_value / 2.0)
-        if x_value < 1 or x_value < min_value:
-            x_value = 1
-
-        application.blf_data["resolution"] = (float(x_value), resolution[1])
+    for resolution in resolution_iterator:
+        application.blf_data["resolution"] = resolution
 
         new_population = []
         application.population.sort(key=lambda o: o.fitness)
