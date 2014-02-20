@@ -59,6 +59,46 @@ class Shape(object):
         self.calculate_bounding_box()
         self.calculate_lowest_point()
 
+    def contains_point(self, point):
+        if not point.intersect_rectangle(self.bounding_box):
+            return False
+
+        odd_nodes = False
+        for primitive in self.primitive_iterator():
+            if ((primitive.y2 < point.y and primitive.y1 >= point.y) or
+                    (primitive.y1 < point.y and primitive.y2 >= point.y)):
+                x_value = (primitive.x2 + (point.y - primitive.y2) /
+                    (primitive.y1 - primitive.y2) *
+                        (primitive.x1 - primitive.x2))
+                if x_value < point.x:
+                    odd_nodes = not odd_nodes
+
+        return odd_nodes
+
+    def next_lowest_y_move(self, shape):
+        y_move = None
+        bounding_box = None
+        vertical_line = Line.vertical_line()
+        vertical_line.position(self.lowest_point.x, 0)
+
+        for primitive in shape.primitive_iterator():
+            bounding_box = primitive.bounding_box
+            if bounding_box.left <= vertical_line.x1 <= bounding_box.right:
+                result = vertical_line.intersect_line(primitive, True)
+                if isinstance(result, Line):
+                    line_bounds = result.bounding_box
+                    result = bounding_box.right_top
+
+                if result:
+                    if y_move:
+                        if ((result.y < y_move) and
+                                (result.y > self.lowest_point.y)):
+                            y_move = result.y
+                    else:
+                        y_move = result.y
+
+        return y_move
+
     def calculate_lowest_point(self):
         local_origin = self.bounding_box.left_bottom
         iterator = iter(self.outer_loop)

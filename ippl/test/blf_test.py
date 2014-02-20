@@ -26,7 +26,7 @@ if __name__ == "__main__":
     print "Loading data..."
     t = time.time()
     reader = BLFReader()
-    blf_data = reader.load("data/blf/profile6")
+    blf_data = reader.load("data/blf/profile8")
     print "Loading time: {:.20f}".format(time.time() - t)
 
     print "Initializing BLF..."

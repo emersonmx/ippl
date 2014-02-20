@@ -37,69 +37,26 @@ class BottomLeftFill(object):
         self.resolution = Point(25, 1)
 
     @staticmethod
-    def test_intersect_loop(point, primitive):
-        line = primitive
-        if ((line.y2 < point.y and line.y1 >= point.y) or
-                (line.y1 < point.y and line.y2 >= point.y)):
-            x_value = (line.x2 + (point.y - line.y2) /
-                (line.y1 - line.y2) * (line.x1 - line.x2))
-            if x_value < point.x:
-                return True
-
-        return False
-
-    @staticmethod
     def next_move(shape, static_shape):
-        odd_nodes = False
-        contained = False
-        next_lowest_y_move = 0
-        vertical_line = Line.vertical_line()
-        vertical_line.position(shape.lowest_point.x, 0)
-        bounding_box = None
-        static_bounding_box = None
-
         for primitive in shape.primitive_iterator():
-            odd_nodes = False
-            point = primitive.begin
-            bounding_box = primitive.bounding_box
             for static_primitive in static_shape.primitive_iterator():
-                static_bounding_box = static_primitive.bounding_box
+                if BottomLeftFill.intersect_primitives(primitive,
+                        static_primitive):
+                    return (primitive, static_primitive)
 
-                if bounding_box.intersect_rectangle(static_bounding_box):
-                    if BottomLeftFill.intersect_primitives(primitive,
-                            static_primitive):
-                        return (primitive, static_primitive)
-                if BottomLeftFill.test_intersect_loop(point, static_primitive):
-                    odd_nodes = not odd_nodes
-
-                if (static_bounding_box.left <= vertical_line.x1 <=
-                        static_bounding_box.right):
-                    result = vertical_line.intersect_line(static_primitive,
-                        True)
-                    if isinstance(result, Line):
-                        bounding_box = result.bounding_box
-                        result = bounding_box.right_top
-
-                    if result:
-                        if next_lowest_y_move:
-                            if ((result.y < next_lowest_y_move) and
-                                    (result.y > shape.lowest_point.y)):
-                                next_lowest_y_move = result.y
-                        else:
-                            next_lowest_y_move = result.y
-
-            if odd_nodes:
-                contained = True
-
-        if contained:
-            return next_lowest_y_move - shape.lowest_point.y
+        for primitive in shape.outer_loop_iterator():
+            if static_shape.contains_point(primitive.begin):
+                return shape.next_lowest_y_move(static_shape)
 
         return None
 
     @staticmethod
     def intersect_primitives(primitive1, primitive2):
-        if primitive1.intersect_line(primitive2):
-            return True
+        bounding_box = primitive1.bounding_box
+        static_bounding_box = primitive2.bounding_box
+        if bounding_box.intersect_rectangle(static_bounding_box):
+            if primitive1.intersect_line(primitive2):
+                return True
 
         return False
 
@@ -197,7 +154,7 @@ class BottomLeftFill(object):
                     if self.sheetshape.out(shape):
                         continue
 
-                #print "Shape {}, Rotation {}\r".format(shape.id, j)
+                print "Shape {}, Rotation {}\r".format(shape.id, j)
 
                 while True:
                     result = self.overlap_sheetshape(shape)
@@ -214,8 +171,8 @@ class BottomLeftFill(object):
                     best_orientation = j
 
             best_shape = orientations[best_orientation]
-            #print "Put {}/{} on sheetshape.".format(best_shape.id,
-            #    best_orientation)
+            print "Put {}/{} on sheetshape.".format(best_shape.id,
+                best_orientation)
             self.sheetshape.append(best_shape)
 
             key = "{}".format(shape.id)
@@ -241,6 +198,7 @@ class BottomLeftFill(object):
     def resolve_overlapping(self, shape, data):
         if isinstance(data, float):
             if data < 0:
+                print "NEGATIVE!"
                 data = self.resolution.y
 
             data += self.resolution.y
