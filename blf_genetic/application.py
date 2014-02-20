@@ -36,7 +36,7 @@ def calculate_fitness(chromosome, key, cache, blf_data):
     chromosome.calculate_fitness(blf_data)
     fitness = chromosome.fitness
     cache[key] = fitness
-    #print "(Cache miss)", chromosome
+    print "(Cache miss)", chromosome
 
 
 class BLFApplication(Application):
@@ -61,23 +61,17 @@ class BLFApplication(Application):
         self.jobs = 1
 
         self.blf_data = None
-        self.fitness_cache = Manager().dict()
+        self.fitness_cache = None
 
         self._verbose = True
 
     def initialize(self):
         self.show_configuration()
 
+        self._epoch = 0
+        self.fitness_cache = Manager().dict()
+
         self.pool = ProcessPool(self.jobs)
-
-        genes = range(len(self.blf_data["shapes"]))
-        random.shuffle(genes)
-
-        for _ in xrange(self.population_size):
-            chromosome = BLFChromosome()
-            chromosome.genes = copy.copy(genes)
-            self.population.append(chromosome)
-            random.shuffle(genes)
 
         self.calculate_all_fitness(self.population)
 
@@ -163,7 +157,7 @@ class BLFApplication(Application):
     def replace_population(self):
         print "Replacing population..."
         new_population = []
-        for i in xrange(int(len(self.population) * self.elite)):
+        for i in xrange(int(self.population_size * self.elite)):
             new_population.append(self.population[i])
 
         self.next_population.sort(key=lambda o: o.fitness)
@@ -185,7 +179,7 @@ class BLFApplication(Application):
             key = tuple(chromosome.genes)
             if key in self.fitness_cache:
                 chromosome.fitness = self.fitness_cache[key]
-                #print "(Cache hit!)", chromosome
+                print "(Cache hit!)", chromosome
             else:
                 cache_miss_chromosomes.append(chromosome)
                 self.pool.add_process(calculate_fitness,
@@ -257,6 +251,19 @@ def command_line_arguments():
 
     return parser.parse_args()
 
+def create_random_population(shapes, population_size):
+    population = []
+    genes = range(len(shapes))
+    random.shuffle(genes)
+
+    for _ in xrange(population_size):
+        chromosome = BLFChromosome()
+        chromosome.genes = copy.copy(genes)
+        population.append(chromosome)
+        random.shuffle(genes)
+
+    return population
+
 def main():
     args = command_line_arguments()
 
@@ -275,8 +282,45 @@ def main():
     blf_data["resolution"] = args.resolution
     application.blf_data = blf_data
 
+    # Initial random population
+    genes = range(len(application.blf_data["shapes"]))
+    random.shuffle(genes)
+
+    for _ in xrange(application.population_size):
+        chromosome = BLFChromosome()
+        chromosome.genes = copy.copy(genes)
+        application.population.append(chromosome)
+        random.shuffle(genes)
+
+    application.population = create_random_population(
+        application.blf_data["shapes"], application.population_size)
+
     print "Running..."
     application.run()
+
+    resolution = application.blf_data["resolution"]
+    x_value = int(resolution[0])
+    min_value = 10.0
+    while not util.almost_equal(x_value, 1.0):
+        x_value = int(x_value / 2.0)
+        if x_value < 1 or x_value < min_value:
+            x_value = 1
+
+        application.blf_data["resolution"] = (float(x_value), resolution[1])
+
+        new_population = []
+        application.population.sort(key=lambda o: o.fitness)
+        for i in xrange(int(application.population_size * application.elite)):
+            new_population.append(application.population[i])
+
+        random_population = create_random_population(
+            application.blf_data["shapes"], application.population_size)
+        for chromosome in random_population:
+            if len(new_population) < application.population_size:
+                new_population.append(chromosome)
+
+        application.population = new_population
+        application.run()
 
     print "Rendering..."
     application.population.sort(key=lambda o: o.fitness)
