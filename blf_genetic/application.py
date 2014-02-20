@@ -36,7 +36,7 @@ def calculate_fitness(chromosome, key, cache, blf_data):
     chromosome.calculate_fitness(blf_data)
     fitness = chromosome.fitness
     cache[key] = fitness
-    print "(Cache miss)", chromosome
+    #print "(Cache miss)", chromosome
 
 
 class BLFApplication(Application):
@@ -151,13 +151,13 @@ class BLFApplication(Application):
         print "Configuration:"
         print "=" * 79
         print "Epochs:", self.number_of_epochs
+        print "Population_size:", self.population_size
         print "Crossover probability:", self.crossover_probability
         print "Mutation probability:", self.mutation_probability
         print "Gene mutation number:", self.gene_mutation_number
         print "Elite ratio:", self.elite
-        print "Population_size:", self.population_size
-        print "Jobs:", self.jobs
         print "Resolution:", self.blf_data["resolution"]
+        print "Jobs:", self.jobs
         print "=" * 79
 
     def replace_population(self):
@@ -185,7 +185,7 @@ class BLFApplication(Application):
             key = tuple(chromosome.genes)
             if key in self.fitness_cache:
                 chromosome.fitness = self.fitness_cache[key]
-                print "(Cache hit!)", chromosome
+                #print "(Cache hit!)", chromosome
             else:
                 cache_miss_chromosomes.append(chromosome)
                 self.pool.add_process(calculate_fitness,
@@ -219,38 +219,41 @@ def command_line_arguments():
         "Bottom-Left Fill algorithm and Genetic Algorithms.")
     parser.add_argument("file", type=str,
                         help="The file containing the data of the forms")
-    parser.add_argument("--out", type=str, nargs="?", default="out.png",
+    parser.add_argument("-o", "--out", type=str, default="out.png",
+                        metavar="filename",
                         help="The output image (default: out.png)")
-    parser.add_argument("--epochs", type=int, nargs="?", default=100,
+    parser.add_argument("-e", "--epochs", type=int, default=100,
+                        metavar="quantity",
                         help="The number of epochs that the genetic algorithm "
                         "must run before stopping (default: 100)")
-    parser.add_argument("--crossover_probability", type=float, nargs="?",
-                        default=0.7,
+    parser.add_argument("-p", "--population", type=int, default=100,
+                        metavar="quantity",
+                        help="The size of the population that will be used "
+                        "during the execution of the algorithm (default: 100)")
+    parser.add_argument("-c", "--crossover_probability", type=float,
+                        metavar="probability", default=0.7,
                         help="The probability of the exchange of genetic "
                         "material between a pair of chromosomes occur "
                         "(default: 0.7)")
-    parser.add_argument("--mutation_probability", type=float, nargs="?",
-                        default=0.01,
+    parser.add_argument("-m", "--mutation_probability", type=float,
+                        metavar="probability", default=0.01,
                         help="The probability of a mutation to occur in "
                         "children of the pair of chromosomes (default: 0.01)")
-    parser.add_argument("--gene_mutation_number", type=int, nargs="?",
-                        default=1,
+    parser.add_argument("-g", "--gene_mutation_number", type=int,
+                        metavar="quantity", default=1,
                         help="The quantity of genes to be mutated (default: 1)")
-    parser.add_argument("--elite", type=float, nargs="?",
-                        default=0.5,
+    parser.add_argument("-E", "--elite", type=float,
+                        metavar="ratio", default=0.5,
                         help="The proportion of the population that is "
                         "considered elite (this will be the next population) "
                         "(default: 0.5)")
-    parser.add_argument("--population", type=int, nargs="?", default=100,
-                        help="The size of the population that will be used "
-                        "during the execution of the algorithm (default: 100)")
-    parser.add_argument("--jobs", type=int, nargs="?", default=1,
-                        help="The number of tasks to be executed in parallel "
-                        "(default: 1)")
-    parser.add_argument("--resolution", type=float, nargs=2,
-                        default=[25.0, 1.0],
+    parser.add_argument("-r", "--resolution", type=float, nargs=2,
+                        metavar="number", default=[25.0, 1.0],
                         help="The values that are used to move the shapes in "
                         "the Bottom-Left Fill algorithm (default: [25.0, 1.0])")
+    parser.add_argument("-j","--jobs", type=int, default=1,
+                        help="The number of tasks to be executed in parallel "
+                        "(default: 1)")
 
     return parser.parse_args()
 
