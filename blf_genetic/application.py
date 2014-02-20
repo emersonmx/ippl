@@ -174,6 +174,7 @@ class BLFApplication(Application):
     def calculate_all_fitness(self, population):
         print "\nCalculating the fitness of population..."
         cache_miss_chromosomes = []
+        wait = False
 
         for chromosome in population:
             key = tuple(chromosome.genes)
@@ -184,8 +185,10 @@ class BLFApplication(Application):
                 cache_miss_chromosomes.append(chromosome)
                 self.pool.add_process(calculate_fitness,
                     chromosome, key, self.fitness_cache, self.blf_data)
+                wait = True
 
-        self.pool.wait_completion()
+        if wait:
+            self.pool.wait_completion()
         for chromosome in cache_miss_chromosomes:
             key = tuple(chromosome.genes)
             chromosome.fitness = self.fitness_cache[key]
@@ -213,7 +216,7 @@ def command_line_arguments():
         "Bottom-Left Fill algorithm and Genetic Algorithms.")
     parser.add_argument("file", type=str,
                         help="The file containing the data of the forms")
-    parser.add_argument("-o", "--out", type=str, default="out.png",
+    parser.add_argument("-o", "--out", type=str, default="out",
                         metavar="filename",
                         help="The output image (default: out.png)")
     parser.add_argument("-e", "--epochs", type=int, default=100,
@@ -267,9 +270,10 @@ def main():
     reader = BLFReader()
     blf_data = reader.load(args.file)
 
-    resolution_list = ((100.0, 1.0), (50.0, 1.0), (25.0, 1.0),
-        (10.0, 1.0), (1.0, 1.0))
+    resolution_list = ((500.0, 1.0), (100.0, 1.0), (50.0, 1.0), (25.0, 1.0),
+        (10.0, 1.0), (5.0, 1.0))
     resolution_iterator = iter(resolution_list)
+    best_chromosomes = []
 
     application = BLFApplication()
     application.number_of_epochs = args.epochs
@@ -303,8 +307,10 @@ def main():
 
         new_population = []
         application.population.sort(key=lambda o: o.fitness)
-        for i in xrange(int(application.population_size * application.elite)):
-            new_population.append(application.population[i])
+        best_chromosomes.append(copy.deepcopy(application.population[0]))
+        for chromosome in best_chromosomes:
+            chromosome_copy = copy.deepcopy(chromosome)
+            new_population.append(chromosome_copy)
 
         random_population = create_random_population(
             application.blf_data["shapes"], application.population_size)
@@ -316,16 +322,15 @@ def main():
         application.run()
 
     print "Rendering..."
-    application.population.sort(key=lambda o: o.fitness)
-    chromosome = application.population[0]
-    sheetshape = chromosome.calculate_fitness(application.blf_data)
+    for i, chromosome in enumerate(best_chromosomes):
+        size = application.blf_data["profile"]["size"]
+        render = Render()
+        render.image_size = (int(size[0] + 1), int(size[1] + 1))
+        render.initialize()
+        render.shapes(chromosome.calculate_fitness(application.blf_data))
+        x, y = resolution_list[i]
+        render.save("{}_res_{}_{}.png".format(args.out, x, y))
 
-    size = application.blf_data["profile"]["size"]
-    render = Render()
-    render.image_size = (int(size[0] + 1), int(size[1] + 1))
-    render.initialize()
-    render.shapes(sheetshape)
-    render.save(args.out)
     print "Saved."
 
 if __name__ == "__main__":
