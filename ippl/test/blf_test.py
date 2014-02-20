@@ -26,13 +26,13 @@ if __name__ == "__main__":
     print "Loading data..."
     t = time.time()
     reader = BLFReader()
-    blf_data = reader.load("data/blf/profile6")
+    blf_data = reader.load("data/blf/profile8")
     print "Loading time: {:.20f}".format(time.time() - t)
 
     print "Initializing BLF..."
     t = time.time()
     blf = BottomLeftFill()
-    blf.resolution = Point(50, 1)
+    blf.resolution = Point(10, 1)
     size = blf_data["profile"]["size"]
     sheetshape_rectangle = Rectangle(0, 0, size[0] + 1, size[1] + 1)
     blf.sheetshape.rectangle = sheetshape_rectangle

@@ -79,22 +79,14 @@ class BottomLeftFill(object):
 
     @staticmethod
     def calculate_intersection_point(line, point):
-
-        def line_to_point(primitive):
-            result = primitive
-            if isinstance(result, Line):
-                bounding_box = result.bounding_box
-                result = bounding_box.right_top
-
-            return result
-
         vertical_line = Line.vertical_line()
         vertical_line.position(point.x, 0)
         bounding_box = line.bounding_box
         result = None
 
         if bounding_box.left <= vertical_line.x1 <= bounding_box.right:
-            result = line_to_point(vertical_line.intersect_line(line, True))
+            result = BottomLeftFill.line_to_point(
+                vertical_line.intersect_line(line, True))
 
         if result == None:
             begin = line.begin
@@ -103,6 +95,15 @@ class BottomLeftFill(object):
                 result = Point(begin.x, begin.y)
             elif almost_equal(abs(point.x - end.x), 0.0):
                 result = Point(end.x, end.y)
+
+        return result
+
+    @staticmethod
+    def line_to_point(primitive):
+        result = primitive
+        if isinstance(result, Line):
+            bounding_box = result.bounding_box
+            result = bounding_box.right_top
 
         return result
 
@@ -243,10 +244,6 @@ class BottomLeftFill(object):
 
             distance = calculate_pir(intersection, pir)
             distances.append(distance)
-
-        if not distances:
-            import pdb
-            pdb.set_trace()
 
         result = max(distances)
         if result == None:
