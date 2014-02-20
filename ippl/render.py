@@ -36,10 +36,9 @@ class Render(object):
 
         self.image_mode = "RGB"
         self.image_size = (100, 100)
-        self.image_foreground_color = (0, 0, 0)
+        self.shape_line_color = (0, 0, 0)
+        self.shape_color = (204, 204, 204)
         self.image_background_color = (255, 255, 255)
-        self.shape_external_color = (255, 0, 0)
-        self.shape_internal_color = (92, 0, 0)
 
         self.draw_bounding_box = False
         self.aabb_color = (0, 0, 255)
@@ -49,9 +48,17 @@ class Render(object):
         self._image = None
         self._image_drawer = None
 
-    def _line(self, line, color, width=1):
+    def _line(self, line, width=1):
         xy = ((line.begin.x, line.begin.y), (line.end.x, line.end.y))
-        self._image_drawer.line(xy, color, width)
+        self._image_drawer.line(xy, self.shape_line_color, width)
+
+    def _polygon(self, polygon, outer=True):
+        if outer:
+            self._image_drawer.polygon(polygon, self.shape_color,
+                self.shape_line_color)
+        else:
+            self._image_drawer.polygon(polygon, self.image_background_color,
+                self.shape_line_color)
 
     def _bounding_box(self, bounding_box, color):
         lines = []
@@ -65,7 +72,7 @@ class Render(object):
                           Point(bounding_box.left, bounding_box.bottom)))
 
         for line in lines:
-            self._line(line, color)
+            self._line(line)
 
     def intersect(self, a, b):
         results = []
@@ -79,7 +86,7 @@ class Render(object):
                     int(result.x) + 1, int(result.y) + 1)
                 self._bounding_box(xy, self.intersect_color)
             elif isinstance(result, Line):
-                self._line(result, self.intersect_color, 3)
+                self._line(result, 3)
 
     def initialize(self):
         self._image = Image.new(self.image_mode, self.image_size,
@@ -87,17 +94,22 @@ class Render(object):
         self._image_drawer = ImageDraw.ImageDraw(self._image)
 
     def shape(self, shape):
+        poly = []
         for primitive in shape.outer_loop:
-            if isinstance(primitive, Line):
-                self._line(primitive, self.shape_external_color)
+            point = primitive.begin
+            poly.append((point.x, point.y))
+
+        self._polygon(poly)
+
+        for loop in shape.inner_loops:
+            poly = []
+            for primitive in loop:
+                point = primitive.begin
+                poly.append((point.x, point.y))
+            self._polygon(poly, False)
 
         if self.draw_bounding_box:
             self._bounding_box(shape.bounding_box, self.aabb_color)
-
-        for loop in shape.inner_loops:
-            for primitive in loop:
-                if isinstance(primitive, Line):
-                    self._line(primitive, self.shape_internal_color)
 
     def shapes(self, shapes):
         for shape in shapes:
