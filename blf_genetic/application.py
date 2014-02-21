@@ -319,7 +319,6 @@ def main():
     print "Running..."
     application.run()
 
-    print "Rendering..."
     application.population.sort(key=sort_by_fitness)
     sample_size = 10
     best_chromosomes = application.population[:sample_size]
@@ -339,6 +338,7 @@ def main():
 
     pool.wait_completion()
 
+    print "Rendering..."
     for i, sheetshape in enumerate(sheetshape_list):
         size = application.blf_data["profile"]["size"]
         render = Render()
