@@ -244,6 +244,14 @@ def command_line_arguments():
                         help="The proportion of the population that is "
                         "considered elite (this will be the next population) "
                         "(default: 0.5)")
+    parser.add_argument("-R", "--max_resolution", type=float, nargs=2,
+                        metavar="number", default=(100, 1),
+                        help="The max resolution used on Bottom-Left Algorithm "
+                        "(default: [100, 1])")
+    parser.add_argument("-r", "--min_resolution", type=float, nargs=2,
+                        metavar="number", default=(1, 1),
+                        help="The min resolution used on Bottom-Left Algorithm "
+                        "(default: [1, 1]")
     parser.add_argument("-j","--jobs", type=int, default=1,
                         help="The number of tasks to be executed in parallel "
                         "(default: 1)")
@@ -270,11 +278,6 @@ def main():
     reader = BLFReader()
     blf_data = reader.load(args.file)
 
-    resolution_list = ((200.0, 1.0), (100.0, 1.0), (50.0, 1.0), (25.0, 1.0),
-        (10.0, 1.0))
-    resolution_iterator = iter(resolution_list)
-    best_chromosomes = []
-
     application = BLFApplication()
     application.number_of_epochs = args.epochs
     application.crossover_probability = args.crossover_probability
@@ -283,8 +286,9 @@ def main():
     application.elite = args.elite
     application.population_size = args.population
     application.jobs = args.jobs
-    blf_data["resolution"] = resolution_iterator.next()
+    blf_data["resolution"] = args.max_resolution
     application.blf_data = blf_data
+    print args.min_resolution
 
     # Initial random population
     genes = range(len(application.blf_data["shapes"]))
@@ -302,38 +306,17 @@ def main():
     print "Running..."
     application.run()
 
-    for resolution in resolution_iterator:
-        application.blf_data["resolution"] = resolution
-
-        new_population = []
-        application.population.sort(key=lambda o: o.fitness)
-        best_chromosomes.append(copy.deepcopy(application.population[0]))
-        for chromosome in best_chromosomes:
-            chromosome_copy = copy.deepcopy(chromosome)
-            new_population.append(chromosome_copy)
-
-        random_population = create_random_population(
-            application.blf_data["shapes"], application.population_size)
-        for chromosome in random_population:
-            if len(new_population) < application.population_size:
-                new_population.append(chromosome)
-
-        application.population = new_population
-        application.run()
-
-    application.population.sort(key=lambda o: o.fitness)
-    best_chromosomes.append(copy.deepcopy(application.population[0]))
-
     print "Rendering..."
-    for i, chromosome in enumerate(best_chromosomes):
-        size = application.blf_data["profile"]["size"]
-        render = Render()
-        render.image_size = (int(size[0] + 1), int(size[1] + 1))
-        render.initialize()
-        application.blf_data["resolution"] = resolution_list[i]
-        render.shapes(chromosome.calculate_fitness(application.blf_data))
-        x, y = resolution_list[i]
-        render.save("{}_res_{}_{}.png".format(args.out, int(x), int(y)))
+    application.population.sort(key=lambda o: o.fitness)
+    chromosome = application.population[0]
+
+    size = application.blf_data["profile"]["size"]
+    render = Render()
+    render.image_size = (int(size[0] + 1), int(size[1] + 1))
+    render.initialize()
+    render.shapes(chromosome.calculate_fitness(application.blf_data))
+    x, y = application.blf_data["resolution"]
+    render.save("{}_res_{}_{}.png".format(args.out, int(x), int(y)))
 
     print "Saved."
 
