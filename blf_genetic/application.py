@@ -172,10 +172,9 @@ class BLFApplication(Application):
         for i in xrange(int(self.population_size * self.elite)):
             new_population.append(self.population[i])
 
-        self.next_population.sort(key=sort_by_fitness)
-        for i in xrange(len(self.next_population)):
+        for chromosome in self.next_population:
             if len(new_population) < self.population_size:
-                new_population.append(self.next_population[i])
+                new_population.append(chromosome)
             else:
                 break
 
