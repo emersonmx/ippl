@@ -270,7 +270,7 @@ def main():
     reader = BLFReader()
     blf_data = reader.load(args.file)
 
-    resolution_list = ((500.0, 1.0), (100.0, 1.0), (50.0, 1.0), (25.0, 1.0),
+    resolution_list = ((200.0, 1.0), (100.0, 1.0), (50.0, 1.0), (25.0, 1.0),
         (10.0, 1.0))
     resolution_iterator = iter(resolution_list)
     best_chromosomes = []
