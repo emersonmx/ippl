@@ -45,6 +45,12 @@ class BLFChromosome(Chromosome):
 
         return blf.sheetshape
 
+    def __eq__(self, other):
+        return self.genes == other.genes
+
+    def __hash__(self):
+        return hash(tuple(self.genes))
+
     def __radd__(self, other):
         return other.fitness + self.fitness
 
@@ -55,5 +61,8 @@ class BLFChromosome(Chromosome):
         return len(self.shapes)
 
     def __str__(self):
-        return "Genes: {} Fitness: {:.20f}".format(self.genes,
+        return "Chromosome genes {}, Fitness: {:.20f}".format(self.genes,
             self.fitness)
+
+    def __repr__(self):
+        return str(self)

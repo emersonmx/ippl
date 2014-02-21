@@ -19,12 +19,11 @@
 
 import random
 
-def roulette(population, max_value):
-    pick = random.uniform(0, max_value)
-    current = 0
-    for key, value in population.items():
-        current += value
-        if current > pick:
-            return key
+def roulette(fitness_list):
+    pick = random.uniform(0, sum(fitness_list))
+    for i, fitness in enumerate(fitness_list):
+        if pick <= 0:
+            break
+        pick -= fitness
 
-    return None
+    return i

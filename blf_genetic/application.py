@@ -38,6 +38,13 @@ def calculate_fitness(chromosome, key, cache, blf_data):
     cache[key] = fitness
     print "(Cache miss)", chromosome
 
+def calculate_sheetshape(chromosome, sheetshape_list, blf_data):
+    print "Calculating sheetshape for", chromosome
+    sheetshape = chromosome.calculate_fitness(blf_data)
+    print "Sheetshape for", chromosome, "calculated."
+    sheetshape_list.append(sheetshape)
+
+sort_by_fitness = lambda o: o.fitness
 
 class BLFApplication(Application):
 
@@ -46,6 +53,7 @@ class BLFApplication(Application):
 
         self._epoch = 0
         self.number_of_epochs = 100
+        self.best_chromosomes = set()
         self._best_fitness = -1
         self.population_size = 100
 
@@ -75,6 +83,9 @@ class BLFApplication(Application):
 
         self.calculate_all_fitness(self.population)
 
+    def finalize(self):
+        self.population.sort(key=sort_by_fitness)
+
     def running(self):
         return self._epoch < self.number_of_epochs
 
@@ -82,15 +93,16 @@ class BLFApplication(Application):
         PARENT_NUMBER = 2
 
         max_fitness = self.population[-1].fitness
-        choices = {
-            chromosome: (max_fitness - chromosome.fitness + 1)
-                for chromosome in self.population
-        }
+        fitness_list = [
+            max_fitness - chromosome.fitness + 1
+                for chromosome in reversed(self.population)
+        ]
 
         parents = []
         i = 0
         while i < PARENT_NUMBER:
-            chromosome = select.roulette(choices, max_fitness)
+            index = (self.population_size - 1) - select.roulette(fitness_list)
+            chromosome = self.population[index]
             if chromosome != None:
                 parents.append(chromosome)
                 i += 1
@@ -160,7 +172,7 @@ class BLFApplication(Application):
         for i in xrange(int(self.population_size * self.elite)):
             new_population.append(self.population[i])
 
-        self.next_population.sort(key=lambda o: o.fitness)
+        self.next_population.sort(key=sort_by_fitness)
         for i in xrange(len(self.next_population)):
             if len(new_population) < self.population_size:
                 new_population.append(self.next_population[i])
@@ -193,7 +205,8 @@ class BLFApplication(Application):
             key = tuple(chromosome.genes)
             chromosome.fitness = self.fitness_cache[key]
 
-        self.population.sort(key=lambda o: o.fitness)
+        self.population.sort(key=sort_by_fitness)
+        self.best_chromosomes.add(self.population[0])
         self._best_fitness = self.population[0].fitness
         print "Done!"
 
@@ -240,7 +253,7 @@ def command_line_arguments():
                         metavar="quantity", default=1,
                         help="The quantity of genes to be mutated (default: 1)")
     parser.add_argument("-E", "--elite", type=float,
-                        metavar="ratio", default=0.5,
+                        metavar="ratio", default=0.0,
                         help="The proportion of the population that is "
                         "considered elite (this will be the next population) "
                         "(default: 0.5)")
@@ -307,16 +320,34 @@ def main():
     application.run()
 
     print "Rendering..."
-    application.population.sort(key=lambda o: o.fitness)
-    chromosome = application.population[0]
+    application.population.sort(key=sort_by_fitness)
+    sample_size = 10
+    best_chromosomes = application.population[:sample_size]
 
-    size = application.blf_data["profile"]["size"]
-    render = Render()
-    render.image_size = (int(size[0] + 1), int(size[1] + 1))
-    render.initialize()
-    render.shapes(chromosome.calculate_fitness(application.blf_data))
-    x, y = application.blf_data["resolution"]
-    render.save("{}_res_{}_{}.png".format(args.out, int(x), int(y)))
+    sheetshape_list = Manager().list()
+    pool = ProcessPool(args.jobs)
+    best_chromosomes = list(application.best_chromosomes)
+    best_chromosomes.sort(key=sort_by_fitness)
+
+    for chromosome in best_chromosomes[:sample_size]:
+        blf_data["resolution"] = args.max_resolution
+        pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
+            blf_data)
+        blf_data["resolution"] = args.min_resolution
+        pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
+            blf_data)
+
+    pool.wait_completion()
+
+    for i, sheetshape in enumerate(sheetshape_list):
+        size = application.blf_data["profile"]["size"]
+        render = Render()
+        render.image_size = (int(size[0] + 1), int(size[1] + 1))
+        render.initialize()
+
+        render.shapes(sheetshape)
+
+        render.save("{}_{:02}.png".format(args.out, i))
 
     print "Saved."
 
