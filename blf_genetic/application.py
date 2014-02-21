@@ -63,12 +63,12 @@ class BLFApplication(Application):
         self.blf_data = None
         self.fitness_cache = None
 
-        self._verbose = True
-
     def initialize(self):
         self.show_configuration()
 
         self._epoch = 0
+        self._best_fitness = -1
+        self.next_population = []
         self.fitness_cache = Manager().dict()
 
         self.pool = ProcessPool(self.jobs)
@@ -321,15 +321,19 @@ def main():
         application.population = new_population
         application.run()
 
+    application.population.sort(key=lambda o: o.fitness)
+    best_chromosomes.append(copy.deepcopy(application.population[0]))
+
     print "Rendering..."
     for i, chromosome in enumerate(best_chromosomes):
         size = application.blf_data["profile"]["size"]
         render = Render()
         render.image_size = (int(size[0] + 1), int(size[1] + 1))
         render.initialize()
+        application.blf_data["resolution"] = resolution_list[i]
         render.shapes(chromosome.calculate_fitness(application.blf_data))
         x, y = resolution_list[i]
-        render.save("{}_res_{}_{}.png".format(args.out, x, y))
+        render.save("{}_res_{}_{}.png".format(args.out, int(x), int(y)))
 
     print "Saved."
 
