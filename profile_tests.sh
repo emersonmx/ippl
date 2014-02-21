@@ -1,5 +1,7 @@
 #! /bin/bash
 
+export PYTHONPATH=.
+
 default="-p 20 -e 500 -c 1.0 -E 0.1 -j 5"
 
 # profile 7
