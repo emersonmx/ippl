@@ -19,11 +19,12 @@
 
 import random
 
-def roulette(fitness_list):
-    pick = random.uniform(0, sum(fitness_list))
-    for i, fitness in enumerate(fitness_list):
-        if pick <= 0:
-            break
-        pick -= fitness
+def roulette(partition):
+    pick = random.uniform(0, 1)
+    current = 0
+    for i in xrange(len(partition)):
+        current += partition[i]
+        if pick <= current:
+            return i
 
-    return i
+    return 0

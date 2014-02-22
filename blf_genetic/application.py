@@ -92,20 +92,17 @@ class BLFApplication(Application):
     def select(self):
         PARENT_NUMBER = 2
 
-        max_fitness = self.population[-1].fitness
-        fitness_list = [
-            max_fitness - chromosome.fitness + 1
-                for chromosome in reversed(self.population)
-        ]
+        worst = self.population[-1].fitness
+        relative = [(worst / float(chromosome.fitness))
+            for chromosome in self.population]
+        sumation = sum(relative)
+        partition = [(float(i) / sumation) for i in relative]
 
         parents = []
-        i = 0
-        while i < PARENT_NUMBER:
-            index = (self.population_size - 1) - select.roulette(fitness_list)
-            chromosome = self.population[index]
-            if chromosome != None:
+        while len(parents) < PARENT_NUMBER:
+            chromosome = self.population[select.roulette(partition)]
+            if chromosome not in parents:
                 parents.append(chromosome)
-                i += 1
 
         return parents
 
@@ -318,37 +315,38 @@ def main():
     print "Running..."
     application.run()
 
-    application.population.sort(key=sort_by_fitness)
-    sample_size = 10
-    best_chromosomes = application.population[:sample_size]
-
-    sheetshape_list = Manager().list()
-    pool = ProcessPool(args.jobs)
     best_chromosomes = list(application.best_chromosomes)
     best_chromosomes.sort(key=sort_by_fitness)
+    for chromosome in best_chromosomes:
+        print chromosome
+    #sample_size = 10
+    #sheetshape_list = Manager().list()
+    #pool = ProcessPool(args.jobs)
+    #best_chromosomes = list(application.best_chromosomes)
+    #best_chromosomes.sort(key=sort_by_fitness)
 
-    for chromosome in best_chromosomes[:sample_size]:
-        blf_data["resolution"] = args.max_resolution
-        pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
-            blf_data)
-        blf_data["resolution"] = args.min_resolution
-        pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
-            blf_data)
+    #for chromosome in best_chromosomes[:sample_size]:
+    #    blf_data["resolution"] = args.max_resolution
+    #    pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
+    #        blf_data)
+    #    blf_data["resolution"] = args.min_resolution
+    #    pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
+    #        blf_data)
 
-    pool.wait_completion()
+    #pool.wait_completion()
 
-    print "Rendering..."
-    for i, sheetshape in enumerate(sheetshape_list):
-        size = application.blf_data["profile"]["size"]
-        render = Render()
-        render.image_size = (int(size[0] + 1), int(size[1] + 1))
-        render.initialize()
+    #print "Rendering..."
+    #for i, sheetshape in enumerate(sheetshape_list):
+    #    size = application.blf_data["profile"]["size"]
+    #    render = Render()
+    #    render.image_size = (int(size[0] + 1), int(size[1] + 1))
+    #    render.initialize()
 
-        render.shapes(sheetshape)
+    #    render.shapes(sheetshape)
 
-        render.save("{}_{:02}.png".format(args.out, i))
+    #    render.save("{}_{:02}.png".format(args.out, i))
 
-    print "Saved."
+    #print "Saved."
 
 if __name__ == "__main__":
     main()
