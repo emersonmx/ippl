@@ -315,38 +315,34 @@ def main():
     print "Running..."
     application.run()
 
+    sample_size = 10
+    sheetshape_list = Manager().list()
+    pool = ProcessPool(args.jobs)
     best_chromosomes = list(application.best_chromosomes)
     best_chromosomes.sort(key=sort_by_fitness)
-    for chromosome in best_chromosomes:
-        print chromosome
-    #sample_size = 10
-    #sheetshape_list = Manager().list()
-    #pool = ProcessPool(args.jobs)
-    #best_chromosomes = list(application.best_chromosomes)
-    #best_chromosomes.sort(key=sort_by_fitness)
 
-    #for chromosome in best_chromosomes[:sample_size]:
-    #    blf_data["resolution"] = args.max_resolution
-    #    pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
-    #        blf_data)
-    #    blf_data["resolution"] = args.min_resolution
-    #    pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
-    #        blf_data)
+    for chromosome in best_chromosomes[:sample_size]:
+        blf_data["resolution"] = args.max_resolution
+        pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
+            blf_data)
+        blf_data["resolution"] = args.min_resolution
+        pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
+            blf_data)
 
-    #pool.wait_completion()
+    pool.wait_completion()
 
-    #print "Rendering..."
-    #for i, sheetshape in enumerate(sheetshape_list):
-    #    size = application.blf_data["profile"]["size"]
-    #    render = Render()
-    #    render.image_size = (int(size[0] + 1), int(size[1] + 1))
-    #    render.initialize()
+    print "Rendering..."
+    for i, sheetshape in enumerate(sheetshape_list):
+        size = application.blf_data["profile"]["size"]
+        render = Render()
+        render.image_size = (int(size[0] + 1), int(size[1] + 1))
+        render.initialize()
 
-    #    render.shapes(sheetshape)
+        render.shapes(sheetshape)
 
-    #    render.save("{}_{:02}.png".format(args.out, i))
+        render.save("{}_{:02}.png".format(args.out, i))
 
-    #print "Saved."
+    print "Saved."
 
 if __name__ == "__main__":
     main()
