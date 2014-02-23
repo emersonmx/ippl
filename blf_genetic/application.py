@@ -227,7 +227,7 @@ def command_line_arguments():
                         help="The file containing the data of the forms")
     parser.add_argument("-o", "--out", type=str, default="out",
                         metavar="filename",
-                        help="The output image (default: out.png)")
+                        help="The output image (default: out)")
     parser.add_argument("-e", "--epochs", type=int, default=100,
                         metavar="quantity",
                         help="The number of epochs that the genetic algorithm "
@@ -252,7 +252,7 @@ def command_line_arguments():
                         metavar="ratio", default=0.0,
                         help="The proportion of the population that is "
                         "considered elite (this will be the next population) "
-                        "(default: 0.5)")
+                        "(default: 0.0)")
     parser.add_argument("-R", "--max_resolution", type=float, nargs=2,
                         metavar="number", default=(100, 1),
                         help="The max resolution used on Bottom-Left Algorithm "
