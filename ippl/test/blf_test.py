@@ -22,6 +22,10 @@ import time
 from ippl.bottom_left_fill import *
 from ippl.reader import *
 
+def sort_by_area(shapes):
+    shape = shapes[0]
+    return shape.calculate_area()
+
 if __name__ == "__main__":
     print "Loading data..."
     t = time.time()
@@ -37,6 +41,11 @@ if __name__ == "__main__":
     sheetshape_rectangle = Rectangle(0, 0, size[0] + 1, size[1] + 1)
     blf.sheetshape.rectangle = sheetshape_rectangle
     blf.shapes = blf_data["shapes"]
+    blf.shapes.sort(key=sort_by_area, reverse=True)
+
+    for shapes in blf.shapes:
+        shape = shapes[0]
+        print "Shape {} area {}".format(shape.id, shape.calculate_area())
 
     print "Initializing BLF time: {:.20f}".format(time.time() - t)
     print len(blf.shapes)

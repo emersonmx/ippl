@@ -127,6 +127,26 @@ class Shape(object):
 
         self.bounding_box = bounding_box
 
+    def calculate_area(self):
+        area = self._calculate_area(self.outer_loop)
+        for loop in self.inner_loops:
+            area -= self._calculate_area(loop)
+
+        return area
+
+    def _calculate_area(self, loop):
+        size = len(loop)
+        sum_xy = 0.0
+        sum_yx = 0.0
+
+        for i in xrange(size):
+            first = loop[i].begin
+            second = loop[(i + 1) % size].begin
+            sum_xy += first.x * second.y
+            sum_yx += first.y * second.x
+
+        return abs((sum_xy - sum_yx) / 2.0)
+
     def outer_loop_iterator(self):
         for primitive in self.outer_loop:
             yield primitive

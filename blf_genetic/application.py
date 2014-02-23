@@ -267,7 +267,7 @@ def command_line_arguments():
 
     return parser.parse_args()
 
-def create_random_population(shapes, population_size):
+def create_initial_population(shapes, population_size):
     population = []
     genes = range(len(shapes))
     random.shuffle(genes)
@@ -297,7 +297,6 @@ def main():
     application.jobs = args.jobs
     blf_data["resolution"] = args.max_resolution
     application.blf_data = blf_data
-    print args.min_resolution
 
     # Initial random population
     genes = range(len(application.blf_data["shapes"]))
@@ -309,7 +308,7 @@ def main():
         application.population.append(chromosome)
         random.shuffle(genes)
 
-    application.population = create_random_population(
+    application.population = create_initial_population(
         application.blf_data["shapes"], application.population_size)
 
     print "Running..."

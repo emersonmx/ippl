@@ -82,6 +82,7 @@ class BLFReader(object):
 
     @staticmethod
     def create_loop(point_list):
+        point_list.reverse()
         loop = []
         size = len(point_list)
 
