@@ -1,4 +1,9 @@
-Execução
+# Irregular Packing Problem Library
+
+A biblioteca ippl, foi criada para auxiliar no desenvolvimento de aplicações
+voltadas para o problema de empacotamento de formas irregulares.
+
+## Execução
 
 Primeiro vá para o diretório raiz do projeto (onde está este README).
 Defina o PYTHONPATH para a pasta atual com o comando abaixo.
@@ -14,7 +19,7 @@ comando.
 
 $ python blf_genetic/application.py -h
 
-Limpeza
+## Limpeza
 
 Na raiz do projeto há dois scripts de limpeza, uma para limpar a construção do
 cython e outro para limpar os logs e as imagens dos testes. O dos testes tem o
