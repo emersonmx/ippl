@@ -1,9 +1,15 @@
 *.orig
 *.pyc
 *.swp
+*~
 *.dat
 .vimsession
 .vimproject
 *.log
 *.png
+tags
+*.c
+*.so
+*.o
 
+*.orig
