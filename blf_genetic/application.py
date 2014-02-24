@@ -45,6 +45,9 @@ def calculate_sheetshape(chromosome, sheetshape_list, blf_data):
     sheetshape_list.append(sheetshape)
 
 sort_by_fitness = lambda o: o.fitness
+sort_by_area = lambda s: s[0].calculate_area()
+sort_by_length = lambda s: s[0].bounding_box.size()[0]
+
 
 class BLFApplication(Application):
 
@@ -270,11 +273,17 @@ def command_line_arguments():
 def create_initial_population(shapes, population_size):
     population = []
     genes = range(len(shapes))
-    random.shuffle(genes)
 
-    for _ in xrange(population_size):
+    chromosome = BLFChromosome()
+    chromosome.genes = copy.copy(genes)
+    chromosome.shapes = shapes
+    population.append(chromosome)
+
+    random.shuffle(genes)
+    while len(population) < population_size:
         chromosome = BLFChromosome()
         chromosome.genes = copy.copy(genes)
+        chromosome.shapes = shapes
         population.append(chromosome)
         random.shuffle(genes)
 
@@ -286,6 +295,8 @@ def main():
     print "Loading data from file \"{}\"".format(args.file)
     reader = BLFReader()
     blf_data = reader.load(args.file)
+
+    blf_data["shapes"].sort(key=sort_by_length, reverse=True)
 
     application = BLFApplication()
     application.number_of_epochs = args.epochs
@@ -299,15 +310,6 @@ def main():
     application.blf_data = blf_data
 
     # Initial random population
-    genes = range(len(application.blf_data["shapes"]))
-    random.shuffle(genes)
-
-    for _ in xrange(application.population_size):
-        chromosome = BLFChromosome()
-        chromosome.genes = copy.copy(genes)
-        application.population.append(chromosome)
-        random.shuffle(genes)
-
     application.population = create_initial_population(
         application.blf_data["shapes"], application.population_size)
 
@@ -321,10 +323,6 @@ def main():
     best_chromosomes.sort(key=sort_by_fitness)
 
     for chromosome in best_chromosomes[:sample_size]:
-        blf_data["resolution"] = args.max_resolution
-        pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
-            blf_data)
-        blf_data["resolution"] = args.min_resolution
         pool.add_process(calculate_sheetshape, chromosome, sheetshape_list,
             blf_data)
 
