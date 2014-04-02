@@ -337,7 +337,9 @@ def main():
 
         render.shapes(sheetshape)
 
-        render.save("{}_{:02}.png".format(args.out, i))
+        filename = "{}_{:02}.png".format(args.out, i)
+        print "File \"{}\" - {}".format(filename, sheetshape.bounding_box)
+        render.save(filename)
 
     print "Saved."
 
