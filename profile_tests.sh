@@ -2,7 +2,7 @@
 
 export PYTHONPATH=.
 
-default="-p 20 -e 500 -c 1.0 -E 0.1 -j 5"
+default="-p 20 -e 500 -E 0.1 -R 10 1 -j 5"
 
 # profile 7
 basename="profile7"
